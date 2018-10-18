@@ -1,0 +1,34 @@
+  if (not pDataCadastro.isNull) then
+ ('Protocolo.allInstances->select( p | (p.Data_Entrada >= #' + pDataCadastro.FormatDateTime('yyyy-MM-dd') + ') and (p.Data_Entrada <= #' + pDataCadastro.FormatDateTime('yyyy-MM-dd') + 'T23:59:59))').EnsureObjects(Protocolo)->select( p |
+      if pUnidade->notEmpty then pUnidade->exists( u | u = p.Unidade ) else true endif
+      and
+      
+if pOnlyProtsPrintable then 
+  p.Procedimentos->select( x| (Status = 'Liberado') or (Status = 'Impresso') or (Status = 'Entregue') or (Status = 'Coletando.Coletado')  )->size = p.Procedimentos->size
+else 
+  p.Procedimentos->exists( x| x.trStatusImpresso? or ((Status = 'Impresso') and pReImpressao) )
+endif
+
+      and 
+      (
+        p.Procedimentos->exists( x | 
+          (x.Convenio_Plano.Convenio = pConvenio) 
+        )
+      )
+    )
+  else
+    if (pDataDigitacao.isNull) and (pDataLiberacao.isNull) then
+      Protocolo.allLoadedObjects->select(p | if pUnidade->notEmpty then pUnidade->exists( u | u = p.Unidade ) else true endif and (p.Procedimentos->exists(x | ((x.trStatusImpresso?) or ((Status = 'Impresso') and (pReImpressao))) and (x.Convenio_Plano.Convenio = pConvenio))))
+    else
+      if (not pDataDigitacao.isNull) then
+        Protocolo.allLoadedObjects->select(p | if pUnidade->notEmpty then pUnidade->exists( u | u = p.Unidade ) else true endif and (Data_Entrada.FormatDateTime('dd/MM/yyyy') = pDataDigitacao.FormatDateTime('dd/MM/yyyy')) and (p.Procedimentos->exists(x | ((x.trStatusImpresso?) or ((Status = 'Impresso') and (pReImpressao))) and (x.Convenio_Plano.Convenio = pConvenio))))
+      else
+        if (not pDataLiberacao.isNull) then
+          Protocolo.allLoadedObjects->select(p | if pUnidade->notEmpty then pUnidade->exists( u | u = p.Unidade ) else true endif and (p.Procedimentos->exists(x | ((x.trStatusImpresso?) or ((Status = 'Impresso') and (pReImpressao))) and (x.Convenio_Plano.Convenio = pConvenio) and (Data_Liberacao.FormatDateTime('dd/MM/yyyy') = pDataLiberacao.FormatDateTime('dd/MM/yyyy')))))
+        else
+          Protocolo.allLoadedObjects->select(p | if pUnidade->notEmpty then pUnidade->exists( u | u = p.Unidade ) else true endif and (p.Procedimentos->exists(x | ((x.trStatusImpresso?) or ((Status = 'Impresso') and (pReImpressao))) and (x.Convenio_Plano.Convenio = pConvenio))))
+        endif
+      endif
+    endif
+  endif
+
