@@ -1,0 +1,14 @@
+('
+Protocolo_Procedimento.allInstances->select( pp |
+  (pp.Data_Recepcao >= #2018-09-25)
+  and
+  (pp.Data_Recepcao <= #2018-10-23T23:59:59)
+  and
+  pp.Convenio_Plano.Convenio.Nome.sqlLikeCaseInsensitive(\'%adubo%\')
+)
+').EnsureObjects(Protocolo_Procedimento)
+->select( pp | (pp.StateFatura.asString = 'Arquivado') )
+->collect( pp |
+  pp.trFaturaFaturado
+  ;pp.trFaturaAberto
+)
