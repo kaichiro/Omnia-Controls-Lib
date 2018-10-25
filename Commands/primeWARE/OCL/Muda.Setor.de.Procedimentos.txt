@@ -1,0 +1,4 @@
+let setorDestino = 'Setor.allInstances->select( s | s.Descricao = \'SC HORMONIO\' )'.EnsureObjects(Setor) in (
+'Setor.allInstances->select( s | s.Descricao = \'SC HP\' )'.EnsureObjects(Setor)
+.EnsureRelatedObjects(Procedimento,'Procedimentos')
+->collect( p | p.Setor := setorDestino ))
