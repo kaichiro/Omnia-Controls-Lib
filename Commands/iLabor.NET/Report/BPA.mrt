@@ -75,7 +75,7 @@ order by f.Data_Teto asc</SqlCommand>
           <value>_12_prd_ibge,System.String</value>
           <value>_13_prd_cid,System.String</value>
           <value>_14_prd_idade,System.Decimal</value>
-          <value>_15_prd_qt,System.String</value>
+          <value>_15_prd_qt,System.Double</value>
           <value>_17_prd_naut,System.String</value>
           <value>_18_prd_org,System.String</value>
           <value>_19_prd_nmpac,System.String</value>
@@ -102,7 +102,7 @@ order by f.Data_Teto asc</SqlCommand>
         <Parameters isList="true" count="0" />
         <SqlCommand>set dateformat ymd;
 
-select distinct
+select
 	'03' _01_prd_ident
 	, convert(varchar, p.Data_Entrada ,112) _03_prd_cmp
 	, convert(varchar, p.Data_Entrada ,112) _06_prd_dtaten
@@ -111,7 +111,7 @@ select distinct
 	, '3304201' _12_prd_ibge
 	, '' _13_prd_cid
 	, p.Idade _14_prd_idade
-	, (select replace(str(sum(pp_.Quantidade)),' ','') from Protocolo_Procedimento pp_ where pp_.Protocolo = p.ECO_ID) _15_prd_qt
+	, pp.Quantidade _15_prd_qt
 	, '' _17_prd_naut
 	, 'BPA' _18_prd_org
 	, pac.Nome _19_prd_nmpac
@@ -528,15 +528,31 @@ char varEspaco = ' ';
 
 using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true))
 {
+	string _06_cbc_smt_vrf_string = string.Empty;
+	int codProc = int.Parse(cb_09_prd_pa.SelectedItem.ToString().PadLeft(10, varZero).Substring(0,10));
+	System.Int64 _06_cbc_smt_vrf_Int64 = 0;
+	const int DIVISOR = 1111;
+
+	dsProtooclosProcedimentos.First();
+	while(!dsProtooclosProcedimentos.IsEof)
+	{
+		_06_cbc_smt_vrf_Int64 += (System.Int64) (codProc + dsProtooclosProcedimentos._15_prd_qt);
+		dsProtooclosProcedimentos.Next();
+	}
+
+	_06_cbc_smt_vrf_string = ((_06_cbc_smt_vrf_Int64 % DIVISOR) + DIVISOR).ToString();
+
+
+
 	System.Text.StringBuilder linhaCabecalho = new System.Text.StringBuilder();
 
 	/*  1 */ linhaCabecalho.Append("01");
 	/*  2 */ linhaCabecalho.Append("#BPA#");
 	/*  3 */ linhaCabecalho.Append(string.Format("{0:yyyyMM}", dsListaFatura.Data_Teto));
-	/*  4 */ linhaCabecalho.Append((99).ToString().PadLeft(6, varZero)); /* &lt;&lt;&lt; pendnete &gt;&gt;&gt; */
-	/*  5 */ linhaCabecalho.Append((99).ToString().PadLeft(6, varZero)); /* &lt;&lt;&lt; pendente &gt;&gt;&gt; */
-	/*  6 */ 	linhaCabecalho.Append("1111"); /* pendente */
-	/*  7 */ linhaCabecalho.Append(("Santa Casa de Misericórdia").PadRight(30, varEspaco).Substring(0,30)); /* pendente */
+	/*  4 */ linhaCabecalho.Append((99).ToString().PadLeft(6, varZero)); 
+	/*  5 */ linhaCabecalho.Append((99).ToString().PadLeft(6, varZero)); 
+	/*  6 */ 	linhaCabecalho.Append(_06_cbc_smt_vrf_Int64.ToString().PadLeft(4, varZero).Substring(0,4)); /* pendente */
+	/*  7 */ linhaCabecalho.Append(("Santa Casa de Misericórdia").PadRight(30, varEspaco).Substring(0,30)); 
 	/*  8 */ linhaCabecalho.Append(("TFD").PadRight(6, varEspaco).Substring(0,6));
 	/*  9 */ linhaCabecalho.Append(("29178233000160").ToString().PadLeft(14, varZero).Substring(0,14));
 	/* 10 */ linhaCabecalho.Append(("SECRETARIA MUNICIPAL DE SAUDE DE RESENDE").PadRight(40, varEspaco).Substring(0,40));
@@ -545,6 +561,7 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
 
 	sw.WriteLine(linhaCabecalho.ToString());
 
+	dsProtooclosProcedimentos.First();
 	while(!dsProtooclosProcedimentos.IsEof)
 	{
 		System.Text.StringBuilder linhaItem = new System.Text.StringBuilder();
@@ -563,7 +580,7 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
 		/* 12 */ linhaItem.Append(dsProtooclosProcedimentos._12_prd_ibge.PadLeft(6, varZero).Substring(0,6));
 		/* 13 */ linhaItem.Append(dsProtooclosProcedimentos._13_prd_cid.PadLeft(4, varEspaco).Substring(0,4));
 		/* 14 */ linhaItem.Append(dsProtooclosProcedimentos._14_prd_idade.ToString().PadLeft(3, varZero).Substring(0,3));
-		/* 15 */ linhaItem.Append(dsProtooclosProcedimentos._15_prd_qt.PadLeft(6, varZero).Substring(0,6));
+		/* 15 */ linhaItem.Append(dsProtooclosProcedimentos._15_prd_qt.ToString().PadLeft(6, varZero).Substring(0,6));
 		/* 16 */ linhaItem.Append(cb_16_prd_caten.SelectedItem.ToString().PadLeft(2, varZero).Substring(0,2));
 		/* 17 */ linhaItem.Append(dsProtooclosProcedimentos._17_prd_naut.PadLeft(13, varEspaco).Substring(0,13));
 		/* 18 */ linhaItem.Append(dsProtooclosProcedimentos._18_prd_org);
@@ -634,9 +651,9 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>BPA</ReportAlias>
-  <ReportChanged>10/30/2018 3:32:14 PM</ReportChanged>
+  <ReportChanged>10/31/2018 9:24:56 AM</ReportChanged>
   <ReportCreated>10/29/2018 9:53:19 AM</ReportCreated>
-  <ReportGuid>c3cbec013c7744d18708d4c7a0c51ea2</ReportGuid>
+  <ReportGuid>6cdb016b66914a3890d5daa9fc1e3fd0</ReportGuid>
   <ReportName>BPA</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2007.3.100</ReportVersion>
