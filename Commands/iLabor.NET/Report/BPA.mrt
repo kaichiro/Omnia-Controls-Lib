@@ -66,13 +66,33 @@ order by f.Data_Teto asc</SqlCommand>
       </dsListaFatura>
       <dsProtooclosProcedimentos Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
         <Alias>dsProtooclosProcedimentos</Alias>
-        <Columns isList="true" count="6">
-          <value>Quantidade,System.Double</value>
-          <value>Mnemonico,System.String</value>
-          <value>Procedimento,System.String</value>
-          <value>Data_Entrada,System.DateTime</value>
-          <value>Numero_Protocolo,System.String</value>
-          <value>Paciente,System.String</value>
+        <Columns isList="true" count="26">
+          <value>_01_prd_ident,System.String</value>
+          <value>_03_prd_cmp,System.String</value>
+          <value>_06_prd_dtaten,System.String</value>
+          <value>_10_prd_cnspac,System.String</value>
+          <value>_11_prd_sexo,System.String</value>
+          <value>_12_prd_ibge,System.String</value>
+          <value>_13_prd_cid,System.String</value>
+          <value>_14_prd_idade,System.Decimal</value>
+          <value>_15_prd_qt,System.Double</value>
+          <value>_17_prd_naut,System.String</value>
+          <value>_18_prd_org,System.String</value>
+          <value>_19_prd_nmpac,System.String</value>
+          <value>_20_prd_dtnasc,System.String</value>
+          <value>_21_prd_raca,System.String</value>
+          <value>_22_prd_etnia,System.String</value>
+          <value>_23_prd_nac,System.String</value>
+          <value>_24_prd_srv,System.String</value>
+          <value>_29_prd_cep_pcnte,System.String</value>
+          <value>_30_prd_lograd_pcnte,System.String</value>
+          <value>_31_prd_end_pcnte,System.String</value>
+          <value>_32_prd_compl_pcnte,System.String</value>
+          <value>_33_prd_num_pcnte,System.String</value>
+          <value>_34_prd_bairro_pcnte,System.String</value>
+          <value>_35_prd_ddtel_pcnte,System.String</value>
+          <value>_36_prd_email_pcnte,System.String</value>
+          <value>_37_prd_ine,System.String</value>
         </Columns>
         <CommandTimeout>30</CommandTimeout>
         <ConnectOnStart>False</ConnectOnStart>
@@ -83,18 +103,39 @@ order by f.Data_Teto asc</SqlCommand>
         <SqlCommand>set dateformat ymd;
 
 select
-pp.Quantidade
-, prc.Mnemonico
-, prc.Descricao Procedimento
-, p.Data_Entrada
-, p.Numero_Protocolo
-, pac.Nome Paciente
+	'03' _01_prd_ident
+	, convert(varchar, p.Data_Entrada ,112) _03_prd_cmp
+	, convert(varchar, p.Data_Entrada ,112) _06_prd_dtaten
+	, pac.Matricula_Convenio _10_prd_cnspac
+    , case when pac.Sexo like '%Masculino' then 'M' else 'F' end _11_prd_sexo
+	, '3304201' _12_prd_ibge
+	, '' _13_prd_cid
+	, p.Idade _14_prd_idade
+	, pp.Quantidade _15_prd_qt
+	, '' _17_prd_naut
+	, 'BPA' _18_prd_org
+	, pac.Nome _19_prd_nmpac
+	, convert(varchar, pac.Data_Nascimento ,112) _20_prd_dtnasc
+	, '99' _21_prd_raca
+	, '' _22_prd_etnia
+	, '010' _23_prd_nac
+	, '' _24_prd_srv
+	, e.CEP _29_prd_cep_pcnte
+	, '' _30_prd_lograd_pcnte
+	, e.Endereco_Linha1 _31_prd_end_pcnte
+	, e.Endereco_Linha1 _32_prd_compl_pcnte
+	, e.Numero _33_prd_num_pcnte
+	, e.Bairro _34_prd_bairro_pcnte
+	, p.Celular + cast(e.Telefones as varchar(25)) _35_prd_ddtel_pcnte
+	, e.email _36_prd_email_pcnte	
+	, '' _37_prd_ine
 from Fatura f
 inner join Fatura_Procedimento fp on f.ECO_ID = fp.Fatura
 inner join Protocolo_Procedimento pp on fp.Protocolo_Procedimento = pp.ECO_ID
 inner join Procedimento prc on pp.Procedimento = prc.ECO_ID
 inner join Protocolo p on pp.Protocolo = p.ECO_ID
 inner join Paciente pac on p.Paciente = pac.ECO_ID
+left join Endereco e on pac.ECO_ID = e.ECO_ID
 where f.ECO_ID in ({idsFaturas})</SqlCommand>
       </dsProtooclosProcedimentos>
     </DataSources>
@@ -110,87 +151,12 @@ where f.ECO_ID in ({idsFaturas})</SqlCommand>
   <Pages isList="true" count="1">
     <Form1 Ref="6" type="Stimulsoft.Report.ReportControls.StiForm" isKey="true">
       <BackColor>Control</BackColor>
-      <Components isList="true" count="3">
-        <Button1 Ref="7" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
-          <ClickEvent>string vFt1 = "";
-
-	for(int i = 0; i &lt; clbFaturas.Control.CheckedItems.Count; i++)
-	{	
-		dsListaFatura.First();
-		while(!dsListaFatura.IsEof)
-		{	
-			if(clbFaturas.Control.CheckedItems[i].ToString() == dsListaFatura.Entity) 
-			{	
-				vFt1 += (vFt1 != "" ? ", " : "") + dsListaFatura.idFatura.ToString();
-			}
-			dsListaFatura.Next();
-		}
-	}
-
-
-
-idsFaturas = vFt1;
-
-dsProtooclosProcedimentos.Connect();
-dsProtooclosProcedimentos.First();
-
-string FileName = string.Format("{0:yyyy.MM.dd-HH.mm.ss}.bpa", DateTime.Now);
-string FullFileName = dsAparelhoBPA.ExportFolder+"\\"+FileName;
-
-char varZero = '0';
-char varEspaco = ' ';
-
-using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true))
-{
-	string linhaCabecalho = 
-		"01"
-		+ "#BPA#"
-		+ string.Format("{0:yyyyMM}", dsListaFatura.Data_Teto)
-		+ (25).ToString().PadLeft(6, varZero) /* pendnete */
-		+ (1).ToString().PadLeft(6, varZero) /* pendente */
-		+ "1111" /* pendente */
-//		+ ("Santa Casa de Misericórdia").PadRigth(30, varEspaco) /* pendente */
-		+ "SCM" /*  */
-		+ ("12345678912").ToString().PadLeft(14, varZero)
-//		+ ("Nome do órgão de saúde destino do arq").PadRight(40, varEspaco) /* pendente */
-		;
-	sw.WriteLine(linhaCabecalho);
-
-	while(!dsProtooclosProcedimentos.IsEof)
-	{
-		sw.WriteLine(
-			dsProtooclosProcedimentos.Mnemonico 
-			+ " - " + 
-			dsProtooclosProcedimentos.Procedimento
-			+ " - " + 
-			dsProtooclosProcedimentos.Data_Entrada.ToString()
-			+ " - " + 
-			dsProtooclosProcedimentos.Numero_Protocolo
-			+ " - " + 
-			dsProtooclosProcedimentos.Paciente
-		);
-		dsProtooclosProcedimentos.Next();
-	}
-
-	sw.Close();
-	MessageBox.Show("Arquivo BPA gerado (" + FullFileName + ") com sucesso!");
-}</ClickEvent>
-          <ClientRectangle>248,320,96,24</ClientRectangle>
-          <Components isList="true" count="0" />
-          <Font>Microsoft Sans Serif,8</Font>
-          <ForeColor>Black</ForeColor>
-          <Location>248, 320</Location>
-          <Name>Button1</Name>
-          <Page isRef="6" />
-          <Parent isRef="6" />
-          <Size>96, 24</Size>
-          <Text>Gerar arquivo</Text>
-        </Button1>
-        <GroupBox1 Ref="8" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
+      <Components isList="true" count="6">
+        <GroupBox1 Ref="7" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
           <BackColor>Control</BackColor>
-          <ClientRectangle>8,8,336,80</ClientRectangle>
+          <ClientRectangle>8,8,432,56</ClientRectangle>
           <Components isList="true" count="5">
-            <Label1 Ref="9" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+            <Label1 Ref="8" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
               <BackColor>Control</BackColor>
               <ClientRectangle>16,24,40,16</ClientRectangle>
               <Components isList="true" count="0" />
@@ -199,58 +165,60 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
               <Location>16, 24</Location>
               <Name>Label1</Name>
               <Page isRef="6" />
-              <Parent isRef="8" />
+              <Parent isRef="7" />
               <Size>40, 16</Size>
-              <Text>Inicial</Text>
+              <Text>Inicial:</Text>
+              <TextAlign>TopRight</TextAlign>
             </Label1>
-            <dtpIni Ref="10" type="Stimulsoft.Report.ReportControls.StiDateTimePickerControl" isKey="true">
+            <dtpIni Ref="9" type="Stimulsoft.Report.ReportControls.StiDateTimePickerControl" isKey="true">
               <BackColor>Window</BackColor>
-              <ClientRectangle>16,40,88,20</ClientRectangle>
+              <ClientRectangle>56,22,88,20</ClientRectangle>
               <Components isList="true" count="0" />
               <CustomFormat>dd/MM/yyyy</CustomFormat>
               <Font>Microsoft Sans Serif,8</Font>
               <ForeColor>Black</ForeColor>
               <Format>Custom</Format>
-              <Location>16, 40</Location>
+              <Location>56, 22</Location>
               <MaxDate>12/31/9998 12:00:00 AM</MaxDate>
               <MinDate>1/1/1753 12:00:00 AM</MinDate>
               <Name>dtpIni</Name>
               <Page isRef="6" />
-              <Parent isRef="8" />
+              <Parent isRef="7" />
               <Size>88, 20</Size>
               <Value>10/29/2018 10:47:18 AM</Value>
             </dtpIni>
-            <Label2 Ref="11" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+            <Label2 Ref="10" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
               <BackColor>Control</BackColor>
-              <ClientRectangle>128,24,40,16</ClientRectangle>
+              <ClientRectangle>168,24,32,16</ClientRectangle>
               <Components isList="true" count="0" />
               <Font>Microsoft Sans Serif,8</Font>
               <ForeColor>Black</ForeColor>
-              <Location>128, 24</Location>
+              <Location>168, 24</Location>
               <Name>Label2</Name>
               <Page isRef="6" />
-              <Parent isRef="8" />
-              <Size>40, 16</Size>
-              <Text>Final</Text>
+              <Parent isRef="7" />
+              <Size>32, 16</Size>
+              <Text>Final:</Text>
+              <TextAlign>TopRight</TextAlign>
             </Label2>
-            <dtpFim Ref="12" type="Stimulsoft.Report.ReportControls.StiDateTimePickerControl" isKey="true">
+            <dtpFim Ref="11" type="Stimulsoft.Report.ReportControls.StiDateTimePickerControl" isKey="true">
               <BackColor>Window</BackColor>
-              <ClientRectangle>128,40,88,20</ClientRectangle>
+              <ClientRectangle>200,22,88,20</ClientRectangle>
               <Components isList="true" count="0" />
               <CustomFormat>dd/MM/yyyy</CustomFormat>
               <Font>Microsoft Sans Serif,8</Font>
               <ForeColor>Black</ForeColor>
               <Format>Custom</Format>
-              <Location>128, 40</Location>
+              <Location>200, 22</Location>
               <MaxDate>12/31/9998 12:00:00 AM</MaxDate>
               <MinDate>1/1/1753 12:00:00 AM</MinDate>
               <Name>dtpFim</Name>
               <Page isRef="6" />
-              <Parent isRef="8" />
+              <Parent isRef="7" />
               <Size>88, 20</Size>
               <Value>10/29/2018 10:47:18 AM</Value>
             </dtpFim>
-            <btnProcessar Ref="13" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
+            <btnProcessar Ref="12" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
               <ClickEvent>varDTIni = new DateTime(dtpIni.Value.Year, dtpIni.Value.Month, dtpIni.Value.Day);
 varDTFim = new DateTime(dtpFim.Value.Year, dtpFim.Value.Month, dtpFim.Value.Day, 23, 59, 59);
 
@@ -272,16 +240,16 @@ while (!dsListaFatura.IsEof)
 	iFat++;
 	dsListaFatura.Next();
 }</ClickEvent>
-              <ClientRectangle>232,32,96,24</ClientRectangle>
+              <ClientRectangle>312,20,96,24</ClientRectangle>
               <Components isList="true" count="0" />
               <Font>Microsoft Sans Serif,8</Font>
               <ForeColor>Black</ForeColor>
-              <Location>232, 32</Location>
+              <Location>312, 20</Location>
               <Name>btnProcessar</Name>
               <Page isRef="6" />
-              <Parent isRef="8" />
+              <Parent isRef="7" />
               <Size>96, 24</Size>
-              <Text>Processar</Text>
+              <Text>&amp;Processar</Text>
             </btnProcessar>
           </Components>
           <Font>Microsoft Sans Serif,8</Font>
@@ -290,39 +258,170 @@ while (!dsListaFatura.IsEof)
           <Name>GroupBox1</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Size>336, 80</Size>
+          <Size>432, 56</Size>
           <Text>Período</Text>
         </GroupBox1>
-        <GroupBox2 Ref="14" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
+        <GroupBox3 Ref="13" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
           <BackColor>Control</BackColor>
-          <ClientRectangle>8,96,336,216</ClientRectangle>
-          <Components isList="true" count="2">
-            <clbFaturas Ref="15" type="Stimulsoft.Report.ReportControls.StiCheckedListBoxControl" isKey="true">
-              <BackColor>Window</BackColor>
-              <CheckOnClick>True</CheckOnClick>
-              <ClientRectangle>16,24,304,184</ClientRectangle>
+          <ClientRectangle>8,72,432,128</ClientRectangle>
+          <Components isList="true" count="10">
+            <Label3 Ref="14" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <ClientRectangle>16,26,98,16</ClientRectangle>
               <Components isList="true" count="0" />
               <Font>Microsoft Sans Serif,8</Font>
-              <Items isList="true" count="0" />
-              <Location>16, 24</Location>
-              <Name>clbFaturas</Name>
+              <ForeColor>Black</ForeColor>
+              <Location>16, 26</Location>
+              <Name>Label3</Name>
               <Page isRef="6" />
-              <Parent isRef="14" />
-              <SelectedIndexChangedEvent>bool CheckFatura = true;
-
-for (int i = 0; i &lt; clbFaturas.Control.Items.Count; i++)
-{
-	if ( !clbFaturas.Control.GetItemChecked(i) )	
-	{
-				CheckFatura = false; 
-	}    
-}
-
-cbFatura.Checked = CheckFatura;
-</SelectedIndexChangedEvent>
-              <Size>304, 184</Size>
-            </clbFaturas>
-            <cbFatura Ref="16" type="Stimulsoft.Report.ReportControls.StiCheckBoxControl" isKey="true">
+              <Parent isRef="13" />
+              <Size>98, 16</Size>
+              <Text>CNES da Unidade:</Text>
+            </Label3>
+            <txt_02_prd_cnes Ref="15" type="Stimulsoft.Report.ReportControls.StiTextBoxControl" isKey="true">
+              <BackColor>Window</BackColor>
+              <ClientRectangle>128,24,56,20</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>128, 24</Location>
+              <Name>txt_02_prd_cnes</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Size>56, 20</Size>
+              <Text>7213352</Text>
+            </txt_02_prd_cnes>
+            <Label4 Ref="16" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <ClientRectangle>16,50,106,16</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>16, 50</Location>
+              <Name>Label4</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Size>106, 16</Size>
+              <Text>CNS do Profissional:</Text>
+            </Label4>
+            <txt_04_prd_cnsmed Ref="17" type="Stimulsoft.Report.ReportControls.StiTextBoxControl" isKey="true">
+              <BackColor>Window</BackColor>
+              <ClientRectangle>128,48,104,20</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>128, 48</Location>
+              <Name>txt_04_prd_cnsmed</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Size>104, 20</Size>
+              <Text>980016277433755</Text>
+            </txt_04_prd_cnsmed>
+            <Label5 Ref="18" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <ClientRectangle>248,50,112,16</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>248, 50</Location>
+              <Name>Label5</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Size>112, 16</Size>
+              <Text>CBO do Profissional:</Text>
+            </Label5>
+            <txt_05_prd_cbo Ref="19" type="Stimulsoft.Report.ReportControls.StiTextBoxControl" isKey="true">
+              <BackColor>Window</BackColor>
+              <ClientRectangle>360,48,56,20</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>360, 48</Location>
+              <Name>txt_05_prd_cbo</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Size>56, 20</Size>
+              <Text>225270</Text>
+            </txt_05_prd_cbo>
+            <cb_09_prd_pa Ref="20" type="Stimulsoft.Report.ReportControls.StiComboBoxControl" isKey="true">
+              <BackColor>Window</BackColor>
+              <ClientRectangle>128,72,288,20</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Items isList="true" count="2">
+                <value>0803010125 - Transporte de Paciente por via Terrestre</value>
+                <value>0803010109 - Transporte de Acompanhante por Via Terrestre</value>
+              </Items>
+              <Location>128, 72</Location>
+              <Name>cb_09_prd_pa</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Size>288, 20</Size>
+              <Text>Combo Box</Text>
+            </cb_09_prd_pa>
+            <Label6 Ref="21" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <ClientRectangle>16,74,112,16</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>16, 74</Location>
+              <Name>Label6</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Size>112, 16</Size>
+              <Text>Proc. Ambulatorial:</Text>
+            </Label6>
+            <cb_16_prd_caten Ref="22" type="Stimulsoft.Report.ReportControls.StiComboBoxControl" isKey="true">
+              <BackColor>Window</BackColor>
+              <ClientRectangle>128,96,288,20</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Items isList="true" count="6">
+                <value>01 - ELETIVO</value>
+                <value>02 - URGENCIA</value>
+                <value>03 - ACIDENTE NO LOCAL DE TRAB.OU A SERV.EMPR</value>
+                <value>04 - ACIDENTE NO TRAJETO PARA O TRABALHO</value>
+                <value>05 - OUTROS TIPOS DE ACIDENTE DE TRANSITO</value>
+                <value>06 - OUTROS TIPOS DE LESOES/ENV.POR AGENT.Q/F</value>
+              </Items>
+              <Location>128, 96</Location>
+              <Name>cb_16_prd_caten</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Size>288, 20</Size>
+              <Text>Combo Box</Text>
+            </cb_16_prd_caten>
+            <Label7 Ref="23" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <ClientRectangle>16,98,112,16</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>16, 98</Location>
+              <Name>Label7</Name>
+              <Page isRef="6" />
+              <Parent isRef="13" />
+              <Size>112, 16</Size>
+              <Text>Carater Atendimento:</Text>
+            </Label7>
+          </Components>
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>8, 72</Location>
+          <Name>GroupBox3</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Size>432, 128</Size>
+          <Text>Parâmetros</Text>
+        </GroupBox3>
+        <GroupBox2 Ref="24" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
+          <BackColor>Control</BackColor>
+          <ClientRectangle>8,208,432,248</ClientRectangle>
+          <Components isList="true" count="2">
+            <cbFatura Ref="25" type="Stimulsoft.Report.ReportControls.StiCheckBoxControl" isKey="true">
               <BackColor>Control</BackColor>
               <CheckedChangedEvent>for (int i = 0; i &lt; clbFaturas.Control.Items.Count; i++)
 {
@@ -335,20 +434,200 @@ cbFatura.Checked = CheckFatura;
               <Location>8, 0</Location>
               <Name>cbFatura</Name>
               <Page isRef="6" />
-              <Parent isRef="14" />
+              <Parent isRef="24" />
               <Size>104, 16</Size>
               <Text>Todas Faturas?</Text>
             </cbFatura>
+            <clbFaturas Ref="26" type="Stimulsoft.Report.ReportControls.StiCheckedListBoxControl" isKey="true">
+              <BackColor>Window</BackColor>
+              <CheckOnClick>True</CheckOnClick>
+              <ClientRectangle>16,24,408,208</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <Items isList="true" count="0" />
+              <Location>16, 24</Location>
+              <Name>clbFaturas</Name>
+              <Page isRef="6" />
+              <Parent isRef="24" />
+              <SelectedIndexChangedEvent>bool CheckFatura = true;
+
+for (int i = 0; i &lt; clbFaturas.Control.Items.Count; i++)
+{
+	if ( !clbFaturas.Control.GetItemChecked(i) )	
+	{
+				CheckFatura = false; 
+	}    
+}
+
+cbFatura.Checked = CheckFatura;
+</SelectedIndexChangedEvent>
+              <Size>408, 208</Size>
+            </clbFaturas>
           </Components>
           <Font>Microsoft Sans Serif,8</Font>
           <ForeColor>Black</ForeColor>
-          <Location>8, 96</Location>
+          <Location>8, 208</Location>
           <Name>GroupBox2</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Size>336, 216</Size>
+          <Size>432, 248</Size>
           <Text>Faturas</Text>
         </GroupBox2>
+        <btnCancel Ref="27" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
+          <Cancel>True</Cancel>
+          <ClientRectangle>16,464,96,24</ClientRectangle>
+          <Components isList="true" count="0" />
+          <DialogResult>Cancel</DialogResult>
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>16, 464</Location>
+          <Name>btnCancel</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Size>96, 24</Size>
+          <Text>&amp;Cancelar</Text>
+        </btnCancel>
+        <cbOpenFolder Ref="28" type="Stimulsoft.Report.ReportControls.StiCheckBoxControl" isKey="true">
+          <BackColor>Control</BackColor>
+          <Checked>True</Checked>
+          <ClientRectangle>160,468,152,16</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>160, 468</Location>
+          <Name>cbOpenFolder</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Size>152, 16</Size>
+          <Text>&amp;Abrir diretório do arquivo?</Text>
+        </cbOpenFolder>
+        <btnCreateBPAFile Ref="29" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
+          <ClickEvent>for(int i = 0; i &lt; clbFaturas.Control.CheckedItems.Count; i++)
+{	
+	dsListaFatura.First();
+	while(!dsListaFatura.IsEof)
+	{	
+		if(clbFaturas.Control.CheckedItems[i].ToString() == dsListaFatura.Entity) 
+		{	
+			idsFaturas += (idsFaturas != "" ? ", " : "") + dsListaFatura.idFatura.ToString();
+		}
+		dsListaFatura.Next();
+	}
+}
+
+
+dsProtooclosProcedimentos.Connect();
+dsProtooclosProcedimentos.First();
+
+
+string FileName = string.Format("{0:yyyy.MM.dd-HH.mm.ss}.bpa", DateTime.Now);
+string FullFileName = dsAparelhoBPA.ExportFolder+"\\"+FileName;
+
+char varZero = '0';
+char varEspaco = ' ';
+
+using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true))
+{
+	string _06_cbc_smt_vrf_string = string.Empty;
+	int codProc = int.Parse(cb_09_prd_pa.SelectedItem.ToString().PadLeft(10, varZero).Substring(0,10));
+	System.Int64 _06_cbc_smt_vrf_Int64 = 0;
+	const int DIVISOR = 1111;
+
+	dsProtooclosProcedimentos.First();
+	while(!dsProtooclosProcedimentos.IsEof)
+	{
+		_06_cbc_smt_vrf_Int64 += (System.Int64) (codProc + dsProtooclosProcedimentos._15_prd_qt);
+		dsProtooclosProcedimentos.Next();
+	}
+
+	_06_cbc_smt_vrf_string = ((_06_cbc_smt_vrf_Int64 % DIVISOR) + DIVISOR).ToString();
+
+
+
+	System.Text.StringBuilder linhaCabecalho = new System.Text.StringBuilder();
+
+	/*  1 */ linhaCabecalho.Append("01");
+	/*  2 */ linhaCabecalho.Append("#BPA#");
+	/*  3 */ linhaCabecalho.Append(string.Format("{0:yyyyMM}", dsListaFatura.Data_Teto));
+	/*  4 */ linhaCabecalho.Append((99).ToString().PadLeft(6, varZero)); 
+	/*  5 */ linhaCabecalho.Append((99).ToString().PadLeft(6, varZero)); 
+	/*  6 */ 	linhaCabecalho.Append(_06_cbc_smt_vrf_Int64.ToString().PadLeft(4, varZero).Substring(0,4)); /* pendente */
+	/*  7 */ linhaCabecalho.Append(("Santa Casa de Misericórdia").PadRight(30, varEspaco).Substring(0,30)); 
+	/*  8 */ linhaCabecalho.Append(("TFD").PadRight(6, varEspaco).Substring(0,6));
+	/*  9 */ linhaCabecalho.Append(("29178233000160").ToString().PadLeft(14, varZero).Substring(0,14));
+	/* 10 */ linhaCabecalho.Append(("SECRETARIA MUNICIPAL DE SAUDE DE RESENDE").PadRight(40, varEspaco).Substring(0,40));
+	/* 11 */ linhaCabecalho.Append("M");
+	/* 12 */ linhaCabecalho.Append(("v1.00.00").PadRight(10, varEspaco).Substring(0,10));
+
+	sw.WriteLine(linhaCabecalho.ToString());
+
+	dsProtooclosProcedimentos.First();
+	while(!dsProtooclosProcedimentos.IsEof)
+	{
+		System.Text.StringBuilder linhaItem = new System.Text.StringBuilder();
+		
+		/*  1 */ linhaItem.Append(dsProtooclosProcedimentos._01_prd_ident);
+		/*  2 */ linhaItem.Append((txt_02_prd_cnes.Text).PadLeft(7, varZero).Substring(0,7));
+		/*  3 */ linhaItem.Append(dsProtooclosProcedimentos._03_prd_cmp.Substring(0,6));
+		/*  4 */ linhaItem.Append((txt_04_prd_cnsmed.Text).PadLeft(15, varZero).Substring(0,15));
+		/*  5 */ linhaItem.Append((txt_05_prd_cbo.Text).PadLeft(6, varZero).Substring(0,6));
+		/*  6 */ linhaItem.Append(dsProtooclosProcedimentos._06_prd_dtaten);
+		/*  7 */ linhaItem.Append(("99").ToString().PadLeft(3, varZero).Substring(0,3));
+		/*  8 */ linhaItem.Append(("20").ToString().PadLeft(2, varZero).Substring(0,2));
+		/*  9 */ linhaItem.Append(cb_09_prd_pa.SelectedItem.ToString().PadLeft(10, varZero).Substring(0,10));
+		/* 10 */ linhaItem.Append(dsProtooclosProcedimentos._10_prd_cnspac.PadLeft(10, varZero).Substring(0,10));
+		/* 11 */ linhaItem.Append(dsProtooclosProcedimentos._11_prd_sexo);
+		/* 12 */ linhaItem.Append(dsProtooclosProcedimentos._12_prd_ibge.PadLeft(6, varZero).Substring(0,6));
+		/* 13 */ linhaItem.Append(dsProtooclosProcedimentos._13_prd_cid.PadLeft(4, varEspaco).Substring(0,4));
+		/* 14 */ linhaItem.Append(dsProtooclosProcedimentos._14_prd_idade.ToString().PadLeft(3, varZero).Substring(0,3));
+		/* 15 */ linhaItem.Append(dsProtooclosProcedimentos._15_prd_qt.ToString().PadLeft(6, varZero).Substring(0,6));
+		/* 16 */ linhaItem.Append(cb_16_prd_caten.SelectedItem.ToString().PadLeft(2, varZero).Substring(0,2));
+		/* 17 */ linhaItem.Append(dsProtooclosProcedimentos._17_prd_naut.PadLeft(13, varEspaco).Substring(0,13));
+		/* 18 */ linhaItem.Append(dsProtooclosProcedimentos._18_prd_org);
+		/* 19 */ linhaItem.Append(dsProtooclosProcedimentos._19_prd_nmpac.PadRight(30, varEspaco).Substring(0,30));
+		/* 20 */ linhaItem.Append(dsProtooclosProcedimentos._20_prd_dtnasc);
+		/* 21 */ linhaItem.Append(dsProtooclosProcedimentos._21_prd_raca);
+		/* 22 */ linhaItem.Append(dsProtooclosProcedimentos._22_prd_etnia.PadRight(4, varEspaco).Substring(0,4));
+		/* 23 */ linhaItem.Append(dsProtooclosProcedimentos._23_prd_nac);
+		/* 24 */ linhaItem.Append(dsProtooclosProcedimentos._24_prd_srv.PadRight(3, varEspaco).Substring(0,3));
+		/* 25 */ linhaItem.Append("".PadRight(3, varEspaco).Substring(0,3));
+		/* 26 */ linhaItem.Append("".PadRight(8, varEspaco).Substring(0,8));
+		/* 27 */ linhaItem.Append("".PadRight(4, varEspaco).Substring(0,4));
+		/* 28 */ linhaItem.Append("".PadRight(14, varEspaco).Substring(0,14));
+		/* 29 */ linhaItem.Append(dsProtooclosProcedimentos._29_prd_cep_pcnte.PadRight(8, varEspaco).Substring(0,8));
+		/* 30 */ linhaItem.Append(dsProtooclosProcedimentos._30_prd_lograd_pcnte.PadRight(3, varEspaco).Substring(0,3));
+		/* 31 */ linhaItem.Append(dsProtooclosProcedimentos._31_prd_end_pcnte.PadRight(30, varEspaco).Substring(0,30));
+		/* 32 */ linhaItem.Append(dsProtooclosProcedimentos._32_prd_compl_pcnte.PadRight(10, varEspaco).Substring(0,10));
+		/* 33 */ linhaItem.Append(dsProtooclosProcedimentos._33_prd_num_pcnte.PadRight(5, varEspaco).Substring(0,5));
+		/* 34 */ linhaItem.Append(dsProtooclosProcedimentos._34_prd_bairro_pcnte.PadRight(30, varEspaco).Substring(0,30));
+		/* 35 */ linhaItem.Append(dsProtooclosProcedimentos._35_prd_ddtel_pcnte.PadRight(11, varEspaco).Substring(0,11));
+		/* 36 */ linhaItem.Append(dsProtooclosProcedimentos._36_prd_email_pcnte.PadRight(40, varEspaco).Substring(0,40));
+		/* 37 */ linhaItem.Append(dsProtooclosProcedimentos._37_prd_ine.PadRight(10, varEspaco).Substring(0,10));
+
+		sw.WriteLine(linhaItem);
+		dsProtooclosProcedimentos.Next();
+	}
+
+	sw.Close();
+
+	MessageBox.Show("Gerado (" + FullFileName + ") com sucesso!", "Arquivo BPA", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+	if (cbOpenFolder.Checked)
+	{
+		System.Diagnostics.Process.Start(dsAparelhoBPA.ExportFolder);
+	}
+}</ClickEvent>
+          <ClientRectangle>336,464,96,24</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>336, 464</Location>
+          <Name>btnCreateBPAFile</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Size>96, 24</Size>
+          <Text>&amp;Gerar arquivo</Text>
+        </btnCreateBPAFile>
       </Components>
       <Font>Microsoft Sans Serif,8</Font>
       <Guid>a1259bc9430342c7b6298d7438fe9eb1</Guid>
@@ -356,11 +635,11 @@ cbFatura.Checked = CheckFatura;
       <Name>Form1</Name>
       <Page isRef="6" />
       <Report isRef="0" />
-      <Size>360, 376</Size>
-      <Text>Perâmetros</Text>
+      <Size>456, 520</Size>
+      <Text>BPA</Text>
     </Form1>
   </Pages>
-  <PrinterSettings Ref="17" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <PrinterSettings Ref="30" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
   <ReferencedAssemblies isList="true" count="8">
     <value>System.Dll</value>
     <value>System.Drawing.Dll</value>
@@ -372,9 +651,9 @@ cbFatura.Checked = CheckFatura;
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>BPA</ReportAlias>
-  <ReportChanged>10/29/2018 1:02:39 PM</ReportChanged>
+  <ReportChanged>10/31/2018 9:24:56 AM</ReportChanged>
   <ReportCreated>10/29/2018 9:53:19 AM</ReportCreated>
-  <ReportGuid>d5595e1505b445bdaf504854099d8934</ReportGuid>
+  <ReportGuid>6cdb016b66914a3890d5daa9fc1e3fd0</ReportGuid>
   <ReportName>BPA</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2007.3.100</ReportVersion>
