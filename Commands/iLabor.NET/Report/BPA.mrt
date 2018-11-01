@@ -136,7 +136,7 @@ inner join Procedimento prc on pp.Procedimento = prc.ECO_ID
 inner join Protocolo p on pp.Protocolo = p.ECO_ID
 inner join Paciente pac on p.Paciente = pac.ECO_ID
 left join Endereco e on pac.ECO_ID = e.ECO_ID
-where f.ECO_ID in ({idsFaturas})</SqlCommand>
+--where f.ECO_ID in ({idsFaturas})</SqlCommand>
       </dsProtooclosProcedimentos>
     </DataSources>
     <Relations isList="true" count="0" />
@@ -289,7 +289,7 @@ while (!dsListaFatura.IsEof)
               <Page isRef="6" />
               <Parent isRef="13" />
               <Size>56, 20</Size>
-              <Text>7213352</Text>
+              <Text>2288885</Text>
             </txt_02_prd_cnes>
             <Label4 Ref="16" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
               <BackColor>Control</BackColor>
@@ -315,7 +315,7 @@ while (!dsListaFatura.IsEof)
               <Page isRef="6" />
               <Parent isRef="13" />
               <Size>104, 20</Size>
-              <Text>980016277433755</Text>
+              <Text>702608797285841</Text>
             </txt_04_prd_cnsmed>
             <Label5 Ref="18" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
               <BackColor>Control</BackColor>
@@ -341,7 +341,7 @@ while (!dsListaFatura.IsEof)
               <Page isRef="6" />
               <Parent isRef="13" />
               <Size>56, 20</Size>
-              <Text>225270</Text>
+              <Text>223415</Text>
             </txt_05_prd_cbo>
             <cb_09_prd_pa Ref="20" type="Stimulsoft.Report.ReportControls.StiComboBoxControl" isKey="true">
               <BackColor>Window</BackColor>
@@ -553,7 +553,7 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
 	/*  5 */ linhaCabecalho.Append((99).ToString().PadLeft(6, varZero)); 
 	/*  6 */ 	linhaCabecalho.Append(_06_cbc_smt_vrf_Int64.ToString().PadLeft(4, varZero).Substring(0,4)); /* pendente */
 	/*  7 */ linhaCabecalho.Append(("Santa Casa de Misericórdia").PadRight(30, varEspaco).Substring(0,30)); 
-	/*  8 */ linhaCabecalho.Append(("TFD").PadRight(6, varEspaco).Substring(0,6));
+	/*  8 */ linhaCabecalho.Append(("SCMR").PadRight(6, varEspaco).Substring(0,6));
 	/*  9 */ linhaCabecalho.Append(("29178233000160").ToString().PadLeft(14, varZero).Substring(0,14));
 	/* 10 */ linhaCabecalho.Append(("SECRETARIA MUNICIPAL DE SAUDE DE RESENDE").PadRight(40, varEspaco).Substring(0,40));
 	/* 11 */ linhaCabecalho.Append("M");
@@ -575,7 +575,7 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
 		/*  7 */ linhaItem.Append(("99").ToString().PadLeft(3, varZero).Substring(0,3));
 		/*  8 */ linhaItem.Append(("20").ToString().PadLeft(2, varZero).Substring(0,2));
 		/*  9 */ linhaItem.Append(cb_09_prd_pa.SelectedItem.ToString().PadLeft(10, varZero).Substring(0,10));
-		/* 10 */ linhaItem.Append(dsProtooclosProcedimentos._10_prd_cnspac.PadLeft(10, varZero).Substring(0,10));
+		/* 10 */ linhaItem.Append(dsProtooclosProcedimentos._10_prd_cnspac.PadLeft(15, varZero).Substring(0,15));
 		/* 11 */ linhaItem.Append(dsProtooclosProcedimentos._11_prd_sexo);
 		/* 12 */ linhaItem.Append(dsProtooclosProcedimentos._12_prd_ibge.PadLeft(6, varZero).Substring(0,6));
 		/* 13 */ linhaItem.Append(dsProtooclosProcedimentos._13_prd_cid.PadLeft(4, varEspaco).Substring(0,4));
@@ -651,9 +651,9 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>BPA</ReportAlias>
-  <ReportChanged>10/31/2018 9:24:56 AM</ReportChanged>
+  <ReportChanged>11/1/2018 11:32:18 AM</ReportChanged>
   <ReportCreated>10/29/2018 9:53:19 AM</ReportCreated>
-  <ReportGuid>6cdb016b66914a3890d5daa9fc1e3fd0</ReportGuid>
+  <ReportGuid>31cf43d86d594c57b4e6ce3e14ac2e71</ReportGuid>
   <ReportName>BPA</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2007.3.100</ReportVersion>
