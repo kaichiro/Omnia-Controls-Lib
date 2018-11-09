@@ -4,7 +4,7 @@
     <Databases isList="true" count="1">
       <iLabor Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
         <Alias>iLabor</Alias>
-        <ConnectionString>user id=sa;password=#$o30915283#$;data source=STCSSRV;persist security info=False;initial catalog=iLaborNet;Connect Timeout=0 ;app=iLabor.NET.Report</ConnectionString>
+        <ConnectionString>user id=sa;password=#$o30915283#$;data source=.;persist security info=False;initial catalog=iLabor</ConnectionString>
         <Name>iLabor</Name>
       </iLabor>
     </Databases>
@@ -40,7 +40,7 @@
         <SqlCommand>set dateformat ymd; 
 
 declare @idConvenio int;
-set @idConvenio = (select top 1 cv.ECO_Id from Convenio cv where cv.Nome = 'SUS');
+set @idConvenio = (select top 1 cv.ECO_Id from Convenio cv where cv.Nome like '%omnia%');
 
 with Fat as (
 	select
@@ -66,10 +66,11 @@ order by f.Data_Teto asc</SqlCommand>
       </dsListaFatura>
       <dsProtooclosProcedimentos Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
         <Alias>dsProtooclosProcedimentos</Alias>
-        <Columns isList="true" count="26">
+        <Columns isList="true" count="27">
           <value>_01_prd_ident,System.String</value>
           <value>_03_prd_cmp,System.String</value>
           <value>_06_prd_dtaten,System.String</value>
+          <value>_09_prd_pa,System.String</value>
           <value>_10_prd_cnspac,System.String</value>
           <value>_11_prd_sexo,System.String</value>
           <value>_12_prd_ibge,System.String</value>
@@ -106,6 +107,7 @@ select
 	'03' _01_prd_ident
 	, convert(varchar, p.Data_Entrada ,112) _03_prd_cmp
 	, convert(varchar, p.Data_Entrada ,112) _06_prd_dtaten
+	, '0' + replace(replace((case when len(ltrim(rtrim(tpp.Codigo))) &gt; 0 then tpp.Codigo else prc.Codigo end),'.',''),'-','') _09_prd_pa
 	, pac.Matricula_Convenio _10_prd_cnspac
     , case when pac.Sexo like '%Masculino' then 'M' else 'F' end _11_prd_sexo
 	, '3304201' _12_prd_ibge
@@ -126,7 +128,7 @@ select
 	, e.Endereco_Linha1 _32_prd_compl_pcnte
 	, e.Numero _33_prd_num_pcnte
 	, e.Bairro _34_prd_bairro_pcnte
-	, replace(p.Celular + cast(e.Telefones as varchar(25)), char(13)+char(10),'') _35_prd_ddtel_pcnte
+	, p.Celular + cast(e.Telefones as varchar(25)) _35_prd_ddtel_pcnte
 	, e.email _36_prd_email_pcnte	
 	, '' _37_prd_ine
 from Fatura f
@@ -134,9 +136,12 @@ inner join Fatura_Procedimento fp on f.ECO_ID = fp.Fatura
 inner join Protocolo_Procedimento pp on fp.Protocolo_Procedimento = pp.ECO_ID
 inner join Procedimento prc on pp.Procedimento = prc.ECO_ID
 inner join Protocolo p on pp.Protocolo = p.ECO_ID
+left join Convenio_Plano cp on pp.Convenio_Plano = cp.ECO_ID
+left join Tabela_Preco_Procedimento tpp on cp.Tabela_Preco = tpp.Tabela_Preco and tpp.Procedimento = pp.Procedimento
 inner join Paciente pac on p.Paciente = pac.ECO_ID
 left join Endereco e on pac.ECO_ID = e.ECO_ID
-where f.ECO_ID in ({idsFaturas})</SqlCommand>
+where f.ECO_ID in ({idsFaturas})
+</SqlCommand>
       </dsProtooclosProcedimentos>
     </DataSources>
     <Relations isList="true" count="0" />
@@ -149,7 +154,7 @@ where f.ECO_ID in ({idsFaturas})</SqlCommand>
   </Dictionary>
   <GlobalizationStrings isList="true" count="0" />
   <Pages isList="true" count="1">
-    <frmMain Ref="6" type="Stimulsoft.Report.ReportControls.StiForm" isKey="true">
+    <Form1 Ref="6" type="Stimulsoft.Report.ReportControls.StiForm" isKey="true">
       <BackColor>Control</BackColor>
       <Components isList="true" count="6">
         <GroupBox1 Ref="7" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
@@ -263,8 +268,8 @@ while (!dsListaFatura.IsEof)
         </GroupBox1>
         <GroupBox3 Ref="13" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
           <BackColor>Control</BackColor>
-          <ClientRectangle>8,72,432,128</ClientRectangle>
-          <Components isList="true" count="10">
+          <ClientRectangle>8,72,432,104</ClientRectangle>
+          <Components isList="true" count="8">
             <Label3 Ref="14" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
               <BackColor>Control</BackColor>
               <ClientRectangle>16,26,98,16</ClientRectangle>
@@ -289,7 +294,7 @@ while (!dsListaFatura.IsEof)
               <Page isRef="6" />
               <Parent isRef="13" />
               <Size>56, 20</Size>
-              <Text>7213352</Text>
+              <Text>2288885</Text>
             </txt_02_prd_cnes>
             <Label4 Ref="16" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
               <BackColor>Control</BackColor>
@@ -315,7 +320,7 @@ while (!dsListaFatura.IsEof)
               <Page isRef="6" />
               <Parent isRef="13" />
               <Size>104, 20</Size>
-              <Text>980016277433755</Text>
+              <Text>702608797285841</Text>
             </txt_04_prd_cnsmed>
             <Label5 Ref="18" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
               <BackColor>Control</BackColor>
@@ -341,41 +346,11 @@ while (!dsListaFatura.IsEof)
               <Page isRef="6" />
               <Parent isRef="13" />
               <Size>56, 20</Size>
-              <Text>225270</Text>
+              <Text>223415</Text>
             </txt_05_prd_cbo>
-            <cb_09_prd_pa Ref="20" type="Stimulsoft.Report.ReportControls.StiComboBoxControl" isKey="true">
+            <cb_16_prd_caten Ref="20" type="Stimulsoft.Report.ReportControls.StiComboBoxControl" isKey="true">
               <BackColor>Window</BackColor>
               <ClientRectangle>128,72,288,20</ClientRectangle>
-              <Components isList="true" count="0" />
-              <Font>Microsoft Sans Serif,8</Font>
-              <ForeColor>Black</ForeColor>
-              <Items isList="true" count="2">
-                <value>0803010125 - Transporte de Paciente por via Terrestre</value>
-                <value>0803010109 - Transporte de Acompanhante por Via Terrestre</value>
-              </Items>
-              <Location>128, 72</Location>
-              <Name>cb_09_prd_pa</Name>
-              <Page isRef="6" />
-              <Parent isRef="13" />
-              <Size>288, 20</Size>
-              <Text>Combo Box</Text>
-            </cb_09_prd_pa>
-            <Label6 Ref="21" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
-              <BackColor>Control</BackColor>
-              <ClientRectangle>16,74,112,16</ClientRectangle>
-              <Components isList="true" count="0" />
-              <Font>Microsoft Sans Serif,8</Font>
-              <ForeColor>Black</ForeColor>
-              <Location>16, 74</Location>
-              <Name>Label6</Name>
-              <Page isRef="6" />
-              <Parent isRef="13" />
-              <Size>112, 16</Size>
-              <Text>Proc. Ambulatorial:</Text>
-            </Label6>
-            <cb_16_prd_caten Ref="22" type="Stimulsoft.Report.ReportControls.StiComboBoxControl" isKey="true">
-              <BackColor>Window</BackColor>
-              <ClientRectangle>128,96,288,20</ClientRectangle>
               <Components isList="true" count="0" />
               <Font>Microsoft Sans Serif,8</Font>
               <ForeColor>Black</ForeColor>
@@ -387,20 +362,20 @@ while (!dsListaFatura.IsEof)
                 <value>05 - OUTROS TIPOS DE ACIDENTE DE TRANSITO</value>
                 <value>06 - OUTROS TIPOS DE LESOES/ENV.POR AGENT.Q/F</value>
               </Items>
-              <Location>128, 96</Location>
+              <Location>128, 72</Location>
               <Name>cb_16_prd_caten</Name>
               <Page isRef="6" />
               <Parent isRef="13" />
               <Size>288, 20</Size>
               <Text>Combo Box</Text>
             </cb_16_prd_caten>
-            <Label7 Ref="23" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+            <Label7 Ref="21" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
               <BackColor>Control</BackColor>
-              <ClientRectangle>16,98,112,16</ClientRectangle>
+              <ClientRectangle>16,74,112,16</ClientRectangle>
               <Components isList="true" count="0" />
               <Font>Microsoft Sans Serif,8</Font>
               <ForeColor>Black</ForeColor>
-              <Location>16, 98</Location>
+              <Location>16, 74</Location>
               <Name>Label7</Name>
               <Page isRef="6" />
               <Parent isRef="13" />
@@ -414,14 +389,14 @@ while (!dsListaFatura.IsEof)
           <Name>GroupBox3</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
-          <Size>432, 128</Size>
+          <Size>432, 104</Size>
           <Text>Parâmetros</Text>
         </GroupBox3>
-        <GroupBox2 Ref="24" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
+        <GroupBox2 Ref="22" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
           <BackColor>Control</BackColor>
           <ClientRectangle>8,208,432,248</ClientRectangle>
           <Components isList="true" count="2">
-            <cbFatura Ref="25" type="Stimulsoft.Report.ReportControls.StiCheckBoxControl" isKey="true">
+            <cbFatura Ref="23" type="Stimulsoft.Report.ReportControls.StiCheckBoxControl" isKey="true">
               <BackColor>Control</BackColor>
               <CheckedChangedEvent>for (int i = 0; i &lt; clbFaturas.Control.Items.Count; i++)
 {
@@ -434,11 +409,11 @@ while (!dsListaFatura.IsEof)
               <Location>8, 0</Location>
               <Name>cbFatura</Name>
               <Page isRef="6" />
-              <Parent isRef="24" />
+              <Parent isRef="22" />
               <Size>104, 16</Size>
               <Text>Todas Faturas?</Text>
             </cbFatura>
-            <clbFaturas Ref="26" type="Stimulsoft.Report.ReportControls.StiCheckedListBoxControl" isKey="true">
+            <clbFaturas Ref="24" type="Stimulsoft.Report.ReportControls.StiCheckedListBoxControl" isKey="true">
               <BackColor>Window</BackColor>
               <CheckOnClick>True</CheckOnClick>
               <ClientRectangle>16,24,408,208</ClientRectangle>
@@ -448,7 +423,7 @@ while (!dsListaFatura.IsEof)
               <Location>16, 24</Location>
               <Name>clbFaturas</Name>
               <Page isRef="6" />
-              <Parent isRef="24" />
+              <Parent isRef="22" />
               <SelectedIndexChangedEvent>bool CheckFatura = true;
 
 for (int i = 0; i &lt; clbFaturas.Control.Items.Count; i++)
@@ -473,7 +448,7 @@ cbFatura.Checked = CheckFatura;
           <Size>432, 248</Size>
           <Text>Faturas</Text>
         </GroupBox2>
-        <btnCancel Ref="27" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
+        <btnCancel Ref="25" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
           <Cancel>True</Cancel>
           <ClientRectangle>16,464,96,24</ClientRectangle>
           <Components isList="true" count="0" />
@@ -487,7 +462,7 @@ cbFatura.Checked = CheckFatura;
           <Size>96, 24</Size>
           <Text>&amp;Cancelar</Text>
         </btnCancel>
-        <cbOpenFolder Ref="28" type="Stimulsoft.Report.ReportControls.StiCheckBoxControl" isKey="true">
+        <cbOpenFolder Ref="26" type="Stimulsoft.Report.ReportControls.StiCheckBoxControl" isKey="true">
           <BackColor>Control</BackColor>
           <Checked>True</Checked>
           <ClientRectangle>160,468,152,16</ClientRectangle>
@@ -501,7 +476,7 @@ cbFatura.Checked = CheckFatura;
           <Size>152, 16</Size>
           <Text>&amp;Abrir diretório do arquivo?</Text>
         </cbOpenFolder>
-        <btnCreateBPAFile Ref="29" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
+        <btnCreateBPAFile Ref="27" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
           <ClickEvent>for(int i = 0; i &lt; clbFaturas.Control.CheckedItems.Count; i++)
 {	
 	dsListaFatura.First();
@@ -529,14 +504,15 @@ char varEspaco = ' ';
 using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true))
 {
 	string _06_cbc_smt_vrf_string = string.Empty;
-	int codProc = int.Parse(cb_09_prd_pa.SelectedItem.ToString().PadLeft(10, varZero).Substring(0,10));
+	int codProc = 0; // int.Parse(cb_09_prd_pa.SelectedItem.ToString().PadLeft(10, varZero).Substring(0,10));
 	System.Int64 _06_cbc_smt_vrf_Int64 = 0;
 	const int DIVISOR = 1111;
 
 	dsProtooclosProcedimentos.First();
 	while(!dsProtooclosProcedimentos.IsEof)
 	{
-		_06_cbc_smt_vrf_Int64 += (System.Int64) (codProc + dsProtooclosProcedimentos._15_prd_qt);
+		_06_cbc_smt_vrf_Int64 += ((System.Int64) dsProtooclosProcedimentos._15_prd_qt) +
+			System.Int64.Parse(dsProtooclosProcedimentos._09_prd_pa);
 		dsProtooclosProcedimentos.Next();
 	}
 
@@ -553,7 +529,7 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
 	/*  5 */ linhaCabecalho.Append((99).ToString().PadLeft(6, varZero)); 
 	/*  6 */ 	linhaCabecalho.Append(_06_cbc_smt_vrf_Int64.ToString().PadLeft(4, varZero).Substring(0,4)); /* pendente */
 	/*  7 */ linhaCabecalho.Append(("Santa Casa de Misericórdia").PadRight(30, varEspaco).Substring(0,30)); 
-	/*  8 */ linhaCabecalho.Append(("TFD").PadRight(6, varEspaco).Substring(0,6));
+	/*  8 */ linhaCabecalho.Append(("SCMR").PadRight(6, varEspaco).Substring(0,6));
 	/*  9 */ linhaCabecalho.Append(("29178233000160").ToString().PadLeft(14, varZero).Substring(0,14));
 	/* 10 */ linhaCabecalho.Append(("SECRETARIA MUNICIPAL DE SAUDE DE RESENDE").PadRight(40, varEspaco).Substring(0,40));
 	/* 11 */ linhaCabecalho.Append("M");
@@ -574,8 +550,8 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
 		/*  6 */ linhaItem.Append(dsProtooclosProcedimentos._06_prd_dtaten);
 		/*  7 */ linhaItem.Append(("99").ToString().PadLeft(3, varZero).Substring(0,3));
 		/*  8 */ linhaItem.Append(("20").ToString().PadLeft(2, varZero).Substring(0,2));
-		/*  9 */ linhaItem.Append(cb_09_prd_pa.SelectedItem.ToString().PadLeft(10, varZero).Substring(0,10));
-		/* 10 */ linhaItem.Append(dsProtooclosProcedimentos._10_prd_cnspac.PadLeft(10, varZero).Substring(0,10));
+		/*  9 */ linhaItem.Append(dsProtooclosProcedimentos._09_prd_pa.PadLeft(10, varZero).Substring(0,10));
+		/* 10 */ linhaItem.Append(dsProtooclosProcedimentos._10_prd_cnspac.PadLeft(15, varZero).Substring(0,15));
 		/* 11 */ linhaItem.Append(dsProtooclosProcedimentos._11_prd_sexo);
 		/* 12 */ linhaItem.Append(dsProtooclosProcedimentos._12_prd_ibge.PadLeft(6, varZero).Substring(0,6));
 		/* 13 */ linhaItem.Append(dsProtooclosProcedimentos._13_prd_cid.PadLeft(4, varEspaco).Substring(0,4));
@@ -632,14 +608,14 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
       <Font>Microsoft Sans Serif,8</Font>
       <Guid>a1259bc9430342c7b6298d7438fe9eb1</Guid>
       <Location>0, 0</Location>
-      <Name>frmMain</Name>
+      <Name>Form1</Name>
       <Page isRef="6" />
       <Report isRef="0" />
       <Size>456, 520</Size>
       <Text>BPA</Text>
-    </frmMain>
+    </Form1>
   </Pages>
-  <PrinterSettings Ref="30" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <PrinterSettings Ref="28" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
   <ReferencedAssemblies isList="true" count="8">
     <value>System.Dll</value>
     <value>System.Drawing.Dll</value>
@@ -651,9 +627,9 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>BPA</ReportAlias>
-  <ReportChanged>11/5/2018 9:24:13 AM</ReportChanged>
+  <ReportChanged>11/9/2018 4:40:25 PM</ReportChanged>
   <ReportCreated>10/29/2018 9:53:19 AM</ReportCreated>
-  <ReportGuid>9ee2a7b1e2c84449b5537871040e74eb</ReportGuid>
+  <ReportGuid>f112dceec15849439873a5c82e7b33e8</ReportGuid>
   <ReportName>BPA</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2007.3.100</ReportVersion>
