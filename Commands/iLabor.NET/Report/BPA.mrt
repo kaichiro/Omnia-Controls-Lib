@@ -528,6 +528,9 @@ dsProcsComCodigoEmBranco.Connect();
 if (dsProcsComCodigoEmBranco.Count == 0)
 {
 
+	Page1.Enabled = false;
+	PageHeader1.Enabled = false;
+
 
 dsProtoocolosProcedimentos.Connect();
 dsProtoocolosProcedimentos.First();
@@ -860,9 +863,9 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>BPA</ReportAlias>
-  <ReportChanged>11/12/2018 5:55:00 PM</ReportChanged>
+  <ReportChanged>11/13/2018 7:56:11 AM</ReportChanged>
   <ReportCreated>10/29/2018 9:53:19 AM</ReportCreated>
-  <ReportGuid>ca438e6afdfa4ef79b009b8e64873f4a</ReportGuid>
+  <ReportGuid>537a3b8ffae241a6bb4f1daef4f9ac45</ReportGuid>
   <ReportName>BPA</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2007.3.100</ReportVersion>
