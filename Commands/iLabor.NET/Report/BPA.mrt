@@ -108,7 +108,7 @@ select
 	, convert(varchar, p.Data_Entrada ,112) _03_prd_cmp
 	, convert(varchar, p.Data_Entrada ,112) _06_prd_dtaten
 	, replace(replace((case when len(ltrim(rtrim(tpp.Codigo))) &gt; 0 then tpp.Codigo else prc.Codigo end),'.',''),'-','') _09_prd_pa
-	, pac.Matricula_Convenio _10_prd_cnspac
+	, dbo.RetiraraCaracteresEspeciais(pac.Matricula_Convenio) _10_prd_cnspac
     , case when pac.Sexo like '%Masculino' then 'M' else 'F' end _11_prd_sexo
 	, '3304201' _12_prd_ibge
 	, '' _13_prd_cid
@@ -116,20 +116,30 @@ select
 	, pp.Quantidade _15_prd_qt
 	, '' _17_prd_naut
 	, 'BPA' _18_prd_org
-	, pac.Nome _19_prd_nmpac
+	, dbo.RetiraraCaracteresEspeciais(pac.Nome) _19_prd_nmpac
 	, convert(varchar, pac.Data_Nascimento ,112) _20_prd_dtnasc
 	, '99' _21_prd_raca
 	, '' _22_prd_etnia
 	, '010' _23_prd_nac
 	, '' _24_prd_srv
 	, e.CEP _29_prd_cep_pcnte
-	, '' _30_prd_lograd_pcnte
-	, e.Endereco_Linha1 _31_prd_end_pcnte
-	, e.Endereco_Linha1 _32_prd_compl_pcnte
-	, e.Numero _33_prd_num_pcnte
-	, e.Bairro _34_prd_bairro_pcnte
-	, p.Celular/* + replace(cast(e.Telefones as varchar(25)),'\r\n','')*/ _35_prd_ddtel_pcnte
-	, e.email _36_prd_email_pcnte	
+	,
+    dbo.RetiraraCaracteresEspeciais(
+	case 
+  		when e.Endereco_Linha1 like '%av.%' or e.Endereco_Linha1 like '%av:%' or e.Endereco_Linha1 like '%av %' or e.Endereco_Linha1 like '%avenida%' then '008'
+  		when e.Endereco_Linha1 like '%est.%' or e.Endereco_Linha1 like '%est:%' or e.Endereco_Linha1 like '%est %' or e.Endereco_Linha1 like '%estrada%' then '031'
+  		when e.Endereco_Linha1 like '%praca%' or e.Endereco_Linha1 like '%praça%' then '031'
+  		when e.Endereco_Linha1 = 'PRESIDENTE DUTRA' then '090'
+  		when e.Endereco_Linha1 like '%alameda%' then '004'
+  		else '081'
+	end
+    ) _30_prd_lograd_pcnte
+	, dbo.RetiraraCaracteresEspeciais(e.Endereco_Linha1) _31_prd_end_pcnte
+	, dbo.RetiraraCaracteresEspeciais(e.Endereco_Linha2) _32_prd_compl_pcnte
+	, dbo.RetiraraCaracteresEspeciais(e.Numero) _33_prd_num_pcnte
+	, dbo.RetiraraCaracteresEspeciais(e.Bairro) _34_prd_bairro_pcnte
+	, dbo.RetiraraCaracteresEspeciais(p.Celular/* + replace(cast(e.Telefones as varchar(25)),'\r\n','')*/) _35_prd_ddtel_pcnte
+	, dbo.RetiraraCaracteresEspeciais(e.email) _36_prd_email_pcnte	
 	, '' _37_prd_ine
 from Fatura f
 inner join Fatura_Procedimento fp on f.ECO_ID = fp.Fatura
@@ -509,7 +519,9 @@ cbFatura.Checked = CheckFatura;
           <Text>&amp;Abrir diretório do arquivo?</Text>
         </cbOpenFolder>
         <btnCreateBPAFile Ref="28" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
-          <ClickEvent>for(int i = 0; i &lt; clbFaturas.Control.CheckedItems.Count; i++)
+          <ClickEvent>System.DateTime pDTIni_ = System.DateTime.Now;
+	
+for(int i = 0; i &lt; clbFaturas.Control.CheckedItems.Count; i++)
 {	
 	dsListaFatura.First();
 	while(!dsListaFatura.IsEof)
@@ -641,7 +653,7 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
 
 	sw.Close();
 
-	MessageBox.Show("Gerado (" + FullFileName + ") com sucesso!", "Arquivo BPA", MessageBoxButtons.OK, MessageBoxIcon.Information);
+	MessageBox.Show("Gerado (" + FullFileName + ") com sucesso!", "Arquivo BPA ("+string.Format("{0}",System.DateTime.Now - pDTIni_)+")", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
 	if (cbOpenFolder.Checked)
 	{
@@ -863,9 +875,9 @@ using (System.IO.StreamWriter sw = new System.IO.StreamWriter(FullFileName, true
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>BPA</ReportAlias>
-  <ReportChanged>11/13/2018 7:56:11 AM</ReportChanged>
+  <ReportChanged>11/14/2018 9:05:32 AM</ReportChanged>
   <ReportCreated>10/29/2018 9:53:19 AM</ReportCreated>
-  <ReportGuid>537a3b8ffae241a6bb4f1daef4f9ac45</ReportGuid>
+  <ReportGuid>a59258977928485ea379a89d3e7e6d02</ReportGuid>
   <ReportName>BPA</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2007.3.100</ReportVersion>
