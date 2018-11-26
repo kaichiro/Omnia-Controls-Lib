@@ -1,0 +1,2436 @@
+<?xml version="1.0"?>
+<Classe Tipo="TipoMovimentoEstoque">
+  <Atributos>
+    <Abreviacao>TRAN</Abreviacao>
+    <AgrupaItensMovCaixa>True</AgrupaItensMovCaixa>
+    <AgrupaParcelasMovCaixa>True</AgrupaParcelasMovCaixa>
+    <ApenasUmaInstancia>True</ApenasUmaInstancia>
+    <AtualizaContabil>False</AtualizaContabil>
+    <AtualizaCusto>True</AtualizaCusto>
+    <AtualizaFinanceiro>False</AtualizaFinanceiro>
+    <AtualizarQtdeOrigem>False</AtualizarQtdeOrigem>
+    <AtualizarQtdeOrigemApenasTipoAtuEstoquePadrao>False</AtualizarQtdeOrigemApenasTipoAtuEstoquePadrao>
+    <AtualizaSaldo>True</AtualizaSaldo>
+    <CalcularValoresAutomaticamente>True</CalcularValoresAutomaticamente>
+    <CanShowDlgParameters>False</CanShowDlgParameters>
+    <ChamarParametrosAoIncluir>True</ChamarParametrosAoIncluir>
+    <ComandoNrDocPadraoParcela>self.NrDocumento</ComandoNrDocPadraoParcela>
+    <ComandoNrDocPadraoPersonalidade>self.NrDocumento</ComandoNrDocPadraoPersonalidade>
+    <ComandoNrDocPadraoProduto>self.Cabecalho.Numeros-&gt;select( n | n.Numerador.Etiqueta = 'Financeiro')-&gt;First.Numero</ComandoNrDocPadraoProduto>
+    <Descricao>TRANSFERENCIA DE MERCADORIA</Descricao>
+    <DescricaoCFOP>
+    </DescricaoCFOP>
+    <EmissorECFTEF>False</EmissorECFTEF>
+    <ExecutarComandosAoIncluir>True</ExecutarComandosAoIncluir>
+    <ExpressaoProdutoHabilDesconto>self.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida</ExpressaoProdutoHabilDesconto>
+    <ExpressaoRegistrosAtualizacaoQtde>
+    </ExpressaoRegistrosAtualizacaoQtde>
+    <ExpressaoRetornoNrDocumentoCheque>if (self.Cheque.oclIsTypeOf(ChequeEmitido)) then  let ce = self.Cheque.safeCast(ChequeEmitido) in  ( ce.TalaoCheque.ContaBancaria.Banco.Codigo + '-' + ce.TalaoCheque.ContaBancaria.ContaCodigo ) + '-' + ce.Numero.asString else  if (self.Cheque.oclIsTypeOf(ChequeRecebido)) then self.Cheque.safeCast(ChequeRecebido).Banco.Codigo+ '-' + self.Cheque.Numero.asString else '' endif endif</ExpressaoRetornoNrDocumentoCheque>
+    <FocoAposValidarProduto>NovoItem</FocoAposValidarProduto>
+    <NaturezaOperacao>
+    </NaturezaOperacao>
+    <NovoItemAoEntrar>True</NovoItemAoEntrar>
+    <PadraoNovaPersonalidade>Cliente</PadraoNovaPersonalidade>
+    <PedeUnidadeDestino>False</PedeUnidadeDestino>
+    <ProcessandoOrigem>False</ProcessandoOrigem>
+    <SerieSubSerie>
+    </SerieSubSerie>
+    <SistemaContas>Receber</SistemaContas>
+    <Tela>iOmniaNET.DlgMovimentoEstoqueSimples</Tela>
+    <TelaLayout>
+    </TelaLayout>
+    <TipoAtuEstoquePadrao>Saida</TipoAtuEstoquePadrao>
+    <TipoEmissorDocFiscal>Nenhum</TipoEmissorDocFiscal>
+    <TipoPrecoUnitario>EditaPrecoCusto</TipoPrecoUnitario>
+    <TipoUnidadeMedida>Venda</TipoUnidadeMedida>
+    <UsoInterno>False</UsoInterno>
+  </Atributos>
+  <Relacionamentos>
+    <Unidades>
+      <Record Id="Blush - Loja" Tipo="Unidade" />
+      <Record Id="Blush - Escritorio" Tipo="Unidade" />
+    </Unidades>
+    <Parametros>
+      <Record Id="PUDESTINO" Tipo="ParametroTipoMovEstoque">
+        <Atributos>
+          <CampoDados>True</CampoDados>
+          <Comando>Unidade.allLoadedObjects-&gt;select(Descricao.sqlLikeCaseInsensitive('{0}%')  )-&gt;orderBy(Descricao)</Comando>
+          <ComandoParaDados>self.UnidadeDestino</ComandoParaDados>
+          <Etiqueta>Unidade Destino</Etiqueta>
+          <NomeInterno>PUDESTINO</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>Unidade.allinstances-&gt;select(Descricao.sqlLikeCaseInsensitive('{0}%')  )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>if PUORIGEM-&gt;notEmpty then 'Unidade.allInstances'.EnsureObjects( Unidade )-&gt;difference(PUORIGEM)-&gt;first else Unidade.emptyList-&gt;first endif</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Colunas>
+            <Record Id="Nome" Tipo="ColunaParamTipoMovEstoque">
+              <Atributos>
+                <Comando>self.Descricao</Comando>
+                <Etiqueta>Nome</Etiqueta>
+                <Formato>
+                </Formato>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Colunas>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PUORIGEM" Tipo="ParametroTipoMovEstoque">
+        <Atributos>
+          <CampoDados>True</CampoDados>
+          <Comando>Unidade.allLoadedObjects-&gt;select(Descricao.sqlLikeCaseInsensitive('{0}%'))-&gt;orderBy(Descricao)</Comando>
+          <ComandoParaDados>self.Unidade</ComandoParaDados>
+          <Etiqueta>Unidade Origem</Etiqueta>
+          <NomeInterno>PUORIGEM</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>Unidade.allInstances-&gt;select(Descricao.sqlLikeCaseInsensitive('{0}%'))</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Colunas>
+            <Record Id="Nome" Tipo="ColunaParamTipoMovEstoque">
+              <Atributos>
+                <Comando>self.Descricao</Comando>
+                <Etiqueta>Nome</Etiqueta>
+                <Formato>
+                </Formato>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Colunas>
+        </Relacionamentos>
+      </Record>
+    </Parametros>
+    <Comandos>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>False</Ativo>
+          <Comando>self.MovimentosDependentes.delete</Comando>
+          <Ordem>70</Ordem>
+          <QuandoExecutar>AposAlterar</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>False</Ativo>
+          <Comando>self.MovimentosDependentes.delete</Comando>
+          <Ordem>129</Ordem>
+          <QuandoExecutar>AposAlterar</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Itens-&gt;select( ime | ime.isNew )-&gt;collect( ime | ime.QuantidadeQuitada := false ); self.ProcessaQuitacaoQuantidade</Comando>
+          <Ordem>130</Ordem>
+          <QuandoExecutar>AposAlterar</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>False</Ativo>
+          <Comando>let tmeD = 'TipoMovimentoEstoque.allInstances-&gt;select( tme | tme.Descricao = \'TRANSFERENCIA DE MERCADORIA - DESTINO\')'.EnsureObjects(TipoMovimentoEstoque)-&gt;first in (
+let newCME = CabecalhoMovimentoEstoque.Create in (
+  newCME.TipoMovimentoEstoque := tmeD
+  ; newCME.MovimentoTitular := self-&gt;first
+  ; newCME.Unidade := self-&gt;first.UnidadeDestino
+  ; newCME.Personalidade := newCME.Unidade.PessoaJuridica
+  ; newCME.AgenteVenda := newCME.MovimentoTitular.AgenteVenda
+  ; newCME.DataEmissao := newCME.MovimentoTitular.DataEmissao
+  ; newCME.DataAtualizacaoEstoque := newCME.MovimentoTitular.DataAtualizacaoEstoque
+  ; newCME.DataSaida := DateTime.Now
+  ; newCME.QuantidadeQuitada := false
+  ; newCME.Cancelado := false
+  ;
+  self.Itens-&gt;collect( ime |
+    let newIME = ItemMovimentoEstoque.Create in (
+      newIME.Cabecalho := newCME
+      ; newIME.QuantidadeQuitada := false
+      ; newIME.ProdutoFinal := ime.ProdutoFinal
+      ; newIME.ValorUnitario := ime.ValorUnitario
+      ; newIME.Quantidade := ime.Quantidade
+      ; newIME.CodigoBarras := ime.CodigoBarras
+      ; newIME.TipoAtualizacaoEstoque := 
+          if ime.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida then
+            enumTipoAtualizacaoEstoque::Entrada
+          else
+            if ime.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Entrada then
+              enumTipoAtualizacaoEstoque::Saida
+            else
+              enumTipoAtualizacaoEstoque::Nenhum
+            endif
+          endif
+    )
+  )
+  ; newCME.GeraNumeradoresManuais(newCME.TipoMovimentoEstoque)
+  ; newCME.GeraNumeradoresAutomaticos(newCME.TipoMovimentoEstoque)
+  ; newCME.SetNumeradorPadrao
+  ; newCME.trProcessado
+)
+)
+</Comando>
+          <Ordem>120</Ordem>
+          <QuandoExecutar>AposIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.UnidadeDestino := PUDESTINO</Comando>
+          <Ordem>10</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Unidade := PUORIGEM</Comando>
+          <Ordem>20</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Personalidade := PUDESTINO.PessoaJuridica</Comando>
+          <Ordem>30</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Itens.ProdutoFinal-&gt;collect( pf | 
+  pf.SaldosProdutos-&gt;select( sp | sp.Unidade = self.UnidadeDestino )-&gt;first.UltimoCusto := pf.SaldosProdutos-&gt;select( sp | sp.Unidade = self.Unidade )-&gt;first.UltimoCusto
+)
+</Comando>
+          <Ordem>100</Ordem>
+          <QuandoExecutar>AposIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>let cme = self-&gt;first in (
+  cme.MovimentosDependentes.delete
+  ; cme.CriarMovimentoDestino(self.UnidadeDestino)
+
+  ; cme.NumeroPadrao := cme.MovimentosDependentes-&gt;select( md | md.NumeroPadrao-&gt;notEmpty )-&gt;first.NumeroPadrao
+  ; cme.UpdateLastUndoBlock-&gt;Refresh
+  ; if cme.NumeroPadrao-&gt;isEmpty then cme.GeraNumeradoresAutomaticos(cme.TipoMovimentoEstoque) else false endif
+  ;
+  cme.MovimentosDependentes-&gt;collect( cmeMD |
+    let newCMEN = CabMovEstoqueNumero.Create in (
+      newCMEN.Movimento := cmeMD
+      ; newCMEN.Numero := cmeMD.MovimentoTitular.NumeroPadrao.Numero
+      ; cmeMD.NumeroPAdrao := newCMEN
+    )
+  )
+)
+</Comando>
+          <Ordem>60</Ordem>
+          <QuandoExecutar>AposIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>False</Ativo>
+          <Comando>self.MovimentosDependentes.delete
+;
+let tmeD = 'TipoMovimentoEstoque.allInstances-&gt;select( tme | tme.Descricao = \'TRANSFERENCIA DE MERCADORIA - DESTINO\')'.EnsureObjects(TipoMovimentoEstoque)-&gt;first in (
+let newCME = CabecalhoMovimentoEstoque.Create in (
+  newCME.TipoMovimentoEstoque := tmeD
+  ; newCME.MovimentoTitular := self-&gt;first
+  ; newCME.Unidade := self-&gt;first.UnidadeDestino
+  ; newCME.Personalidade := newCME.Unidade.PessoaJuridica
+  ; newCME.AgenteVenda := newCME.MovimentoTitular.AgenteVenda
+  ; newCME.DataEmissao := newCME.MovimentoTitular.DataEmissao
+  ; newCME.DataAtualizacaoEstoque := newCME.MovimentoTitular.DataAtualizacaoEstoque
+  ; newCME.DataSaida := DateTime.Now
+  ; newCME.QuantidadeQuitada := false
+  ; newCME.Cancelado := false
+  ;
+  self.Itens-&gt;collect( ime |
+    let newIME = ItemMovimentoEstoque.Create in (
+      newIME.Cabecalho := newCME
+      ; newIME.QuantidadeQuitada := false
+      ; newIME.ProdutoFinal := ime.ProdutoFinal
+      ; newIME.ValorUnitario := ime.ValorUnitario
+      ; newIME.Quantidade := ime.Quantidade
+      ; newIME.CodigoBarras := ime.CodigoBarras
+      ; newIME.TipoAtualizacaoEstoque := 
+          if ime.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida then
+            enumTipoAtualizacaoEstoque::Entrada
+          else
+            if ime.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Entrada then
+              enumTipoAtualizacaoEstoque::Saida
+            else
+              enumTipoAtualizacaoEstoque::Nenhum
+            endif
+          endif
+    )
+  )
+  ; newCME.GeraNumeradoresManuais(newCME.TipoMovimentoEstoque)
+  ; newCME.GeraNumeradoresAutomaticos(newCME.TipoMovimentoEstoque)
+  ; newCME.SetNumeradorPadrao
+  ; newCME.trProcessado
+)
+)
+</Comando>
+          <Ordem>130</Ordem>
+          <QuandoExecutar>AposAlterar</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>let cme = self-&gt;first in (
+  cme.MovimentosDependentes.delete
+  ; cme.CriarMovimentoDestino(self.UnidadeDestino)
+
+  ; cme.NumeroPadrao := cme.MovimentosDependentes-&gt;select( md | md.NumeroPadrao-&gt;notEmpty )-&gt;first.NumeroPadrao
+  ; cme.UpdateLastUndoBlock-&gt;Refresh
+  ; if cme.NumeroPadrao-&gt;isEmpty then cme.GeraNumeradoresAutomaticos(cme.TipoMovimentoEstoque) else false endif
+  ;
+  cme.MovimentosDependentes-&gt;collect( cmeMD |
+    let newCMEN = CabMovEstoqueNumero.Create in (
+      newCMEN.Movimento := cmeMD
+      ; newCMEN.Numero := cmeMD.MovimentoTitular.NumeroPadrao.Numero
+      ; cmeMD.NumeroPAdrao := newCMEN
+    )
+  )
+)
+</Comando>
+          <Ordem>80</Ordem>
+          <QuandoExecutar>AposAlterar</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Itens-&gt;collect( ime | ime.QuantidadeQuitada := false ); self.ProcessaQuitacaoQuantidade</Comando>
+          <Ordem>120</Ordem>
+          <QuandoExecutar>AposIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Itens.ProdutoFinal-&gt;collect( pf | 
+  pf.SaldosProdutos-&gt;select( sp | sp.Unidade = self.UnidadeDestino )-&gt;first.UltimoCusto := pf.SaldosProdutos-&gt;select( sp | sp.Unidade = self.Unidade )-&gt;first.UltimoCusto
+)
+</Comando>
+          <Ordem>110</Ordem>
+          <QuandoExecutar>AntesAlterar</QuandoExecutar>
+        </Atributos>
+      </Record>
+    </Comandos>
+    <Excecoes>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>PedirAutorizacao</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Sem Cliente</Aviso>
+          <Expressao>self.Personalidade-&gt;isempty</Expressao>
+          <ExpressaoRetornoSalvo>self.Personalidade.Nome</ExpressaoRetornoSalvo>
+          <Ordem>10</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Há exceções nos itens</Aviso>
+          <Expressao>self.Itens-&gt;exists( i | i.HaExcecoes)</Expressao>
+          <ExpressaoRetornoSalvo>'itens com exceção: ' + self.Itens-&gt;select( i | i.HaExcecoes)-&gt;Size.AsString</ExpressaoRetornoSalvo>
+          <Ordem>30</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Consulte suporte do sistema para esta ação.</Aviso>
+          <Expressao>true or (PUSER.Login &lt;&gt; 'Admin')</Expressao>
+          <ExpressaoRetornoSalvo>''</ExpressaoRetornoSalvo>
+          <Ordem>40</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>CabecalhoAoExcluir</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>PedirAutorizacao</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Estoque indisponivel!</Aviso>
+          <Expressao>if (self.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida) then ( self.ProdutoFinal.SaldosProdutos-&gt;select( sl | (Periodo = '000000' ) and (sl.Unidade = self.Cabecalho.Unidade )).quantidade-&gt;sum + self.Quantidade ) &lt; self.Quantidade else false endif</Expressao>
+          <ExpressaoRetornoSalvo>(self.ProdutoFinal.SaldosProdutos-&gt;select( sl | (Periodo = '000000' ) and (sl.Unidade = self.Cabecalho.Unidade )).quantidade-&gt;sum).asString</ExpressaoRetornoSalvo>
+          <Ordem>60</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Item</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+    </Excecoes>
+    <Emissoes>
+      <Record Id="0006 - TRANSFERENCIA DE MERCADORIAS" Tipo="TipoMovEstoqueEmissao">
+        <Atributos>
+          <Alterando>True</Alterando>
+          <Ativo>True</Ativo>
+          <Excluindo>False</Excluindo>
+          <Incluindo>True</Incluindo>
+          <Ordem>10</Ordem>
+        </Atributos>
+        <Relacionamentos>
+          <Relatorio>
+            <Record Id="0006 - TRANSFERENCIA DE MERCADORIAS" Tipo="Relatorio">
+              <Atributos>
+                <Layout>&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?&gt;
+&lt;StiSerializer version="1.02" type="Net" application="StiReport"&gt;
+  &lt;Dictionary Ref="1" type="Dictionary" isKey="true"&gt;
+    &lt;BusinessObjects isList="true" count="0" /&gt;
+    &lt;Databases isList="true" count="1"&gt;
+      &lt;primeWAREcnx Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true"&gt;
+        &lt;Alias&gt;primeWAREcnx&lt;/Alias&gt;
+        &lt;ConnectionStringEncrypted&gt;9GxTz8hMwqRqRv0U5R3jY9FY84lIXcKE4kft7WN09vvFxPULYgPD7eEInABqSaK/w3rBiUYAmc1FGaiYTz3jYsJayStNXVtNb1+h1Hdw4GrTcMtISAvZvGtF+fg=&lt;/ConnectionStringEncrypted&gt;
+        &lt;Name&gt;primeWAREcnx&lt;/Name&gt;
+      &lt;/primeWAREcnx&gt;
+    &lt;/Databases&gt;
+    &lt;DataSources isList="true" count="5"&gt;
+      &lt;Cabecalho Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;Cabecalho&lt;/Alias&gt;
+        &lt;Columns isList="true" count="25"&gt;
+          &lt;value&gt;NrMovimento,System.String&lt;/value&gt;
+          &lt;value&gt;Unidade,System.String&lt;/value&gt;
+          &lt;value&gt;NomeVendedor,System.String&lt;/value&gt;
+          &lt;value&gt;NomeCliente,System.String&lt;/value&gt;
+          &lt;value&gt;DataDigitacao,System.DateTime&lt;/value&gt;
+          &lt;value&gt;DataEmissao,System.DateTime&lt;/value&gt;
+          &lt;value&gt;Cancelado,System.Boolean&lt;/value&gt;
+          &lt;value&gt;Logradouro,System.String&lt;/value&gt;
+          &lt;value&gt;endNumero,System.String&lt;/value&gt;
+          &lt;value&gt;Complemento,System.String&lt;/value&gt;
+          &lt;value&gt;Bairro,System.String&lt;/value&gt;
+          &lt;value&gt;Cidade,System.String&lt;/value&gt;
+          &lt;value&gt;UF,System.String&lt;/value&gt;
+          &lt;value&gt;descrTipoEndereco,System.String&lt;/value&gt;
+          &lt;value&gt;CEP,System.String&lt;/value&gt;
+          &lt;value&gt;numTelefone,System.String&lt;/value&gt;
+          &lt;value&gt;descrFone,System.String&lt;/value&gt;
+          &lt;value&gt;CPF,System.String&lt;/value&gt;
+          &lt;value&gt;CNPJ,System.String&lt;/value&gt;
+          &lt;value&gt;IM,System.String&lt;/value&gt;
+          &lt;value&gt;IE,System.String&lt;/value&gt;
+          &lt;value&gt;EstaEmPessoaFisica,System.Int32&lt;/value&gt;
+          &lt;value&gt;EstaEmPessoaJuridica,System.Int32&lt;/value&gt;
+          &lt;value&gt;eMail,System.String&lt;/value&gt;
+          &lt;value&gt;TipoMovimentoEstoque,System.String&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;Cabecalho&lt;/Name&gt;
+        &lt;NameInSource&gt;primeWAREcnx&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="0" /&gt;
+        &lt;SqlCommand&gt;SELECT 
+	und.Descricao AS Unidade,
+	cmen.Numero AS NrMovimento, 
+	persAV.Nome AS NomeVendedor, 
+	persCME.Nome AS NomeCliente,
+	cme.DataDigitacao, 
+	cme.DataEmissao, 
+	cme.Cancelado, 
+	ed.Logradouro,
+	ed.Numero AS endNumero, 
+	ed.Complemento, 
+	Bairro.Nome AS Bairro,
+	cid.Nome AS Cidade, 
+	cid.UF, 
+	te.Descricao AS descrTipoEndereco, 
+	ed.CEP,
+	(select top(1) tel.Numero from Telefone tel where ed.ECO_ID = tel.Endereco ) AS numTelefone, 
+(select top(1) tf.Descricao  from Telefone tel LEFT OUTER JOIN  TipoFone tf ON tf.ECO_ID = tel.TipoFone where ed.ECO_ID = tel.Endereco ) AS descrFone, 
+	PessoaFisica.CPF,
+    pj.CNPJ, 
+	pj.IM, 
+	pj.IE, 
+(SELECT Count(*) 
+	FROM PessoaFisica pftmp
+			WHERE pftmp.eco_id = persCME.eco_id) AS EstaEmPessoaFisica, 
+(SELECT Count(*)
+	FROM PessoaJuridica pjtmp
+  			WHERE pjtmp.eco_id = persCME.eco_id) AS EstaEmPessoaJuridica, 
+	ed.eMail,
+	tme.Descricao as TipoMovimentoEstoque
+
+	FROM CabecalhoMovimentoEstoque cme 
+
+		LEFT OUTER JOIN  AgenteVenda av ON cme.AgenteVenda = av.ECO_ID 
+		LEFT OUTER JOIN  Personalidade persAV ON av.Personalidade = persAV.ECO_ID 
+		LEFT OUTER JOIN  Personalidade persCME ON cme.Personalidade = persCME.ECO_ID 
+		LEFT OUTER JOIN  Endereco ed ON ed.ECO_ID = CME.EnderecoEntrega 
+		LEFT OUTER JOIN  Bairro ON Bairro.ECO_ID = ed.Bairro 
+		LEFT OUTER JOIN  Cidade cid ON cid.ECO_ID = Bairro.Cidade 
+		LEFT OUTER JOIN  TipoEndereco te ON te.ECO_ID = ed.TipoEndereco 
+		LEFT OUTER JOIN  PessoaFisica ON PessoaFisica.ECO_ID = persCME.ECO_ID 
+		LEFT OUTER JOIN  PessoaJuridica pj ON pj.ECO_ID = persCME.ECO_ID
+		LEFT OUTER JOIN  CabMovEstoqueNumero cmen ON cmen.ECO_ID = cme.NumeroPadrao
+		inner JOIN  Unidade und ON und.ECO_ID = cme.Unidade
+		inner JOIN  TipoMovimentoEstoque tme ON cme.TipoMovimentoestoque = tme.ECO_ID
+		
+WHERE cme.eco_id = '{PMOVIMENTO}'&lt;/SqlCommand&gt;
+      &lt;/Cabecalho&gt;
+      &lt;Itens Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;Itens&lt;/Alias&gt;
+        &lt;Columns isList="true" count="15"&gt;
+          &lt;value&gt;ID_ITEM,System.Guid&lt;/value&gt;
+          &lt;value&gt;Quantidade,System.Double&lt;/value&gt;
+          &lt;value&gt;ValorUnitario,System.Double&lt;/value&gt;
+          &lt;value&gt;Referencia,System.String&lt;/value&gt;
+          &lt;value&gt;Produto,System.String&lt;/value&gt;
+          &lt;value&gt;Classe,System.String&lt;/value&gt;
+          &lt;value&gt;Divisao,System.String&lt;/value&gt;
+          &lt;value&gt;Genero,System.String&lt;/value&gt;
+          &lt;value&gt;Grupo,System.String&lt;/value&gt;
+          &lt;value&gt;Marca,System.String&lt;/value&gt;
+          &lt;value&gt;Modelagem,System.String&lt;/value&gt;
+          &lt;value&gt;Cor,System.String&lt;/value&gt;
+          &lt;value&gt;Tamanho,System.String&lt;/value&gt;
+          &lt;value&gt;TotalItem,System.Double&lt;/value&gt;
+          &lt;value&gt;TamanhoOrdem,System.Int32&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;Itens&lt;/Name&gt;
+        &lt;NameInSource&gt;primeWAREcnx&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="1"&gt;
+          &lt;value&gt;id,PMOVIMENTO,3,100&lt;/value&gt;
+        &lt;/Parameters&gt;
+        &lt;SqlCommand&gt;SELECT 
+	it.ECO_ID AS ID_ITEM, 
+	it.Quantidade, 
+	it.ValorUnitario, 
+	prd.Referencia,
+    prd.Descricao AS Produto, 
+	cls.Descricao AS Classe, 
+	div.Descricao AS Divisao,
+    gen.Descricao AS Genero, 
+	grp.Descricao AS Grupo, 
+	mrc.Descricao AS Marca,
+    model.Descricao AS Modelagem, 
+	cor.Descricao AS Cor, 
+	tam.Descricao AS Tamanho,
+	tam.Ordem As TamanhoOrdem,
+	( select sum(imevTT.Valor) from Produto prdTT 
+LEFT OUTER JOIN  ProdutoFinal pfTT ON pfTT.Produto = prdTT.ECO_ID 
+LEFT OUTER JOIN  ItemMovimentoEstoque itTT ON ( itTT.ProdutoFinal = pfTT.ECO_ID ) AND ( itTT.Cabecalho = it.Cabecalho )
+LEFT OUTER JOIN  ItemMovEstoqueValor imevTT ON imevTT.ECO_ID = itTT.TipoValorTotal 
+WHERE pf.Produto = prdTT.ECO_ID 
+) AS TotalItem
+
+	FROM ItemMovimentoEstoque it 
+
+LEFT OUTER JOIN  ProdutoFinal pf ON it.ProdutoFinal = pf.ECO_ID 
+LEFT OUTER JOIN  Produto prd ON pf.Produto = prd.ECO_ID 
+LEFT OUTER JOIN  Classe cls ON cls.ECO_ID = prd.Classe 
+LEFT OUTER JOIN  Divisao div ON div.ECO_ID = prd.Divisao 
+LEFT OUTER JOIN  Genero gen ON gen.ECO_ID = prd.Genero 
+LEFT OUTER JOIN  Grupo grp ON grp.ECO_ID = prd.Grupo 
+LEFT OUTER JOIN  Marca mrc ON mrc.ECO_ID = prd.Marca 
+LEFT OUTER JOIN  Modelagem model ON model.ECO_ID = prd.Modelagem 
+LEFT OUTER JOIN  Cor cor ON cor.ECO_ID = pf.Cor
+LEFT OUTER JOIN  Tamanho tam ON tam.ECO_ID = pf.Tamanho
+
+WHERE it.Cabecalho = @id&lt;/SqlCommand&gt;
+      &lt;/Itens&gt;
+      &lt;ItemValores Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;ItemValores&lt;/Alias&gt;
+        &lt;Columns isList="true" count="6"&gt;
+          &lt;value&gt;Valor,System.Double&lt;/value&gt;
+          &lt;value&gt;Aliquota,System.Double&lt;/value&gt;
+          &lt;value&gt;Base,System.Double&lt;/value&gt;
+          &lt;value&gt;Descricao,System.String&lt;/value&gt;
+          &lt;value&gt;ID_ITEM,System.Guid&lt;/value&gt;
+          &lt;value&gt;Ordem,System.String&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;ItemValores&lt;/Name&gt;
+        &lt;NameInSource&gt;primeWAREcnx&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="1"&gt;
+          &lt;value&gt;id,PMOVIMENTO,3,100&lt;/value&gt;
+        &lt;/Parameters&gt;
+        &lt;SqlCommand&gt;SELECT tmev.Ordem, vlIT.Movimento ID_ITEM, vlIT.Valor, vlIT.Aliquota, vlIT.Base, tmev.Descricao
+FROM ItemMovimentoEstoque it RIGHT JOIN
+  ItemMovEstoqueValor vlIT ON vlIT.Movimento = it.ECO_ID LEFT JOIN
+  TipoMovEstoqueValor tmev ON vlIT.TipoMovEstoqueValor = tmev.ECO_ID
+where it.Cabecalho = @id&lt;/SqlCommand&gt;
+      &lt;/ItemValores&gt;
+      &lt;Valores Ref="6" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;Valores&lt;/Alias&gt;
+        &lt;Columns isList="true" count="10"&gt;
+          &lt;value&gt;TotalNF,System.Double&lt;/value&gt;
+          &lt;value&gt;TotalProduto,System.Double&lt;/value&gt;
+          &lt;value&gt;TotalOutros,System.Double&lt;/value&gt;
+          &lt;value&gt;TotalFrete,System.Double&lt;/value&gt;
+          &lt;value&gt;TotalBaseICMSST,System.Double&lt;/value&gt;
+          &lt;value&gt;TotalBaseIPI,System.Double&lt;/value&gt;
+          &lt;value&gt;TotalIPI,System.Double&lt;/value&gt;
+          &lt;value&gt;TotalBaseICMS,System.Double&lt;/value&gt;
+          &lt;value&gt;TotalICMS,System.Double&lt;/value&gt;
+          &lt;value&gt;TotalICMSST,System.Double&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;Valores&lt;/Name&gt;
+        &lt;NameInSource&gt;primeWAREcnx&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="1"&gt;
+          &lt;value&gt;id,PMOVIMENTO,3,100&lt;/value&gt;
+        &lt;/Parameters&gt;
+        &lt;SqlCommand&gt;SELECT 
+	ttNF.Valor AS TotalNF,
+	ttProd.Valor AS TotalProduto,
+	ttOut.Valor AS TotalOutros,
+	ttFrt.Valor AS TotalFrete,
+	ttBCicmsST.Valor AS TotalBaseICMSST,
+	ttBCipi.Valor AS TotalBaseIPI,
+	ttIPI.Valor AS TotalIPI,
+	ttBCicms.Valor AS TotalBaseICMS,
+	ttICMS.Valor AS TotalICMS,
+	ttICMSST.Valor AS TotalICMSST
+	
+	
+	FROM CabecalhoMovimentoEstoque cme 
+
+		LEFT OUTER JOIN  CabMovEstoqueValor cmev ON cmev.Movimento = cme.ECO_ID
+		LEFT OUTER JOIN  CabMovEstoqueValor ttNF ON ttNF.ECO_ID = cme.TipoValorTotalNF
+		LEFT OUTER JOIN  CabMovEstoqueValor ttProd ON ttProd.ECO_ID = cme.TipoValorTotalProduto
+		LEFT OUTER JOIN  CabMovEstoqueValor ttOut ON ttOut.ECO_ID = cme.TipoValorTotalOutros
+		LEFT OUTER JOIN  CabMovEstoqueValor ttFrt ON ttFrt.ECO_ID = cme.TipoValorTotalFrete
+		LEFT OUTER JOIN  CabMovEstoqueValor ttBCicmsST ON ttBCicmsST.ECO_ID = cme.TipoValorTotalBaseICMSST
+		LEFT OUTER JOIN  CabMovEstoqueValor ttBCipi ON ttBCipi.ECO_ID = cme.TipoValorTotalBaseIPI
+		LEFT OUTER JOIN  CabMovEstoqueValor ttIPI ON ttIPI.ECO_ID = cme.TipoValorTotalIPI
+		LEFT OUTER JOIN  CabMovEstoqueValor ttBCicms ON ttBCicms.ECO_ID = cme.TipoValorTotalBaseICMS
+		LEFT OUTER JOIN  CabMovEstoqueValor ttICMS ON ttICMS.ECO_ID = cme.TipoValorTotalICMS
+		LEFT OUTER JOIN  CabMovEstoqueValor ttICMSST ON ttICMSST.ECO_ID = cme.TipoValorTotalICMSST
+
+WHERE cmev.Movimento = @id&lt;/SqlCommand&gt;
+      &lt;/Valores&gt;
+      &lt;Pagtos Ref="7" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;Pagtos&lt;/Alias&gt;
+        &lt;Columns isList="true" count="4"&gt;
+          &lt;value&gt;Descricao,System.String&lt;/value&gt;
+          &lt;value&gt;NrDocumento,System.String&lt;/value&gt;
+          &lt;value&gt;Valor,System.Double&lt;/value&gt;
+          &lt;value&gt;DataVencimento,System.DateTime&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;Pagtos&lt;/Name&gt;
+        &lt;NameInSource&gt;primeWAREcnx&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="1"&gt;
+          &lt;value&gt;id,PMOVIMENTO,3,100&lt;/value&gt;
+        &lt;/Parameters&gt;
+        &lt;SqlCommand&gt;SELECT tdp.Descricao, pme.NrDocumento, pme.Valor, pme.DataVencimento
+FROM ParcelaMovimentoEstoque pme LEFT JOIN
+  TipoDocParcelamento tdp ON pme.TipoDocParcelamento = tdp.ECO_ID
+where pme.Cabecalho = @id&lt;/SqlCommand&gt;
+      &lt;/Pagtos&gt;
+    &lt;/DataSources&gt;
+    &lt;Relations isList="true" count="1"&gt;
+      &lt;ItemValores Ref="8" type="DataRelation" isKey="true"&gt;
+        &lt;Alias&gt;ItemValores&lt;/Alias&gt;
+        &lt;ChildColumns isList="true" count="1"&gt;
+          &lt;value&gt;ID_ITEM&lt;/value&gt;
+        &lt;/ChildColumns&gt;
+        &lt;ChildSource isRef="5" /&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;ItemValores&lt;/Name&gt;
+        &lt;NameInSource&gt;ItemValores&lt;/NameInSource&gt;
+        &lt;ParentColumns isList="true" count="1"&gt;
+          &lt;value&gt;ID_ITEM&lt;/value&gt;
+        &lt;/ParentColumns&gt;
+        &lt;ParentSource isRef="4" /&gt;
+      &lt;/ItemValores&gt;
+    &lt;/Relations&gt;
+    &lt;Report isRef="0" /&gt;
+    &lt;Variables isList="true" count="5"&gt;
+      &lt;value&gt;primeWARE,PMOVIMENTO,PMOVIMENTO,System.String,_x0035_cd0d510-058c-4cfa-a447-3bda04ba654a,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PUSER,PUSER,System.String,af1db15f-8f2d-40b7-864c-67b7376e3eef,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PUNDTRAB,PUNDTRAB,System.String,_x0038_30a6a2e-8eb8-4216-9b9a-c1870ae1a7f8,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTFIM,PDTFIM,System.DateTime,_x0036__x002F_29_x002F_2018_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTINI,PDTINI,System.DateTime,_x0036__x002F_29_x002F_2018_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+    &lt;/Variables&gt;
+  &lt;/Dictionary&gt;
+  &lt;EngineVersion&gt;EngineV2&lt;/EngineVersion&gt;
+  &lt;GlobalizationStrings isList="true" count="0" /&gt;
+  &lt;MetaTags isList="true" count="0" /&gt;
+  &lt;Pages isList="true" count="2"&gt;
+    &lt;Page1 Ref="9" type="Page" isKey="true"&gt;
+      &lt;Border&gt;None;Black;2;Solid;False;4;Black&lt;/Border&gt;
+      &lt;Brush&gt;Transparent&lt;/Brush&gt;
+      &lt;Components isList="true" count="8"&gt;
+        &lt;PageHeaderBand1 Ref="10" type="PageHeaderBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,0.4,19,2.6&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="13"&gt;
+            &lt;Text1 Ref="11" type="Text" isKey="true"&gt;
+              &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0.2,0,18,1.2&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,16,Bold&lt;/Font&gt;
+              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text1&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;{Cabecalho.TipoMovimentoEstoque}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text1&gt;
+            &lt;Text4 Ref="12" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;3.2,1.4,5.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text4&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;{Cabecalho.NomeCliente}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+            &lt;/Text4&gt;
+            &lt;Text5 Ref="13" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,1.4,3,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text5&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;Personalidade:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text5&gt;
+            &lt;Text6 Ref="14" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;14.6,1.4,4.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text6&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;{Format("{0:dd/MM/yyyy}", Cabecalho.DataDigitacao)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text6&gt;
+            &lt;Text7 Ref="15" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;11.6,1.4,3.8,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text7&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;DataDigitacao:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text7&gt;
+            &lt;Text8 Ref="16" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;14.6,1.8,3.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text8&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;{Format("{0:dd/MM/yyyy}", Cabecalho.DataEmissao)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text8&gt;
+            &lt;Text9 Ref="17" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;11.6,1.8,3,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text9&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;DataEmissao..:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text9&gt;
+            &lt;Text10 Ref="18" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,0,7,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10&lt;/Font&gt;
+              &lt;Guid&gt;af7b7f3f0e6e4f8b8775238bfa00bffc&lt;/Guid&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text10&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;{Cabecalho.Unidade}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text10&gt;
+            &lt;Text2 Ref="19" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;2,1.8,5.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text2&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;{Cabecalho.NomeVendedor}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+            &lt;/Text2&gt;
+            &lt;Text18 Ref="20" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;14.6,0.4,4.2,0.6&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,12,Bold&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text18&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;{Cabecalho.NrMovimento}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+            &lt;/Text18&gt;
+            &lt;Text19 Ref="21" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;14.6,0,4.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text19&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;Numero do Movimento&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text19&gt;
+            &lt;Text3 Ref="22" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,1.8,2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text3&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;Vendedor:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text3&gt;
+            &lt;HorizontalLinePrimitive1 Ref="23" type="HorizontalLinePrimitive" isKey="true"&gt;
+              &lt;ClientRectangle&gt;0,2.4,19,0.0254&lt;/ClientRectangle&gt;
+              &lt;Color&gt;Black&lt;/Color&gt;
+              &lt;EndCap Ref="24" type="Cap" isKey="true"&gt;
+                &lt;Color&gt;Black&lt;/Color&gt;
+              &lt;/EndCap&gt;
+              &lt;Name&gt;HorizontalLinePrimitive1&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;StartCap Ref="25" type="Cap" isKey="true"&gt;
+                &lt;Color&gt;Black&lt;/Color&gt;
+              &lt;/StartCap&gt;
+            &lt;/HorizontalLinePrimitive1&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;PageHeaderBand1&lt;/Name&gt;
+          &lt;Page isRef="9" /&gt;
+          &lt;Parent isRef="9" /&gt;
+          &lt;PrintOn&gt;OnlyFirstPage&lt;/PrintOn&gt;
+        &lt;/PageHeaderBand1&gt;
+        &lt;PageFooterBand1 Ref="26" type="PageFooterBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,25.1,19,2.6&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;PageFooterBand1&lt;/Name&gt;
+          &lt;Page isRef="9" /&gt;
+          &lt;Parent isRef="9" /&gt;
+        &lt;/PageFooterBand1&gt;
+        &lt;Text21 Ref="27" type="Text" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,-0.4,2,0.4&lt;/ClientRectangle&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Font&gt;Courier New,10&lt;/Font&gt;
+          &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+          &lt;Name&gt;Text21&lt;/Name&gt;
+          &lt;Page isRef="9" /&gt;
+          &lt;Parent isRef="9" /&gt;
+          &lt;Text&gt;Unidade&lt;/Text&gt;
+          &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+          &lt;Type&gt;Expression&lt;/Type&gt;
+        &lt;/Text21&gt;
+        &lt;Text11 Ref="28" type="Text" isKey="true"&gt;
+          &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+          &lt;ClientRectangle&gt;0.2,9.8,7.8,0.4&lt;/ClientRectangle&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Font&gt;Arial,10&lt;/Font&gt;
+          &lt;Guid&gt;aae7483ca36c4ad4b75c01b14924f05d&lt;/Guid&gt;
+          &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+          &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+          &lt;Name&gt;Text11&lt;/Name&gt;
+          &lt;Page isRef="9" /&gt;
+          &lt;Parent isRef="9" /&gt;
+          &lt;Text&gt;Ass. Responsável&lt;/Text&gt;
+          &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+          &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+          &lt;Type&gt;Expression&lt;/Type&gt;
+          &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+        &lt;/Text11&gt;
+        &lt;Text42 Ref="29" type="Text" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;-0.2,3.8,19.2,0.6&lt;/ClientRectangle&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Font&gt;Courier New,7,Bold&lt;/Font&gt;
+          &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+          &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+          &lt;Name&gt;Text42&lt;/Name&gt;
+          &lt;Page isRef="9" /&gt;
+          &lt;Parent isRef="9" /&gt;
+          &lt;Text&gt;Totais do Movimento&lt;/Text&gt;
+          &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+          &lt;Type&gt;Expression&lt;/Type&gt;
+          &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+        &lt;/Text42&gt;
+        &lt;GroupHeaderBand1 Ref="30" type="GroupHeaderBand" isKey="true"&gt;
+          &lt;Border&gt;Bottom;Black;1;Double;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,3.8,19,2.6&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="21"&gt;
+            &lt;Text23 Ref="31" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;3.4,0.8,2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text23&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;{Valores.TotalBaseICMS}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="32" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;0&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;0&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$ &lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text23&gt;
+            &lt;Text24 Ref="33" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,0.8,3.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text24&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;Total Base ICMS....:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text24&gt;
+            &lt;Text28 Ref="34" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;8.2,0.8,2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text28&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;{Valores.TotalICMS}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="35" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;0&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;0&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$ &lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text28&gt;
+            &lt;Text29 Ref="36" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;5.6,0.8,2.6,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text29&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;Total ICMS....:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text29&gt;
+            &lt;Text22 Ref="37" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;3.4,1.6,2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text22&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;{Valores.TotalBaseICMSST}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="38" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;9&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;2&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$&lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text22&gt;
+            &lt;Text27 Ref="39" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,1.6,3.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text27&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;Total Base ICMS ST.:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text27&gt;
+            &lt;Text25 Ref="40" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;3.4,1.2,2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text25&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;{Valores.TotalBaseIPI}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="41" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;9&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;2&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$&lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text25&gt;
+            &lt;Text26 Ref="42" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,1.2,3.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text26&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;Total Base IPI.....:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text26&gt;
+            &lt;Text32 Ref="43" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;8.2,1.2,2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text32&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;{Valores.TotalIPI}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="44" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;9&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;2&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$&lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text32&gt;
+            &lt;Text33 Ref="45" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;5.6,1.2,2.6,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text33&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;Total IPI.....:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text33&gt;
+            &lt;Text30 Ref="46" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;8.2,1.6,2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text30&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;{Valores.TotalICMSST}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="47" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;9&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;2&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$&lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text30&gt;
+            &lt;Text31 Ref="48" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;5.6,1.6,2.6,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text31&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;Total ICMS ST.:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text31&gt;
+            &lt;Text43 Ref="49" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,0.4,19,0.6&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6,Bold&lt;/Font&gt;
+              &lt;Guid&gt;f5eee499ff1c45249358183eb0f0601b&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text43&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;Itens do Movimento&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text43&gt;
+            &lt;Text34 Ref="50" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;16.8,0.8,2.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text34&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;{Valores.TotalOutros}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="51" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;0&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;0&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$ &lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text34&gt;
+            &lt;Text35 Ref="52" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;14.2,0.8,2.6,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text35&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;Total Outros..:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text35&gt;
+            &lt;Text38 Ref="53" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;16.8,1.6,2.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text38&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;{Valores.TotalProduto}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="54" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;0&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;0&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$ &lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text38&gt;
+            &lt;Text39 Ref="55" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;14.2,1.6,2.6,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text39&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;Total Produto.:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text39&gt;
+            &lt;Text36 Ref="56" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;16.8,1.2,2.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text36&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;{Valores.TotalFrete}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="57" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;0&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;0&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$ &lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text36&gt;
+            &lt;Text37 Ref="58" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;14.2,1.2,2.6,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text37&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;Total Frete...:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text37&gt;
+            &lt;Text40 Ref="59" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;16.8,2.2,2.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text40&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;{Valores.TotalNF}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="60" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;0&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;0&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$ &lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text40&gt;
+            &lt;Text41 Ref="61" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;14.2,2.2,2.6,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text41&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="30" /&gt;
+              &lt;Text&gt;Total NF......:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text41&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupHeaderBand1&lt;/Name&gt;
+          &lt;Page isRef="9" /&gt;
+          &lt;Parent isRef="9" /&gt;
+          &lt;PrintOn&gt;OnlyFirstPage&lt;/PrintOn&gt;
+        &lt;/GroupHeaderBand1&gt;
+        &lt;DataValores Ref="62" type="DataBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;BusinessObjectGuid isNull="true" /&gt;
+          &lt;ClientRectangle&gt;0,7.2,19,0&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;DataRelationName isNull="true" /&gt;
+          &lt;DataSourceName&gt;Valores&lt;/DataSourceName&gt;
+          &lt;Filters isList="true" count="0" /&gt;
+          &lt;Name&gt;DataValores&lt;/Name&gt;
+          &lt;Page isRef="9" /&gt;
+          &lt;Parent isRef="9" /&gt;
+          &lt;PrintOn&gt;OnlyFirstPage&lt;/PrintOn&gt;
+          &lt;Sort isList="true" count="2"&gt;
+            &lt;value&gt;ASC&lt;/value&gt;
+            &lt;value&gt;Ordem&lt;/value&gt;
+          &lt;/Sort&gt;
+        &lt;/DataValores&gt;
+        &lt;DataPagtos Ref="63" type="DataBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;BusinessObjectGuid isNull="true" /&gt;
+          &lt;ClientRectangle&gt;0,8,19,0.4&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="4"&gt;
+            &lt;DataPagtos_Descricao Ref="64" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;0,0,3.8,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DataPagtos_Descricao&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="63" /&gt;
+              &lt;Text&gt;{Pagtos.Descricao}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DataPagtos_Descricao&gt;
+            &lt;DataPagtos_NrDocumento Ref="65" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;2.8,0,3.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DataPagtos_NrDocumento&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="63" /&gt;
+              &lt;Text&gt;{Pagtos.NrDocumento}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DataPagtos_NrDocumento&gt;
+            &lt;DataPagtos_Valor Ref="66" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;12.4,0,4.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DataPagtos_Valor&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="63" /&gt;
+              &lt;Text&gt;{Pagtos.Valor}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DataPagtos_Valor&gt;
+            &lt;DataPagtos_DataVencimento Ref="67" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;14.8,0,4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DataPagtos_DataVencimento&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="63" /&gt;
+              &lt;Text&gt;{Pagtos.DataVencimento}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DataPagtos_DataVencimento&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;DataSourceName&gt;Pagtos&lt;/DataSourceName&gt;
+          &lt;Filters isList="true" count="0" /&gt;
+          &lt;Name&gt;DataPagtos&lt;/Name&gt;
+          &lt;Page isRef="9" /&gt;
+          &lt;Parent isRef="9" /&gt;
+          &lt;PrintOn&gt;OnlyFirstPage&lt;/PrintOn&gt;
+          &lt;Sort isList="true" count="0" /&gt;
+        &lt;/DataPagtos&gt;
+      &lt;/Components&gt;
+      &lt;Conditions isList="true" count="0" /&gt;
+      &lt;Guid&gt;4d7b6b161bcd48b0bb475e57fec87294&lt;/Guid&gt;
+      &lt;Margins&gt;1,1,1,1&lt;/Margins&gt;
+      &lt;Name&gt;Page1&lt;/Name&gt;
+      &lt;PageHeight&gt;29.7&lt;/PageHeight&gt;
+      &lt;PageWidth&gt;21&lt;/PageWidth&gt;
+      &lt;PaperSize&gt;A4&lt;/PaperSize&gt;
+      &lt;Report isRef="0" /&gt;
+      &lt;Watermark Ref="68" type="Stimulsoft.Report.Components.StiWatermark" isKey="true"&gt;
+        &lt;Font&gt;Arial,100&lt;/Font&gt;
+        &lt;TextBrush&gt;[50:0:0:0]&lt;/TextBrush&gt;
+      &lt;/Watermark&gt;
+    &lt;/Page1&gt;
+    &lt;Page2 Ref="69" type="Page" isKey="true"&gt;
+      &lt;Border&gt;None;Black;2;Solid;False;4;Black&lt;/Border&gt;
+      &lt;Brush&gt;Transparent&lt;/Brush&gt;
+      &lt;Components isList="true" count="1"&gt;
+        &lt;DataCabecalho Ref="70" type="DataBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;BusinessObjectGuid isNull="true" /&gt;
+          &lt;CanBreak&gt;True&lt;/CanBreak&gt;
+          &lt;ClientRectangle&gt;0,0.4,27.7,5.2&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="1"&gt;
+            &lt;CrossTab1 Ref="71" type="Stimulsoft.Report.CrossTab.StiCrossTab" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,0,19,1.8&lt;/ClientRectangle&gt;
+              &lt;Components isList="true" count="20"&gt;
+                &lt;CrossTab1_Row1_Title Ref="72" type="CrossTitle" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;0,0.45,1.6,0.4&lt;/ClientRectangle&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;08279303d9e44910b77d59d8670f06d5&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Row1_Title&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Referencia&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TypeOfComponent&gt;Row:CrossTab1_Row1&lt;/TypeOfComponent&gt;
+                &lt;/CrossTab1_Row1_Title&gt;
+                &lt;CrossTab1_Row2_Title Ref="73" type="CrossTitle" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;1.6,0.45,1.2,0.4&lt;/ClientRectangle&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;1e81a1b3dc6e40e382cfab2a6ae577aa&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Row2_Title&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Produto&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TypeOfComponent&gt;Row:CrossTab1_Row2&lt;/TypeOfComponent&gt;
+                &lt;/CrossTab1_Row2_Title&gt;
+                &lt;CrossTab1_Row3_Title Ref="74" type="CrossTitle" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;2.8,0.45,0.6,0.4&lt;/ClientRectangle&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;4a0e53f6b0184a49b8bff624c411d7dd&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Row3_Title&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Cor&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TypeOfComponent&gt;Row:CrossTab1_Row3&lt;/TypeOfComponent&gt;
+                &lt;/CrossTab1_Row3_Title&gt;
+                &lt;CrossTab1_LeftTitle Ref="75" type="CrossTitle" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;0,0,6.6,0.4&lt;/ClientRectangle&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;a0b63bc7db4d4a13877dc52e5030bcbf&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_LeftTitle&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Itens&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TypeOfComponent&gt;LeftTitle&lt;/TypeOfComponent&gt;
+                &lt;/CrossTab1_LeftTitle&gt;
+                &lt;CrossTab1_Row4_Title Ref="76" type="CrossTitle" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;3.4,0.45,1.8,0.4&lt;/ClientRectangle&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;46dc8dd8b4d54ddf9c923ab0569f3939&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Row4_Title&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Valor Unitario&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;Type&gt;Expression&lt;/Type&gt;
+                  &lt;TypeOfComponent&gt;Row:CrossTab1_Row4&lt;/TypeOfComponent&gt;
+                &lt;/CrossTab1_Row4_Title&gt;
+                &lt;CrossTab1_Row5_Title Ref="77" type="CrossTitle" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;5.2,0.45,1.4,0.4&lt;/ClientRectangle&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;ba60f0b23d304d218dedbe94308fe126&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Row5_Title&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;TotalItem&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TypeOfComponent&gt;Row:CrossTab1_Row5&lt;/TypeOfComponent&gt;
+                &lt;/CrossTab1_Row5_Title&gt;
+                &lt;CrossTab1_RightTitle Ref="78" type="CrossTitle" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;6.65,0,2.2,0.4&lt;/ClientRectangle&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;ac346e8bfdc14981ae2cb6734a116350&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_RightTitle&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Tamanho&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TypeOfComponent&gt;RightTitle&lt;/TypeOfComponent&gt;
+                &lt;/CrossTab1_RightTitle&gt;
+                &lt;CrossTab1_RowTotal1 Ref="79" type="CrossRowTotal" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;[255:255:255]&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;0,1.3,6.6,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;faf8eb4b3bc44ee18341edceff6b072c&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_RowTotal1&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Total&lt;/Text&gt;
+                  &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                &lt;/CrossTab1_RowTotal1&gt;
+                &lt;CrossTab1_RowTotal2 Ref="80" type="CrossRowTotal" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;[255:255:255]&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;1.6,1.3,0,0&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;ce78bfb39b014a59a38380f1b2c6e9f1&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_RowTotal2&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Total&lt;/Text&gt;
+                  &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                &lt;/CrossTab1_RowTotal2&gt;
+                &lt;CrossTab1_RowTotal3 Ref="81" type="CrossRowTotal" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;[255:255:255]&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;2.8,1.3,0,0&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;2e281cd46f7246ee863e141e6838aca3&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_RowTotal3&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Total&lt;/Text&gt;
+                  &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                &lt;/CrossTab1_RowTotal3&gt;
+                &lt;CrossTab1_RowTotal4 Ref="82" type="CrossRowTotal" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;[255:255:255]&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;3.4,1.3,0,0&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;69dda55f00674fc18f7b76bc42d881b6&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_RowTotal4&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Total&lt;/Text&gt;
+                  &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                &lt;/CrossTab1_RowTotal4&gt;
+                &lt;CrossTab1_RowTotal5 Ref="83" type="CrossRowTotal" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;[255:255:255]&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;5.2,1.3,0,0&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;284853651caa41c79c3ea822be950df7&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_RowTotal5&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Total&lt;/Text&gt;
+                  &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                &lt;/CrossTab1_RowTotal5&gt;
+                &lt;CrossTab1_Row1 Ref="84" type="CrossRow" isKey="true"&gt;
+                  &lt;Alias&gt;Referencia&lt;/Alias&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;0,0.9,1.6,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;DisplayValue&gt;{Itens.Referencia}&lt;/DisplayValue&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;887b86684ac94bc781378c5f56fa83ad&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Row1&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Referencia&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TotalGuid&gt;faf8eb4b3bc44ee18341edceff6b072c&lt;/TotalGuid&gt;
+                  &lt;Value&gt;{Itens.Referencia}&lt;/Value&gt;
+                &lt;/CrossTab1_Row1&gt;
+                &lt;CrossTab1_Row2 Ref="85" type="CrossRow" isKey="true"&gt;
+                  &lt;Alias&gt;Produto&lt;/Alias&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;1.6,0.9,1.2,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;DisplayValue&gt;{Itens.Produto}&lt;/DisplayValue&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;e50a9b27ae83454f8baef87529dca093&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Row2&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;ShowTotal&gt;False&lt;/ShowTotal&gt;
+                  &lt;Text&gt;Produto&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TotalGuid&gt;ce78bfb39b014a59a38380f1b2c6e9f1&lt;/TotalGuid&gt;
+                  &lt;Value&gt;{Itens.Produto}&lt;/Value&gt;
+                &lt;/CrossTab1_Row2&gt;
+                &lt;CrossTab1_Row3 Ref="86" type="CrossRow" isKey="true"&gt;
+                  &lt;Alias&gt;Cor&lt;/Alias&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;2.8,0.9,0.6,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;DisplayValue&gt;{Itens.Cor}&lt;/DisplayValue&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;bd338cbd49dd486cba4938f121de748d&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Row3&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;ShowTotal&gt;False&lt;/ShowTotal&gt;
+                  &lt;Text&gt;Cor&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TotalGuid&gt;2e281cd46f7246ee863e141e6838aca3&lt;/TotalGuid&gt;
+                  &lt;Value&gt;{Itens.Cor}&lt;/Value&gt;
+                &lt;/CrossTab1_Row3&gt;
+                &lt;CrossTab1_Row4 Ref="87" type="CrossRow" isKey="true"&gt;
+                  &lt;Alias&gt;ValorUnitario&lt;/Alias&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;3.4,0.9,1.8,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;DisplayValue&gt;{Itens.ValorUnitario}&lt;/DisplayValue&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;16229737d3b149b3a678ecfa9177721c&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Row4&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;ShowTotal&gt;False&lt;/ShowTotal&gt;
+                  &lt;Text&gt;ValorUnitario&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TotalGuid&gt;69dda55f00674fc18f7b76bc42d881b6&lt;/TotalGuid&gt;
+                  &lt;Value&gt;{Itens.ValorUnitario}&lt;/Value&gt;
+                &lt;/CrossTab1_Row4&gt;
+                &lt;CrossTab1_Row5 Ref="88" type="CrossRow" isKey="true"&gt;
+                  &lt;Alias&gt;TotalItem&lt;/Alias&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;[255:255:255]&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;5.2,0.9,1.4,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;DisplayValue&gt;{Itens.TotalItem}&lt;/DisplayValue&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;19cebc77d929438d8cc6db36066e210d&lt;/Guid&gt;
+                  &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Row5&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;ShowTotal&gt;False&lt;/ShowTotal&gt;
+                  &lt;Text&gt;TotalItem&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TotalGuid&gt;284853651caa41c79c3ea822be950df7&lt;/TotalGuid&gt;
+                  &lt;Value&gt;{Itens.TotalItem}&lt;/Value&gt;
+                &lt;/CrossTab1_Row5&gt;
+                &lt;CrossTab1_Column1 Ref="89" type="CrossColumn" isKey="true"&gt;
+                  &lt;Alias&gt;Tamanho&lt;/Alias&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;6.65,0.45,1.4,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;DisplayValue&gt;{Itens.Tamanho}&lt;/DisplayValue&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;217da35235544922b4346c8ec1fd675a&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Column1&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;SortType&gt;ByValue&lt;/SortType&gt;
+                  &lt;Text&gt;Tamanho&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;TotalGuid&gt;4fbac9ed77074c5aa00081db1e24be00&lt;/TotalGuid&gt;
+                  &lt;Value&gt;{Itens.TamanhoOrdem}&lt;/Value&gt;
+                &lt;/CrossTab1_Column1&gt;
+                &lt;CrossTab1_Sum1 Ref="90" type="CrossSummary" isKey="true"&gt;
+                  &lt;Alias&gt;Quantidade&lt;/Alias&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;White&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;6.65,0.9,1.4,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;0c25b259afbe4d55938f5e4f94cbe2da&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_Sum1&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;0&lt;/Text&gt;
+                  &lt;TextBrush&gt;[105:105:105]&lt;/TextBrush&gt;
+                  &lt;Value&gt;{Itens.Quantidade}&lt;/Value&gt;
+                &lt;/CrossTab1_Sum1&gt;
+                &lt;CrossTab1_ColTotal1 Ref="91" type="CrossColumnTotal" isKey="true"&gt;
+                  &lt;Border&gt;All;[155:155:155];1;Solid;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;[255:255:255]&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;8.05,0.45,0.8,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;Guid&gt;4fbac9ed77074c5aa00081db1e24be00&lt;/Guid&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;CrossTab1_ColTotal1&lt;/Name&gt;
+                  &lt;Page isRef="69" /&gt;
+                  &lt;Parent isRef="71" /&gt;
+                  &lt;Restrictions&gt;AllowMove, AllowResize, AllowSelect, AllowChange&lt;/Restrictions&gt;
+                  &lt;Text&gt;Total&lt;/Text&gt;
+                  &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                &lt;/CrossTab1_ColTotal1&gt;
+              &lt;/Components&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;DataRelationName /&gt;
+              &lt;DataSourceName&gt;Itens&lt;/DataSourceName&gt;
+              &lt;EmptyValue /&gt;
+              &lt;Filters isList="true" count="0" /&gt;
+              &lt;Guid&gt;6f319265d79c44d990aa7f924eab0616&lt;/Guid&gt;
+              &lt;Name&gt;CrossTab1&lt;/Name&gt;
+              &lt;Page isRef="69" /&gt;
+              &lt;Parent isRef="70" /&gt;
+              &lt;Sort isList="true" count="0" /&gt;
+            &lt;/CrossTab1&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;DataSourceName&gt;Cabecalho&lt;/DataSourceName&gt;
+          &lt;Filters isList="true" count="0" /&gt;
+          &lt;Name&gt;DataCabecalho&lt;/Name&gt;
+          &lt;Page isRef="69" /&gt;
+          &lt;Parent isRef="69" /&gt;
+          &lt;Sort isList="true" count="0" /&gt;
+        &lt;/DataCabecalho&gt;
+      &lt;/Components&gt;
+      &lt;Conditions isList="true" count="0" /&gt;
+      &lt;Guid&gt;7c8824ff6ff04a079b77519ce282764c&lt;/Guid&gt;
+      &lt;Margins&gt;1,1,1,1&lt;/Margins&gt;
+      &lt;Name&gt;Page2&lt;/Name&gt;
+      &lt;Orientation&gt;Landscape&lt;/Orientation&gt;
+      &lt;PageHeight&gt;21&lt;/PageHeight&gt;
+      &lt;PageWidth&gt;29.7&lt;/PageWidth&gt;
+      &lt;PrintOnPreviousPage&gt;True&lt;/PrintOnPreviousPage&gt;
+      &lt;Report isRef="0" /&gt;
+      &lt;Watermark Ref="92" type="Stimulsoft.Report.Components.StiWatermark" isKey="true"&gt;
+        &lt;Font&gt;Arial,100&lt;/Font&gt;
+        &lt;TextBrush&gt;[50:0:0:0]&lt;/TextBrush&gt;
+      &lt;/Watermark&gt;
+    &lt;/Page2&gt;
+  &lt;/Pages&gt;
+  &lt;PrinterSettings Ref="93" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" /&gt;
+  &lt;ReferencedAssemblies isList="true" count="8"&gt;
+    &lt;value&gt;System.Dll&lt;/value&gt;
+    &lt;value&gt;System.Drawing.Dll&lt;/value&gt;
+    &lt;value&gt;System.Windows.Forms.Dll&lt;/value&gt;
+    &lt;value&gt;System.Data.Dll&lt;/value&gt;
+    &lt;value&gt;System.Xml.Dll&lt;/value&gt;
+    &lt;value&gt;Stimulsoft.Controls.Dll&lt;/value&gt;
+    &lt;value&gt;Stimulsoft.Base.Dll&lt;/value&gt;
+    &lt;value&gt;Stimulsoft.Report.Dll&lt;/value&gt;
+  &lt;/ReferencedAssemblies&gt;
+  &lt;ReportAlias&gt;0006-TRANSFERENCIADEMERCADORIAS180718080746&lt;/ReportAlias&gt;
+  &lt;ReportCacheMode&gt;On&lt;/ReportCacheMode&gt;
+  &lt;ReportChanged&gt;7/18/2018 8:06:34 AM&lt;/ReportChanged&gt;
+  &lt;ReportCreated&gt;11/10/2010 11:58:45 AM&lt;/ReportCreated&gt;
+  &lt;ReportFile&gt;C:\Users\Suporte\AppData\Local\Temp\9\0006-TRANSFERENCIADEMERCADORIAS180718080746&lt;/ReportFile&gt;
+  &lt;ReportGuid&gt;570eb2e2b90841008c43fb88b54767d7&lt;/ReportGuid&gt;
+  &lt;ReportName&gt;0006-TRANSFERENCIADEMERCADORIAS180718080746&lt;/ReportName&gt;
+  &lt;ReportUnit&gt;Centimeters&lt;/ReportUnit&gt;
+  &lt;ReportVersion&gt;2012.3.1500&lt;/ReportVersion&gt;
+  &lt;Script&gt;using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    
+    public class Relatório : Stimulsoft.Report.StiReport
+    {
+        
+        public Relatório()
+        {
+            this.InitializeComponent();
+        }
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+&lt;/Script&gt;
+  &lt;ScriptLanguage&gt;CSharp&lt;/ScriptLanguage&gt;
+  &lt;Styles isList="true" count="0" /&gt;
+&lt;/StiSerializer&gt;</Layout>
+                <Nome>0006 - TRANSFERENCIA DE MERCADORIAS</Nome>
+                <Tipo>DiretoComSQL</Tipo>
+                <UsoInterno>False</UsoInterno>
+              </Atributos>
+              <Relacionamentos>
+                <Parametros>
+                  <Record Id="PMOVIMENTO" Tipo="ParametroRelatorio">
+                    <Atributos>
+                      <Comando>CabecalhoMovimentoEstoque.allLoadedObjects-&gt;select( cme | 
+  (cme.DataEmissao &gt;= PDTINI)
+  and
+  cme.MovimentoTitular-&gt;isEmpty
+  and
+  (cme.DataEmissao &lt;= PDTFIM.addHours(23).addMinutes(59).addSeconds(59))
+  and
+  (cme.TipoMovimentoEstoque.Abreviacao = 'TRAN')  
+  and
+  (
+    cme.Personalidade.Nome.sqlLikeCaseInsensitive('{0}%')
+    or
+    cme.Numeros-&gt;exists( nrs | nrs.Numero.sqlLike('%{0}') )
+  )
+)
+-&gt;orderDescending( cme | cme.DataEmissao )
+</Comando>
+                      <Etiqueta>*Transferencia</Etiqueta>
+                      <NomeInterno>PMOVIMENTO</NomeInterno>
+                      <Ordem>40</Ordem>
+                      <PreComando>CabecalhoMovimentoEstoque.allInstances-&gt;select( cme | 
+  (cme.DataEmissao &gt;= PDTINI)
+  and
+  cme.MovimentoTitular-&gt;isEmpty
+  and
+  (cme.TipoMovimentoEstoque.Abreviacao = 'TRAN')  
+  and
+  (
+    cme.Personalidade.Nome.sqlLikeCaseInsensitive('{0}%')
+    or
+    cme.Numeros-&gt;exists( nrs | nrs.Numero.sqlLike('%{0}') )
+  )
+)</PreComando>
+                      <TipoEditor>Pesquisa</TipoEditor>
+                      <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+                      <UsoInterno>False</UsoInterno>
+                    </Atributos>
+                    <Relacionamentos>
+                      <Campos>
+                        <Record Id="DataEmissao" Tipo="CampoParametroRelatorio">
+                          <Atributos>
+                            <Comando>self.DataEmissao.Asstring
++ ' | ' +
+self-&gt;first.Personalidade.Nome
++ ' | ' +
+self.NumeroPadrao-&gt;first.Numero
++ ' | ' +
+self.TipoMovimentoEstoque-&gt;first.Abreviacao
++ ' | ' +
+self-&gt;first.Unidade.Descricao
++ ' | ' +
+self-&gt;first.UnidadeDestino.Descricao
+
+</Comando>
+                            <NomeInterno>DataEmissao</NomeInterno>
+                            <Ordem>10</Ordem>
+                          </Atributos>
+                        </Record>
+                      </Campos>
+                    </Relacionamentos>
+                  </Record>
+                  <Record Id="PDTINI" Tipo="ParametroRelatorio">
+                    <Atributos>
+                      <Comando>-&gt;orderBy(Descricao)</Comando>
+                      <Etiqueta>*Data Inicial</Etiqueta>
+                      <NomeInterno>PDTINI</NomeInterno>
+                      <Ordem>20</Ordem>
+                      <PreComando>
+                      </PreComando>
+                      <TipoEditor>Data</TipoEditor>
+                      <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+                      <UsoInterno>False</UsoInterno>
+                    </Atributos>
+                    <Relacionamentos />
+                  </Record>
+                  <Record Id="PDTFIM" Tipo="ParametroRelatorio">
+                    <Atributos>
+                      <Comando>-&gt;orderBy(Descricao)</Comando>
+                      <Etiqueta>*Data Final</Etiqueta>
+                      <NomeInterno>PDTFIM</NomeInterno>
+                      <Ordem>30</Ordem>
+                      <PreComando>
+                      </PreComando>
+                      <TipoEditor>Data</TipoEditor>
+                      <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+                      <UsoInterno>False</UsoInterno>
+                    </Atributos>
+                    <Relacionamentos />
+                  </Record>
+                </Parametros>
+                <Consultas>
+                  <Record Id="" Tipo="Consulta">
+                    <Atributos>
+                      <Comando>-&gt;orderBy(Descricao)</Comando>
+                      <NomeInterno>
+                      </NomeInterno>
+                      <PreComando>
+                      </PreComando>
+                    </Atributos>
+                    <Relacionamentos />
+                  </Record>
+                </Consultas>
+              </Relacionamentos>
+            </Record>
+          </Relatorio>
+          <ParametroRelatorio>
+            <Record Id="PMOVIMENTO" Tipo="ParametroRelatorio">
+              <Relacionamentos>
+                <Campos>
+                  <Record Id="DataEmissao" Tipo="CampoParametroRelatorio">
+                    <Atributos>
+                      <Comando>self.DataEmissao.Asstring
++ ' | ' +
+self-&gt;first.Personalidade.Nome
++ ' | ' +
+self.NumeroPadrao-&gt;first.Numero
++ ' | ' +
+self.TipoMovimentoEstoque-&gt;first.Abreviacao
++ ' | ' +
+self-&gt;first.Unidade.Descricao
++ ' | ' +
+self-&gt;first.UnidadeDestino.Descricao
+
+</Comando>
+                      <NomeInterno>DataEmissao</NomeInterno>
+                      <Ordem>10</Ordem>
+                    </Atributos>
+                  </Record>
+                </Campos>
+              </Relacionamentos>
+            </Record>
+          </ParametroRelatorio>
+        </Relacionamentos>
+      </Record>
+    </Emissoes>
+    <Numeradores>
+      <Record Id="Transferencia" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>Transferencia</Etiqueta>
+          <FormatoNumero>pNumerador.UltimoNumero.asString.PadLeft(6,'0'.Chars(0))</FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Automatico</TipoSequencia>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+        <Relacionamentos>
+          <NumerosSequenciais>
+            <Record Id="Transferencia" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>123</AvisarFaltando>
+                <Descricao>Transferencia</Descricao>
+                <DisparaGatilho>fa863b6c-3f8f-4fb3-bbb6-afaae1640206</DisparaGatilho>
+                <FinalSequencia>1000000</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="Blush - Loja" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="Transferencia" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>123</AvisarFaltando>
+                <Descricao>Transferencia</Descricao>
+                <DisparaGatilho>6f562c09-f836-43ea-833c-8e0513cdfca0</DisparaGatilho>
+                <FinalSequencia>1000000</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="Blush - Escritorio" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+          </NumerosSequenciais>
+        </Relacionamentos>
+      </Record>
+    </Numeradores>
+    <Valores>
+      <Record Id="ttPro" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Total dos Produtos</Descricao>
+          <Formula>(self.Itens-&gt;select( it | (it.ExcecoesEncontradas-&gt;size &lt;= 0) and (it.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida) ).Valores-&gt;select( v | v.TipoMovEstoqueValor.Operacao = #Soma).Valor-&gt;sum - self.Itens-&gt;select( it | (it.ExcecoesEncontradas-&gt;size &lt;= 0) and (it.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida)).Valores-&gt;select( v | v.TipoMovEstoqueValor.Operacao = #Subtracao).Valor-&gt;sum) - (self.Itens-&gt;select( it | (it.ExcecoesEncontradas-&gt;size &lt;= 0) and (it.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Entrada) ).Valores-&gt;select( v | v.TipoMovEstoqueValor.Operacao = #Soma).Valor-&gt;sum - self.Itens-&gt;select( it | (it.ExcecoesEncontradas-&gt;size &lt;= 0) and (it.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Entrada)).Valores-&gt;select( v | v.TipoMovEstoqueValor.Operacao = #Subtracao).Valor-&gt;sum)</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Soma</Operacao>
+          <Ordem>250</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttPro</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="vlRat" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Valor Rateado</Descricao>
+          <Formula>if (( self.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida) and ( self.Cabecalho.TipoValorTotalProduto-&gt;notEmpty) ) then
+((((self.Quantidade * self.ValorUnitario) * 100) / self.Cabecalho.TipoValorTotalProduto.Valor) * self.Cabecalho.PegaValor(self.Cabecalho.TipoMovimentoEstoque.ValorTotalDescontosRateio).Valor)/100
+else
+ 0.00
+endif</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>90</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>vlRat</Sigla>
+          <TipoMovCaixaPartida>Debito</TipoMovCaixaPartida>
+          <TipoRegistro>Item</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttPag" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Total pago</Descricao>
+          <Formula>0</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>210</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>True</PermiteAlterarValor>
+          <Sigla>ttPag</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Informado</TipoValor>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttGer" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Total Geral</Descricao>
+          <Formula>self.Valores-&gt;select(Operacao = enumOperacao::Soma).Valor-&gt;sum - self.Valores-&gt;select(Operacao = enumOperacao::Subtracao).Valor-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>220</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttGer</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="Arred" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Arredondamento</Descricao>
+          <Formula>if self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttPag')-&gt;First.Valor &gt; 0 then
+  self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttCDe')-&gt;First.Valor - self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttPag')-&gt;First.Valor
+else
+  0
+endif</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Subtracao</Operacao>
+          <Ordem>230</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>True</PermiteAlterarValor>
+          <Sigla>Arred</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Informado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttDes" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Total de Descontos</Descricao>
+          <Formula>(self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Operacao = #Soma).Valor-&gt;sum - self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Operacao = #Subtracao).Valor-&gt;sum) - self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttPro')-&gt;First.Valor</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>280</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttDes</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttCDe" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Total Liquido</Descricao>
+          <Formula>self.Valores-&gt;select(Operacao = enumOperacao::Soma).Valor-&gt;sum - self.Valores-&gt;select(Operacao = enumOperacao::Subtracao).Valor-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>260</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttCDe</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttLiq" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Total liquido do produto</Descricao>
+          <Formula>self.Quantidade * self.ValorUnitario</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Soma</Operacao>
+          <Ordem>150</Ordem>
+          <PermiteAlterarAliquota>True</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttLiq</Sigla>
+          <TipoRegistro>Item</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttRat" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Total Rateado</Descricao>
+          <Formula>self.Valores-&gt;select(Operacao = enumOperacao::Subtracao).Valor-&gt;sum + (self.Itens-&gt;select( it | (it.ExcecoesEncontradas-&gt;size &lt;= 0) and (it.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Entrada) ).Valores-&gt;select( v | v.TipoMovEstoqueValor.Operacao = #Soma).Valor-&gt;sum - self.Itens-&gt;select( it | (it.ExcecoesEncontradas-&gt;size &lt;= 0) and (it.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Entrada)).Valores-&gt;select( v | v.TipoMovEstoqueValor.Operacao = #Subtracao).Valor-&gt;sum)</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>100</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttRat</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="PercD" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Descontos</Descricao>
+          <Formula>self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttPro')-&gt;First.Valor</Formula>
+          <FormulaAliquotaPadrao>0</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Subtracao</Operacao>
+          <Ordem>240</Ordem>
+          <PermiteAlterarAliquota>True</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>True</PermiteAlterarValor>
+          <Sigla>PercD</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttIt" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Total Itens</Descricao>
+          <Formula>if (self.TipoAtualizacaoEstoque = #Saida) then
+( self.Valores-&gt;select(Operacao = enumOperacao::Soma).Valor-&gt;sum - self.Valores-&gt;select(Operacao = enumOperacao::Subtracao).Valor-&gt;sum ) - self.DescontosRateados
+else
+0.00
+endif</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>140</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttIt</Sigla>
+          <TipoMovCaixaPartida>Debito</TipoMovCaixaPartida>
+          <TipoRegistro>Item</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="vlPar" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Valor Parcela</Descricao>
+          <Formula>self.Valor</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Soma</Operacao>
+          <Ordem>270</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>vlPar</Sigla>
+          <TipoRegistro>Parcela</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+    </Valores>
+    <Tributos>
+      <Record Id="InterestadualConsumidor Final" Tipo="Tributo">
+        <Atributos>
+          <AliquotaCOFINS>0</AliquotaCOFINS>
+          <AliquotaICMS>0</AliquotaICMS>
+          <AliquotaIPI>0</AliquotaIPI>
+          <AliquotaPIS>0</AliquotaPIS>
+          <CFOP>
+          </CFOP>
+          <FinalidadeEmissao>Normal</FinalidadeEmissao>
+          <FormatoImpressao>Retrato</FormatoImpressao>
+          <IESubstitutoTributario>
+          </IESubstitutoTributario>
+          <InformacaoAdicional>
+          </InformacaoAdicional>
+          <ModalidadeBaseICMS>ValorOperacao</ModalidadeBaseICMS>
+          <ModalidadeBaseICMSST>MargemValorAgregado</ModalidadeBaseICMSST>
+          <ModeloDocFiscal>
+          </ModeloDocFiscal>
+          <OrigemMercadoria>Nacional</OrigemMercadoria>
+          <PercMargemAdicICMSST>0</PercMargemAdicICMSST>
+          <ReducaoBCICMS>0</ReducaoBCICMS>
+          <ReducaoBCICMSST>0</ReducaoBCICMSST>
+          <RegimeTributario>SimplesNacional</RegimeTributario>
+          <SitTributariaCOFINS>Outras</SitTributariaCOFINS>
+          <SitTributariaICMS>NaoTributada</SitTributariaICMS>
+          <SitTributariaIPI>OutrasSaidas</SitTributariaIPI>
+          <SitTributariaPIS>Outras</SitTributariaPIS>
+          <TipoEmissao>Normal</TipoEmissao>
+          <TipoOperacao>Saida</TipoOperacao>
+          <UF>Interestadual</UF>
+        </Atributos>
+        <Relacionamentos>
+          <TipoTributacao>
+            <Record Id="Consumidor Final" Tipo="TipoTributacao">
+              <Atributos>
+                <Descricao>Consumidor Final</Descricao>
+                <UsoInterno>True</UsoInterno>
+              </Atributos>
+            </Record>
+          </TipoTributacao>
+          <ValorProdutoTotalPadrao>
+            <Record Id="ttIt" Tipo="TipoMovEstoqueValor" />
+          </ValorProdutoTotalPadrao>
+          <ValorTotalDescontos>
+            <Record Id="ttRat" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalDescontos>
+          <ValorTotalGeral>
+            <Record Id="ttGer" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalGeral>
+          <ValorTotalProdutos>
+            <Record Id="ttPro" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalProdutos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="EstadualConsumidor Final" Tipo="Tributo">
+        <Atributos>
+          <AliquotaCOFINS>0</AliquotaCOFINS>
+          <AliquotaICMS>0</AliquotaICMS>
+          <AliquotaIPI>0</AliquotaIPI>
+          <AliquotaPIS>0</AliquotaPIS>
+          <CFOP>
+          </CFOP>
+          <FinalidadeEmissao>Normal</FinalidadeEmissao>
+          <FormatoImpressao>Retrato</FormatoImpressao>
+          <IESubstitutoTributario>
+          </IESubstitutoTributario>
+          <InformacaoAdicional>
+          </InformacaoAdicional>
+          <ModalidadeBaseICMS>ValorOperacao</ModalidadeBaseICMS>
+          <ModalidadeBaseICMSST>MargemValorAgregado</ModalidadeBaseICMSST>
+          <ModeloDocFiscal>
+          </ModeloDocFiscal>
+          <OrigemMercadoria>Nacional</OrigemMercadoria>
+          <PercMargemAdicICMSST>0</PercMargemAdicICMSST>
+          <ReducaoBCICMS>0</ReducaoBCICMS>
+          <ReducaoBCICMSST>0</ReducaoBCICMSST>
+          <RegimeTributario>SimplesNacional</RegimeTributario>
+          <SitTributariaCOFINS>Outras</SitTributariaCOFINS>
+          <SitTributariaICMS>NaoTributada</SitTributariaICMS>
+          <SitTributariaIPI>OutrasSaidas</SitTributariaIPI>
+          <SitTributariaPIS>Outras</SitTributariaPIS>
+          <TipoEmissao>Normal</TipoEmissao>
+          <TipoOperacao>Saida</TipoOperacao>
+          <UF>Estadual</UF>
+        </Atributos>
+        <Relacionamentos>
+          <TipoTributacao>
+            <Record Id="Consumidor Final" Tipo="TipoTributacao">
+              <Atributos>
+                <Descricao>Consumidor Final</Descricao>
+                <UsoInterno>True</UsoInterno>
+              </Atributos>
+            </Record>
+          </TipoTributacao>
+          <ValorProdutoTotalPadrao>
+            <Record Id="ttIt" Tipo="TipoMovEstoqueValor" />
+          </ValorProdutoTotalPadrao>
+          <ValorTotalDescontos>
+            <Record Id="ttRat" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalDescontos>
+          <ValorTotalGeral>
+            <Record Id="ttGer" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalGeral>
+          <ValorTotalProdutos>
+            <Record Id="ttPro" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalProdutos>
+        </Relacionamentos>
+      </Record>
+    </Tributos>
+    <NumeradorPadrao>
+      <Record Id="Transferencia" Tipo="TipoMovEstoqueNumerador">
+        <Relacionamentos>
+          <NumerosSequenciais>
+            <Record Id="Transferencia" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>123</AvisarFaltando>
+                <Descricao>Transferencia</Descricao>
+                <DisparaGatilho>fa863b6c-3f8f-4fb3-bbb6-afaae1640206</DisparaGatilho>
+                <FinalSequencia>1000000</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="Blush - Loja" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="Transferencia" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>123</AvisarFaltando>
+                <Descricao>Transferencia</Descricao>
+                <DisparaGatilho>6f562c09-f836-43ea-833c-8e0513cdfca0</DisparaGatilho>
+                <FinalSequencia>1000000</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="Blush - Escritorio" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+          </NumerosSequenciais>
+        </Relacionamentos>
+      </Record>
+    </NumeradorPadrao>
+    <ValorTotalDescontosRateio>
+      <Record Id="ttRat" Tipo="TipoMovEstoqueValor" />
+    </ValorTotalDescontosRateio>
+    <ValorDescontoRateado>
+      <Record Id="vlRat" Tipo="TipoMovEstoqueValor" />
+    </ValorDescontoRateado>
+    <GrupoTipoMovEstoque>
+      <Record Id="TRANSFERENCIA" Tipo="GrupoTipoMovEstoque">
+        <Atributos>
+          <Descricao>TRANSFERENCIA</Descricao>
+        </Atributos>
+      </Record>
+    </GrupoTipoMovEstoque>
+  </Relacionamentos>
+</Classe>
