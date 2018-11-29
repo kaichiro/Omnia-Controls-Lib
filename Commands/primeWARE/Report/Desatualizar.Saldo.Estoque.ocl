@@ -1,0 +1,22 @@
+'';
+('
+CabecalhoMovimentoEstoque.allInstances->select( cme | 
+  (cme.State = \'NFe Processada\')
+  and
+  (cme.TipoMovimentoEstoque.Descricao = \'NFE TRANSFERENCIA - SAIDA - ESCRITORIO\')
+)
+').EnsureObjects(CabecalhoMovimentoEstoque)
+->collect( cme |
+  cme.DesprocessaMovimento
+  ;
+  cme.EnsureRelatedObjects(ItemMovimentoEstoque, 'Itens')
+  ->collect( ime | 
+    ime.AtualizaSaldoEstoque := true
+    ; (ime.ProdutoFinal.asString + ' = SaldoAtual (' + ime.ProdutoFinal.SaldosProdutos->select( sp | sp.Unidade = ime.Cabecalho.Unidade )->first.Quantidade.asString + ')').WriteLog
+    ; ime.DesatualizaSaldo(ime.ProdutoFinal, ime.Quantidade, ime.Cabecalho, ime.Cabecalho.Unidade, ime.Cabecalho.TipoMovimentoEstoque)
+    ; ime.AtualizaSaldoEstoque := false
+    ; (ime.ProdutoFinal.asString + ' = SaldoNovo (' + ime.ProdutoFinal.SaldosProdutos->select( sp | sp.Unidade = ime.Cabecalho.Unidade )->first.Quantidade.asString + ')').WriteLog
+  )
+  ;
+  cme.ProcessaMovimento
+)
