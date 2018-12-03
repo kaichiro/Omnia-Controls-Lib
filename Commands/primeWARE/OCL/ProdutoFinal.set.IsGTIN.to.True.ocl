@@ -1,0 +1,1 @@
+'ProdutoFinal.allInstances->select( pf | not pf.IsGTIN )'.EnsureObjects(ProdutoFinal)->collect( pf | pf.IsGTIN := true )
