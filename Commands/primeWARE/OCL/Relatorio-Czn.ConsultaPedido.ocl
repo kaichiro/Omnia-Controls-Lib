@@ -1,0 +1,12 @@
+'P.: ' +
+self->first.Quantidade.asString
++ '    E.D.: ' +
+self->asSet.Origens->asSet.Processado->select( p | p.Cabecalho->exists( c | c.TipoMovimentoEstoque->exists( tme | tme.Descricao = 'ENTREGUE')) )->asSet.Quantidade->sum.asString
++ '    A.: ' +
+self->asSet.Origens->asSet.Processado->select( p | p.Cabecalho->exists( c | c.TipoMovimentoEstoque->exists( tme | Abreviacao = 'AMZ' ) ) )->asSet.Quantidade->sum.asString
++ '    E.A.: ' +
+self->asSet.Origens->asSet.Processado->select( p | p.Cabecalho->exists( c | c.TipoMovimentoEstoque->exists( tme | Abreviacao = 'AMZ' ) ) )->asSet.Origens->asSet.Processado
+->select( p | p.Cabecalho->exists( c | c.TipoMovimentoEstoque->exists( tme | tme.GrupoTipoMovEstoque.Descricao = 'ENTREGUE')) )->asSet.Quantidade->sum.asString
+
+old: tme.Descricao = 'ENTREGA ARMAZENADO'))
+new: tme.GrupoTipoMovEstoque.Descricao = 'ENTREGUE'))
