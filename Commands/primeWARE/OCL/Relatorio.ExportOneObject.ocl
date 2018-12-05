@@ -1,0 +1,5 @@
+let r = 'Relatorio.allInstances->select( r_ | r_.Nome = \'RELACAO DE CLIENTES POR UNIDADE\' )'.EnsureObjects(Relatorio)->first in (
+let folderExports = 'D:\\primeWARE\\Exports\\' in (
+  r.ExportClass(folderExports + r.Nome + '.xml')
+  ; (folderExports).Exec
+))
