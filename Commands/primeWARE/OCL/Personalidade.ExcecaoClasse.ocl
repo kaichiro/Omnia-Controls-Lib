@@ -1,0 +1,26 @@
+let und_ = PUNDTRAB in (
+let pers_ = 
+  if self.oclIsTypeOf(PessoaJuridica) then
+    self.oclAsType(PessoaJuridica)
+  else
+    if self.oclIsTypeOf(PessoaFisica) then
+      self.oclAsType(PessoaFisica)
+    else
+      self
+    endif
+  endif
+in (
+let searchCliente = pers_.Cliente in (
+let cliente_ =
+  if searchCliente->notEmpty then
+      searchCliente->first
+    else
+      let newCliente = Cliente.Create in ( pers_.Cliente := newCliente; newCliente )
+    endif
+in (
+  cliente_.Unidades->add(und_)
+)
+)
+)
+)
+; false

@@ -1,0 +1,18 @@
+'CabecalhoMovimentoEstoque.allInstances->select( cme | cme.Unidade->notEmpty and cme.Personalidade->notEmpty )'.EnsureObjects(CabecalhoMovimentoEstoque)
+->collect( cme |
+  let und_ = cme.Unidade in (
+  let pers_ = cme.Personalidade in (
+  let searchCliente = pers_.Cliente in (
+  let cliente_ =
+    if searchCliente->notEmpty then
+        searchCliente->first
+      else
+        let newCliente = Cliente.Create in ( pers_.Cliente := newCliente; newCliente )
+      endif
+  in (
+    cliente_.Unidades->add(und_)
+  )
+  )
+  )
+  )
+)
