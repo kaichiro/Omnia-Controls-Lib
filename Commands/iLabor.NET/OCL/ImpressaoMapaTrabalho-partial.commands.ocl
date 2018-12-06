@@ -1,0 +1,34 @@
+Consulta: ImpressaoMapaTrabalho
+
+Parametros:
+  10 - pMapa (LookUp)
+    MapaTrabalho.AllInstances->Select(Numero.SqlLike('%{0}%'))
+	MapaTrabalho.Allloadedobjects->Select(Numero.SqlLike('%{0}%'))->orderBy(Numero)
+	self->first.Numero + ' - ' + self->first.Data_Geracao.asString + if self.Procedimentos.Procedimento.Setor->asSet->size = 1 then ' - ' + self.Procedimentos->first.Procedimento.Setor.Descricao else '' endif
+  20 - pDataIni (Data)
+  30 - pDataFim (Data)
+  40 - pMapas
+    MapaTrabalho.allInstances->select( mp | (mp.Data_Geracao >= pDataIni) and (mp.Data_Geracao <= pDataFim) )
+    MapaTrabalho.allInstances->select( mp | (mp.Data_Geracao >= pDataIni) and (mp.Data_Geracao <= pDataFim) )->difference(pMapa)->orderBy( mp  | mp.Data_Geracao )
+	self->first.Numero + ' - ' + self->first.Data_Geracao.asString + if self.Procedimentos.Procedimento.Setor->asSet->size = 1 then ' - ' + self.Procedimentos->first.Procedimento.Setor.Descricao else '' endif
+	
+Definicao da Consulta
+--Procedimentos
+    if pMapa->notEmpty then
+      if pMapas->notEmpty then
+        pMapa.union(pMapas)->asSet.Procedimentos
+      else
+        pMapa.Procedimentos
+      endif
+    else
+      pMapas.Procedimentos
+    endif
+----Variaveis
+      self.Procedimento.Procedimento_Laudos->OrderBy(Ordem)->First
+      .Variaveis->select( pv |
+        (pv.Tipo_Editor <> TipoEditor::Calculado) 
+        and 
+        (not pv.Nome.sqlLikeCaseInsensitive('OBS%'))
+        and 
+        pv.Visivel
+      )->OrderBy( pv | pv.Ordem_Entrada )
