@@ -9,3 +9,5 @@ git push oml sql
 git push oml XML_imports
 git push oml report
 git push oml master
+
+exit
