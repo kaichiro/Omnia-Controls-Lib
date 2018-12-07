@@ -1,0 +1,4 @@
+let a = Amostra.Create in ( a.Descricao := 'SORO-30min' )
+; let a = Amostra.Create in ( a.Descricao := 'SORO-60min' )
+; let a = Amostra.Create in ( a.Descricao := 'SORO-120min' )
+; let a = Amostra.Create in ( a.Descricao := 'SORO-1800min' )
