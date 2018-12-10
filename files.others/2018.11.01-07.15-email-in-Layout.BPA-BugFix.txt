@@ -1,0 +1,10 @@
+Complementando algo que reparei, apesar de não tão necessário, o cabeçalho, na parte CBC-RSP - Nome do Órgão Responsável.  No caso, é a Santa Casa de Misericórdia de Resende (lembrando, novamente, que é um campo de 30 Caracteres que pode ser resumido, mas é necessário complementar com espaços); e
+CBC-SGL - Sigla do Órgão Responsável.  Pode resumir para SCMR, ou LAB, mas, como no caso anterior, complementando com espaços para o tamanho do campo.
+
+Abaixo, apenas um novo lembrete:
+
+PRD-CNSMED - Cartão SUS do Médico.  É um campo que pode ser mudado, dependendo do médico/profissional que realizou.  No caso, é a da Isis, (CNS: 702608797285841.
+PRD-CBO - Código Brasileiro de Ocupação do Médico.  Da mesma forma que o anterior, este é um campo que corresponde a especialidade do profissional que autoriza/realiza o procedimento.  O atual é o da Isis (CBO: 223415)
+PRD_DTATEN - Data de Atendimento .  Formato é, sem barras, AAAAMMDD.  Exemplo, uma viagem feita em 28/08/2018, ficará como 20180828.
+PRD-PA - Campo Procedimento.  Campos dos exames relacionados!
+O restante das informações, está correto!
