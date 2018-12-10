@@ -1,11 +1,11 @@
-Procedimento: Teste de Tolerância a Glicose
+Procedimento: Teste de Tolerancia a Glicose (TTG000)
 Quantidade de testes: 3
 	OrdemParaLaudo	Amotra			Obs
 	CG0000			SORO			(basal)
 	CG0060			SORO-60min
 	CG0120			SORO-120min
   
-curva glicemica
+Procedimento: Curva Glicemica (CG0000)
 Quantidade de testes: 5
 	OrdemParaLaudo	Amotra			Obs
 	CG0000			SORO			(basal)
