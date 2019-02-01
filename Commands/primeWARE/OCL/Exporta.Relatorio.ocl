@@ -1,0 +1,9 @@
+/** Executar no debugModel */
+
+/** modo Ps */
+Relatorio.allInstances->select( r | r.Nome = 'DRE' )
+
+/** modo EAL child.1  */
+let r = self->first in (
+  r.ExportClass(('D:\\primeWARE\\Export\\'.concat(r.Nome).concat(DateTime.Now.formatDateTime('-yyyy.MM.dd.HH.mm.ss-')).concat('.xml')))
+)
