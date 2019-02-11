@@ -1,0 +1,1963 @@
+<?xml version="1.0"?>
+<Classe Tipo="Relatorio">
+  <Atributos>
+    <Layout>&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?&gt;
+&lt;StiSerializer version="1.02" type="Net" application="StiReport"&gt;
+  &lt;BeginRenderEvent&gt;varIndice = (PINDICE);
+/*
+dsTotais.Connect();
+
+MessageBox.Show(
+dsTotais.SqlCommand
+);
+*/
+
+pnlDetail.Enabled = PSHOWTDP;
+&lt;/BeginRenderEvent&gt;
+  &lt;Dictionary Ref="1" type="Dictionary" isKey="true"&gt;
+    &lt;BusinessObjects isList="true" count="0" /&gt;
+    &lt;Databases isList="true" count="1"&gt;
+      &lt;cnx Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true"&gt;
+        &lt;Alias&gt;cnx&lt;/Alias&gt;
+        &lt;ConnectionStringEncrypted&gt;9GxTz8hMwqRqRv0U5R3jY9FY84lIXcKE4kft7WN09vvFxPULYgPD7eEInABqSaK/w3rBiUYAmc1FGaiYTz3jYsJayStNXVtNb1+h1Hdw4GrTcMtISAvZvGtF+fg=&lt;/ConnectionStringEncrypted&gt;
+        &lt;Name&gt;cnx&lt;/Name&gt;
+      &lt;/cnx&gt;
+    &lt;/Databases&gt;
+    &lt;DataSources isList="true" count="4"&gt;
+      &lt;dsTotais Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;dsTotais&lt;/Alias&gt;
+        &lt;Columns isList="true" count="12"&gt;
+          &lt;value&gt;ID_CAB,System.Guid&lt;/value&gt;
+          &lt;value&gt;Nome,System.String&lt;/value&gt;
+          &lt;value&gt;PercComissao,System.Double&lt;/value&gt;
+          &lt;value&gt;vlrComissao,System.Double&lt;/value&gt;
+          &lt;value&gt;Total,System.Double&lt;/value&gt;
+          &lt;value&gt;QtdePecas,System.Double&lt;/value&gt;
+          &lt;value&gt;Marca,System.String&lt;/value&gt;
+          &lt;value&gt;Divisao,System.String&lt;/value&gt;
+          &lt;value&gt;Classe,System.String&lt;/value&gt;
+          &lt;value&gt;Unidade,System.String&lt;/value&gt;
+          &lt;value&gt;NrPadrao,System.String&lt;/value&gt;
+          &lt;value&gt;idAV,System.Guid&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;dsTotais&lt;/Name&gt;
+        &lt;NameInSource&gt;cnx&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="2"&gt;
+          &lt;value&gt;dtIni,new_x0020_DateTime_x0028_PDTINI.Year_x002C__x0020_PDTINI.Month_x002C__x0020_PDTINI.Day_x002C__x0020_0_x002C__x0020_0_x002C__x0020_0_x0029_,4,0&lt;/value&gt;
+          &lt;value&gt;dtFim,new_x0020_DateTime_x0028_PDTFIM.Year_x002C__x0020_PDTFIM.Month_x002C__x0020_PDTFIM.Day_x002C__x0020_23_x002C__x0020_59_x002C__x0020_59_x0029_,4,0&lt;/value&gt;
+        &lt;/Parameters&gt;
+        &lt;SqlCommand&gt;set dateformat ymd;
+
+with movs as 
+(
+	SELECT 
+		cme.ECO_ID AS ID_CAB,
+		av.ECO_ID idAV,
+		pAV.Nome, 	
+		case 
+			when {varIndice} &amp;lt;&amp;gt; 0.0 then ({varIndice}) 
+			else av.Comissao 
+		end PercComissao,
+		cmevNF.Valor 
+		- coalesce((select sum(pme.Valor) from ParcelaMovimentoEstoque pme inner join TipoDocParcelamento tdp on pme.TipoDocParcelamento = tdp.ECO_ID where pme.Cabecalho = cme.ECO_ID and tdp.Descricao = 'CREDITO DE TROCA'),0)
+		Total,
+		und.Descricao Unidade
+	FROM GrupoTipoMovEstoque gtme 
+	inner JOIN  TipoMovimentoEstoque tme ON tme.GrupoTipoMovEstoque = gtme.Eco_id 
+	inner JOIN  CabecalhoMovimentoEstoque cme ON cme.TipoMovimentoEstoque = tme.Eco_id
+	left join CabMovEstoqueValor cmevNF on cme.TipoValorTotalNF = cmevNF.ECO_ID
+	LEFT JOIN  AgenteVenda av ON cme.AgenteVenda = av.ECO_ID 
+	LEFT JOIN  Personalidade pAV ON av.Personalidade = pAV.ECO_ID 
+	inner join Unidade und on cme.Unidade = und.eCO_ID
+	WHERE gtme.Descricao = 'VENDAS'
+	  AND cme.DataEmissao BETWEEN @DTINI AND @DTFIM
+	  and cme.Cancelado = 0
+	  and cme.State like '%Processad%'
+	  AND cme.Unidade in ({PUNIDADES})
+	  and not tme.Descricao in ('SANGRIA DE ESTOQUE','NFC-E COM ORÇAMENTO','TRANSFERENCIA DE MERCADORIA')
+)
+	select
+	x.ID_CAB,
+	x.idAV,
+	x.Nome, 	
+	(x.PercComissao/100) * x.Total vlrComissao,
+	(select sum(ime.Quantidade) from ItemMovimentoEstoque ime where ime.Cabecalho = x.ID_CAB AND ime.TipoAtualizacaoEstoque = 'Saida' and ime.ProdutoFinal is not null)
+	QtdePecas, 
+	x.PercComissao,
+	x.Total,
+	x.Unidade
+	from movs x
+&lt;/SqlCommand&gt;
+      &lt;/dsTotais&gt;
+      &lt;dsParcelas Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;dsParcelas&lt;/Alias&gt;
+        &lt;Columns isList="true" count="5"&gt;
+          &lt;value&gt;idCab,System.Guid&lt;/value&gt;
+          &lt;value&gt;idAV,System.Guid&lt;/value&gt;
+          &lt;value&gt;Valor,System.Double&lt;/value&gt;
+          &lt;value&gt;TipoDocParcelamento,System.String&lt;/value&gt;
+          &lt;value&gt;flag010,System.Int32&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;dsParcelas&lt;/Name&gt;
+        &lt;NameInSource&gt;cnx&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="2"&gt;
+          &lt;value&gt;dtIni,new_x0020_DateTime_x0028_PDTINI.Year_x002C__x0020_PDTINI.Month_x002C__x0020_PDTINI.Day_x002C__x0020_0_x002C__x0020_0_x002C__x0020_0_x0029_,4,0&lt;/value&gt;
+          &lt;value&gt;dtFim,new_x0020_DateTime_x0028_PDTFIM.Year_x002C__x0020_PDTFIM.Month_x002C__x0020_PDTFIM.Day_x002C__x0020_23_x002C__x0020_59_x002C__x0020_59_x0029_,4,0&lt;/value&gt;
+        &lt;/Parameters&gt;
+        &lt;SqlCommand&gt;	SELECT 
+	1 flag010
+	, cme.ECO_ID idCab
+	, cme.AgenteVenda idAV
+	, sum(case tdp.Descricao when 'CREDITO DE TROCA' then -1 else 1 end * pme.Valor) as Valor
+	, case tdp.Descricao when 'CREDITO DE TROCA' then '('+tdp.Descricao+')' else tdp.Descricao end as TipoDocParcelamento
+	fROM GrupoTipoMoVestoque gtme
+	inner join TipoMovimentoEstoque tme on gtme.ECO_ID = tme.GrupoTipoMoVestoque 
+	inner join CabecalhoMovimentoEstoque cme on tme.ECO_ID = cme.TipoMovimentoEstoque
+	inner join ParcelaMovimentoEstoque pme on cme.ECO_ID = pme.Cabecalho
+	inNER JOIN TipoDocParcelamento tdp ON pme.TipoDocParcelamento = tdp.ECO_ID
+	WHERE gtme.Descricao = 'VENDAS'
+	AND cme.DataEmissao BETWEEN @DTINI AND @DTFIM
+	and cme.Cancelado = 0
+	and cme.State like '%Processad%'
+	AND cme.Unidade in ({PUNIDADES})
+	and not tme.Descricao in ('SANGRIA DE ESTOQUE','NFC-E COM ORÇAMENTO', 'TRANSFERENCIA DE MERCADORIA')
+	group by 
+	cme.ECO_ID 
+	, cme.AgenteVenda 
+	, tdp.Descricao 
+&lt;/SqlCommand&gt;
+      &lt;/dsParcelas&gt;
+      &lt;dsTotaisNew Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;dsTotaisNew&lt;/Alias&gt;
+        &lt;Columns isList="true" count="15"&gt;
+          &lt;value&gt;idAVPers,System.Guid&lt;/value&gt;
+          &lt;value&gt;AgenteVenda,System.String&lt;/value&gt;
+          &lt;value&gt;idUnd,System.Guid&lt;/value&gt;
+          &lt;value&gt;Unidade,System.String&lt;/value&gt;
+          &lt;value&gt;ValorPME,System.Double&lt;/value&gt;
+          &lt;value&gt;ValorMostrar,System.Double&lt;/value&gt;
+          &lt;value&gt;isDinheiro,System.Boolean&lt;/value&gt;
+          &lt;value&gt;TipoDocParcelamento,System.String&lt;/value&gt;
+          &lt;value&gt;PercentualComissao,System.Double&lt;/value&gt;
+          &lt;value&gt;ValorComissao,System.Double&lt;/value&gt;
+          &lt;value&gt;PercentualParticipacao,System.Double&lt;/value&gt;
+          &lt;value&gt;ValorTotal,System.Double&lt;/value&gt;
+          &lt;value&gt;QtdeCab,System.Int32&lt;/value&gt;
+          &lt;value&gt;QtdeItens,System.Double&lt;/value&gt;
+          &lt;value&gt;MediaPecasPorVenda,System.Double&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;dsTotaisNew&lt;/Name&gt;
+        &lt;NameInSource&gt;cnx&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="2"&gt;
+          &lt;value&gt;_x0040_pDTIni,new_x0020_DateTime_x0028_PDTINI.Year_x002C__x0020_PDTINI.Month_x002C__x0020_PDTINI.Day_x002C__x0020_0_x002C__x0020_0_x002C__x0020_0_x0029_,4,0&lt;/value&gt;
+          &lt;value&gt;_x0040_pDTFim,new_x0020_DateTime_x0028_PDTFIM.Year_x002C__x0020_PDTFIM.Month_x002C__x0020_PDTFIM.Day_x002C__x0020_23_x002C__x0020_59_x002C__x0020_59_x0029_,4,0&lt;/value&gt;
+        &lt;/Parameters&gt;
+        &lt;SqlCommand&gt;set dateformat ymd;
+
+with Cabs010 as
+(
+	select 
+	av.Comissao ComissaoAVPadrao
+	, av.Personalidade idAVPers
+	, cme.Unidade idUnd
+	, cme.ECO_ID idCME
+	, 1 QtdeCab
+	, (select sum(ime.Quantidade) from ItemMovimentoEstoque ime where cme.ECO_ID = ime.Cabecalho and ime.TipoAtualizacaoEstoque = 'Saida') QtdeItens
+	from GrupoTipoMovEstoque gtme
+	inner join TipoMovimentoEstoque tme on gtme.ECO_ID = tme.GrupoTipoMovEstoque
+	inner join CabecalhoMovimentoEstoque cme on tme.ECO_Id = cme.TipoMovimentoEstoque
+	left join AgenteVenda av on cme.AgenteVenda = av.ECO_ID
+	WHERE gtme.Descricao = 'VENDAS'
+	AND cme.DataEmissao BETWEEN @pDTIni AND @pDTFim
+	and cme.Cancelado = 0
+	and cme.State like '%Processad%'
+	AND cme.Unidade in ({PUNIDADES})
+	and not tme.Descricao in ('SANGRIA DE ESTOQUE', 'NFC-E COM ORÇAMENTO', 'TRANSFERENCIA DE MERCADORIA')
+)
+, Cabs020 as
+(
+	select 
+	x.ComissaoAVPadrao
+	, x.idAVPers
+	, x.idUnd
+	, x.idCME
+	, sum(x.QtdeCab) QtdeCab
+	, sum(x.QtdeItens) QtdeItens
+	from Cabs010 x
+	group by 
+	x.ComissaoAVPadrao
+	, x.idAVPers
+	, x.idUnd
+	, x.idCME
+)
+, Parcelas010 as
+(
+	select
+	x.ComissaoAVPadrao
+	, x.idAVPers
+	, x.idUnd
+	, x.idCME
+	, pme.Valor ValorPME
+	, tdp.Dinheiro isDinheiro
+	, tdp.Descricao TipoDocParcelamento
+	from Cabs020 x
+	inner join ParcelaMovimentoEstoque pme on x.idCME = pme.Cabecalho
+	left join TipoDocParcelamento tdp on pme.TipoDocParcelamento = tdp.ECO_ID
+)
+, Parcelas020 as
+(
+	select
+	x.ComissaoAVPadrao
+	, x.idAVPers
+	, x.idUnd
+	, x.idCME
+	, case x.TipoDocParcelamento when 'CREDITO DE TROCA' then 0.0 else x.ValorPME end ValorPME
+	, case x.TipoDocParcelamento when 'CREDITO DE TROCA' then -1 else 1 end * x.ValorPME ValorMostrar
+	, x.isDinheiro
+	, case x.TipoDocParcelamento when 'CREDITO DE TROCA' then '(' + x.TipoDocParcelamento + ')' else x.TipoDocParcelamento end TipoDocParcelamento
+	from Parcelas010 x
+)
+, ValorTotal as
+(
+	select sum(x.ValorPME) Valor from Parcelas020 x
+)
+, Parcelas030 as
+(
+	select
+	x.idAVPers
+	, x.idUnd
+	, x.idCME
+	, x.ValorPME
+	, x.ValorMostrar
+	, x.isDinheiro
+	, x.TipoDocParcelamento
+	,
+	case
+		when x.isDinheiro = 1 and {PPERCCOMISDIN} &amp;gt; 0.0
+			then {PPERCCOMISDIN}
+		else 
+			case 
+				when {PINDICE} &amp;gt; 0.0 then {PINDICE}
+				else x.ComissaoAVPAdrao
+			end 
+	end PercentualComissao
+	from Parcelas020 x
+)
+, Parcelas040 as
+(
+	select
+	x.idAVPers
+	, x.idUnd
+	, x.idCME
+	, x.ValorPME
+	, x.ValorMostrar
+	, x.isDinheiro
+	, x.TipoDocParcelamento
+	, x.PercentualComissao
+	, x.ValorPME * (x.PercentualComissao / 100) ValorComissao
+, (x.ValorPME * 100) / (select y.Valor from ValorTotal y) PercentualParticipacao
+, (select y.Valor from ValorTotal y) ValorTotal
+	from Parcelas030 x
+)
+, Parcelas050 as
+(
+	select
+	x.idAVPers
+	, avPers.Nome AgenteVenda
+	, x.idUnd
+	, und.Descricao Unidade
+	, sum(x.ValorPME) ValorPME
+	, sum(x.ValorMostrar) ValorMostrar
+	, x.isDinheiro
+	, x.TipoDocParcelamento
+	, x.PercentualComissao
+	, sum(x.ValorComissao) ValorComissao
+	, sum(x.PercentualParticipacao) PercentualParticipacao
+	, x.ValorTotal
+	from Parcelas040 x
+	left join Personalidade avPers on x.idAVPers = avPers.ECO_ID
+	left join Unidade und on x.idUnd = und.ECO_ID
+	group by
+	x.idAVPers
+	, avPers.Nome 
+	, x.idUnd
+	, und.Descricao 
+	, x.isDinheiro
+	, x.TipoDocParcelamento
+	, x.PercentualComissao
+	, x.ValorTotal
+)
+, Parcelas060 as
+(
+	select
+	x.idAVPers
+	, x.AgenteVenda
+	, x.idUnd
+	, x.Unidade
+	, x.ValorPME
+	, x.ValorMostrar
+	, x.isDinheiro
+	, x.TipoDocParcelamento
+	, x.PercentualComissao
+	, x.ValorComissao
+	, x.PercentualParticipacao
+	, x.ValorTotal
+	, (select sum(y.QtdeCab) from Cabs020 y where x.idAVPers = y.idAVPers and x.idUnd = y.idUnd) QtdeCab
+, (select sum(y.QtdeItens) from Cabs020 y where x.idAVPers = y.idAVPers and x.idUnd = y.idUnd) QtdeItens
+	from Parcelas050 x
+)
+	select
+	x.idAVPers
+	, x.AgenteVenda
+	, x.idUnd
+	, x.Unidade
+	, x.ValorPME
+	, x.ValorMostrar
+	, x.isDinheiro
+	, x.TipoDocParcelamento
+	, x.PercentualComissao
+	, x.ValorComissao
+	, x.PercentualParticipacao
+	, x.ValorTotal
+	, x.QtdeCab
+	, x.QtdeItens
+	, x.QtdeItens / x.QtdeCab MediaPecasPorVenda
+	from Parcelas060 x
+&lt;/SqlCommand&gt;
+      &lt;/dsTotaisNew&gt;
+      &lt;dsUnidades Ref="6" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;dsUnidades&lt;/Alias&gt;
+        &lt;Columns isList="true" count="1"&gt;
+          &lt;value&gt;Descricao,System.String&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;dsUnidades&lt;/Name&gt;
+        &lt;NameInSource&gt;cnx&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="0" /&gt;
+        &lt;SqlCommand&gt;select und.Descricao from Unidade und where und.ECO_ID in ({PUNIDADES})&lt;/SqlCommand&gt;
+      &lt;/dsUnidades&gt;
+    &lt;/DataSources&gt;
+    &lt;Relations isList="true" count="1"&gt;
+      &lt;nParcelas Ref="7" type="DataRelation" isKey="true"&gt;
+        &lt;Alias&gt;nParcelas&lt;/Alias&gt;
+        &lt;ChildColumns isList="true" count="1"&gt;
+          &lt;value&gt;idAV&lt;/value&gt;
+        &lt;/ChildColumns&gt;
+        &lt;ChildSource isRef="4" /&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;nParcelas&lt;/Name&gt;
+        &lt;NameInSource&gt;rParcelas&lt;/NameInSource&gt;
+        &lt;ParentColumns isList="true" count="1"&gt;
+          &lt;value&gt;idAV&lt;/value&gt;
+        &lt;/ParentColumns&gt;
+        &lt;ParentSource isRef="3" /&gt;
+      &lt;/nParcelas&gt;
+    &lt;/Relations&gt;
+    &lt;Report isRef="0" /&gt;
+    &lt;Variables isList="true" count="13"&gt;
+      &lt;value&gt;primeWARE,PUNIDADES,PUNIDADES,System.String,_x0027_a5a1876d-9165-4f1a-ad48-81a9fcd8ea59_x0027__x002C__x0027_77c07709-7149-42b4-bffa-3582f08d634a_x0027__x002C__x0027_830a6a2e-8eb8-4216-9b9a-c1870ae1a7f8_x0027__x002C__x0027_25d451bb-747f-4064-8788-37a638e56ee5_x0027_,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTFIM,PDTFIM,System.DateTime,_x0032__x002F_11_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTINI,PDTINI,System.DateTime,_x0032__x002F_1_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;,vtt,vtt,System.Double,_x0030_,False,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PUSER,PUSER,System.String,af1db15f-8f2d-40b7-864c-67b7376e3eef,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PUNDTRAB,PUNDTRAB,System.String,_x0037_7c07709-7149-42b4-bffa-3582f08d634a,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PINDICE,PINDICE,System.Double,_x0030_,True,False&lt;/value&gt;
+      &lt;value&gt;,varIndice,varIndice,System.Double,,False,False&lt;/value&gt;
+      &lt;value&gt;,varTotalGeral,varTotalGeral,System.Double,,False,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PSHOWTDP,PSHOWTDP,System.Boolean,true,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PPERCCOMISDIN,PPERCCOMISDIN,System.Double,_x0034_,True,False&lt;/value&gt;
+      &lt;value&gt;,vQtdeItens,vQtdeItens,System.Double,,False,False&lt;/value&gt;
+      &lt;value&gt;,vQtdeVendas,vQtdeVendas,System.Decimal,,False,False&lt;/value&gt;
+    &lt;/Variables&gt;
+  &lt;/Dictionary&gt;
+  &lt;EngineVersion&gt;EngineV2&lt;/EngineVersion&gt;
+  &lt;GlobalizationStrings isList="true" count="0" /&gt;
+  &lt;MetaTags isList="true" count="0" /&gt;
+  &lt;Pages isList="true" count="2"&gt;
+    &lt;pgNew Ref="8" type="Page" isKey="true"&gt;
+      &lt;Border&gt;None;Black;2;Solid;False;4;Black&lt;/Border&gt;
+      &lt;Brush&gt;Transparent&lt;/Brush&gt;
+      &lt;Components isList="true" count="7"&gt;
+        &lt;PageHeaderBand2 Ref="9" type="PageHeaderBand" isKey="true"&gt;
+          &lt;Border&gt;Bottom;Black;1;Solid;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,0.4,19,2.4&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="12"&gt;
+            &lt;Text22 Ref="10" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,1.8,6.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text22&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;Vendedor&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text22&gt;
+            &lt;Text23 Ref="11" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;6.6,1.4,1.2,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;ca3ba337ef994c30950dda3f5b0bf6b6&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text23&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;Qtde
+Peças&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text23&gt;
+            &lt;Text24 Ref="12" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;8,1.4,1.2,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8,Bold&lt;/Font&gt;
+              &lt;Guid&gt;2d197d27a2cf4a4887451cff4b5f6e97&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text24&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;Qtde
+Vendas&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text24&gt;
+            &lt;Text25 Ref="13" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;9.4,1.4,1.4,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;46f4a7b9f5e446e8a55ba7b29624db49&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text25&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;Média
+Peças&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text25&gt;
+            &lt;Text26 Ref="14" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;11.2,1.4,2.4,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;80450c8c289e41c3b310e1400ac24a29&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text26&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;Total das
+Vendas&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text26&gt;
+            &lt;Text27 Ref="15" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;17.4,1.4,1.4,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;b0a16d3c4482431ba09af96e5531c666&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text27&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;%
+Part&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text27&gt;
+            &lt;Text28 Ref="16" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0.2,0.2,18.6,1.2&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,16,Bold&lt;/Font&gt;
+              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text28&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;Desempenho de Vendas
+Resumido&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text28&gt;
+            &lt;Text29 Ref="17" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;13.8,1.4,1.4,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;a3b8ff69d29f48d9bd7a3d8c81e9b24a&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text29&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;% Comis&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text29&gt;
+            &lt;Text30 Ref="18" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;15.4,1.4,1.8,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;aa5d461e52df423aa5eae46b085b124e&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text30&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;Valor Comis&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text30&gt;
+            &lt;Text31 Ref="19" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;17.6,0,1.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;c83ae5c2b37f42f3bd2abba56c3b785c&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text31&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;{PageNumber}/{TotalPageCount}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text31&gt;
+            &lt;Text32 Ref="20" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0.2,1.4,6.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;b265e89ce8a14f55b1565d98c22e8ced&lt;/Guid&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text32&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;{string.Format("Período: {0:dd/MM/yyyy} até {1:dd/MM/yyyy}.",PDTINI,PDTFIM)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text32&gt;
+            &lt;Text50 Ref="21" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;11.2,0.8,7.8,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;dd72f1a28f56428f8f8890cd3ec1e56b&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text50&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="9" /&gt;
+              &lt;Text&gt;{Time}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text50&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;PageHeaderBand2&lt;/Name&gt;
+          &lt;Page isRef="8" /&gt;
+          &lt;Parent isRef="8" /&gt;
+        &lt;/PageHeaderBand2&gt;
+        &lt;GroupHeaderBand5 Ref="22" type="GroupHeaderBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+          &lt;ClientRectangle&gt;0,3.6,19,1.4&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="2"&gt;
+            &lt;Text37 Ref="23" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;0,0,2.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;70ca355b54d143c1ad3f121edca67a6e&lt;/Guid&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text37&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="22" /&gt;
+              &lt;Text&gt;Loja/Unidade(s):&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text37&gt;
+            &lt;Panel1 Ref="24" type="Stimulsoft.Report.Components.StiPanel" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+              &lt;ClientRectangle&gt;2.2,0,16.8,1.2&lt;/ClientRectangle&gt;
+              &lt;Components isList="true" count="1"&gt;
+                &lt;DataBand2 Ref="25" type="DataBand" isKey="true"&gt;
+                  &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                  &lt;BusinessObjectGuid isNull="true" /&gt;
+                  &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+                  &lt;ClientRectangle&gt;0,0.4,16.8,0.6&lt;/ClientRectangle&gt;
+                  &lt;Columns&gt;6&lt;/Columns&gt;
+                  &lt;Components isList="true" count="1"&gt;
+                    &lt;Text39 Ref="26" type="Text" isKey="true"&gt;
+                      &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                      &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+                      &lt;ClientRectangle&gt;0,0,2.8,0.4&lt;/ClientRectangle&gt;
+                      &lt;Conditions isList="true" count="0" /&gt;
+                      &lt;Font&gt;Arial,8&lt;/Font&gt;
+                      &lt;Guid&gt;25cdd45dcbde43618cd5887119e7ccbd&lt;/Guid&gt;
+                      &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                      &lt;Name&gt;Text39&lt;/Name&gt;
+                      &lt;Page isRef="8" /&gt;
+                      &lt;Parent isRef="25" /&gt;
+                      &lt;Text&gt;{dsUnidades.Descricao}&lt;/Text&gt;
+                      &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                      &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+                      &lt;Type&gt;DataColumn&lt;/Type&gt;
+                      &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+                    &lt;/Text39&gt;
+                  &lt;/Components&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;DataRelationName isNull="true" /&gt;
+                  &lt;DataSourceName&gt;dsUnidades&lt;/DataSourceName&gt;
+                  &lt;Filters isList="true" count="0" /&gt;
+                  &lt;Name&gt;DataBand2&lt;/Name&gt;
+                  &lt;Page isRef="8" /&gt;
+                  &lt;Parent isRef="24" /&gt;
+                  &lt;Sort isList="true" count="2"&gt;
+                    &lt;value&gt;ASC&lt;/value&gt;
+                    &lt;value&gt;Descricao&lt;/value&gt;
+                  &lt;/Sort&gt;
+                &lt;/DataBand2&gt;
+              &lt;/Components&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Name&gt;Panel1&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="22" /&gt;
+            &lt;/Panel1&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupHeaderBand5&lt;/Name&gt;
+          &lt;Page isRef="8" /&gt;
+          &lt;Parent isRef="8" /&gt;
+        &lt;/GroupHeaderBand5&gt;
+        &lt;GroupHeaderBand6 Ref="27" type="GroupHeaderBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,5.8,19,0.4&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupHeaderBand6&lt;/Name&gt;
+          &lt;Page isRef="8" /&gt;
+          &lt;Parent isRef="8" /&gt;
+        &lt;/GroupHeaderBand6&gt;
+        &lt;ghAgenteVenda Ref="28" type="GroupHeaderBand" isKey="true"&gt;
+          &lt;BeforePrintEvent&gt;vQtdeItens += dsTotaisNew.QtdeItens;
+
+vQtdeVendas += dsTotaisNew.QtdeCab;
+&lt;/BeforePrintEvent&gt;
+          &lt;Border&gt;Top;Black;1;Dot;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+          &lt;ClientRectangle&gt;0,7,19,0.8&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="7"&gt;
+            &lt;Text34 Ref="29" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;0,0,6.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text34&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="28" /&gt;
+              &lt;Text&gt;{dsTotaisNew.AgenteVenda}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;DataColumn&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text34&gt;
+            &lt;Text35 Ref="30" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;8,0,1.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text35&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="28" /&gt;
+              &lt;Text&gt;{dsTotaisNew.QtdeCab}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="31" type="NumberFormat" isKey="true"&gt;
+                &lt;DecimalDigits&gt;0&lt;/DecimalDigits&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+                &lt;UseLocalSetting&gt;False&lt;/UseLocalSetting&gt;
+              &lt;/TextFormat&gt;
+              &lt;Type&gt;DataColumn&lt;/Type&gt;
+            &lt;/Text35&gt;
+            &lt;Text36 Ref="32" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;6.6,0,1.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text36&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="28" /&gt;
+              &lt;Text&gt;{dsTotaisNew.QtdeItens}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="33" type="NumberFormat" isKey="true"&gt;
+                &lt;DecimalDigits&gt;0&lt;/DecimalDigits&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+                &lt;UseLocalSetting&gt;False&lt;/UseLocalSetting&gt;
+              &lt;/TextFormat&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;DataColumn&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text36&gt;
+            &lt;Text38 Ref="34" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;9.4,0,1.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;6161c907a69f44369afb7c2a0646ab31&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text38&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="28" /&gt;
+              &lt;Text&gt;{dsTotaisNew.MediaPecasPorVenda}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="35" type="NumberFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+              &lt;/TextFormat&gt;
+              &lt;Type&gt;DataColumn&lt;/Type&gt;
+            &lt;/Text38&gt;
+            &lt;Text48 Ref="36" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;17.4,0,1.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;f7e21249777c421aad5a6b31d53d651d&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text48&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="28" /&gt;
+              &lt;Text&gt;{string.Format("{0:N2} %", Sum(dtParcelas,dsTotaisNew.PercentualParticipacao))}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text48&gt;
+            &lt;Text49 Ref="37" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;15.4,0,1.8,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;d7e2b8771f85459bb8d98bd2d28ed732&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text49&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="28" /&gt;
+              &lt;Text&gt;{Sum(dtParcelas,dsTotaisNew.ValorComissao)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="38" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;9&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;2&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$&lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Totals&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text49&gt;
+            &lt;Text33 Ref="39" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;11.2,0,2.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;f3de5fda991d42bba473c90b90215c69&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text33&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="28" /&gt;
+              &lt;Text&gt;{Sum(dtParcelas,dsTotaisNew.ValorPME)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="40" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;9&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;2&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$&lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Totals&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text33&gt;
+          &lt;/Components&gt;
+          &lt;Condition&gt;{string.Format("{0}{1}", dsTotaisNew.AgenteVenda, dsTotaisNew.idAVPers)}&lt;/Condition&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;ghAgenteVenda&lt;/Name&gt;
+          &lt;Page isRef="8" /&gt;
+          &lt;Parent isRef="8" /&gt;
+        &lt;/ghAgenteVenda&gt;
+        &lt;dtParcelas Ref="41" type="DataBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;BusinessObjectGuid isNull="true" /&gt;
+          &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+          &lt;ClientRectangle&gt;0,8.6,19,1.4&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="1"&gt;
+            &lt;pnlDetail Ref="42" type="Stimulsoft.Report.Components.StiPanel" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+              &lt;ClientRectangle&gt;1.8,0,15.2,1&lt;/ClientRectangle&gt;
+              &lt;Components isList="true" count="4"&gt;
+                &lt;Text42 Ref="43" type="Text" isKey="true"&gt;
+                  &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                  &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+                  &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+                  &lt;ClientRectangle&gt;0,0,8.6,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Font&gt;Arial,8&lt;/Font&gt;
+                  &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;Text42&lt;/Name&gt;
+                  &lt;Page isRef="8" /&gt;
+                  &lt;Parent isRef="42" /&gt;
+                  &lt;Text&gt;{dsTotaisNew.TipoDocParcelamento}&lt;/Text&gt;
+                  &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                  &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+                  &lt;Type&gt;DataColumn&lt;/Type&gt;
+                  &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+                &lt;/Text42&gt;
+                &lt;Text43 Ref="44" type="Text" isKey="true"&gt;
+                  &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                  &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+                  &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+                  &lt;ClientRectangle&gt;9.2,0,2.4,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Font&gt;Arial,7&lt;/Font&gt;
+                  &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;Text43&lt;/Name&gt;
+                  &lt;Page isRef="8" /&gt;
+                  &lt;Parent isRef="42" /&gt;
+                  &lt;Text&gt;{dsTotaisNew.ValorMostrar}&lt;/Text&gt;
+                  &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                  &lt;TextFormat Ref="45" type="NumberFormat" isKey="true"&gt;
+                    &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                    &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                    &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+                  &lt;/TextFormat&gt;
+                  &lt;Type&gt;DataColumn&lt;/Type&gt;
+                  &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+                &lt;/Text43&gt;
+                &lt;Text40 Ref="46" type="Text" isKey="true"&gt;
+                  &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                  &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+                  &lt;ClientRectangle&gt;11.8,0,1.4,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Font&gt;Arial,7&lt;/Font&gt;
+                  &lt;Guid&gt;a98b1c1d7e7142178c4ad491bd4343e6&lt;/Guid&gt;
+                  &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;Text40&lt;/Name&gt;
+                  &lt;Page isRef="8" /&gt;
+                  &lt;Parent isRef="42" /&gt;
+                  &lt;Text&gt;{dsTotaisNew.PercentualComissao}&lt;/Text&gt;
+                  &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                  &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+                  &lt;Type&gt;DataColumn&lt;/Type&gt;
+                  &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+                &lt;/Text40&gt;
+                &lt;Text41 Ref="47" type="Text" isKey="true"&gt;
+                  &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                  &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+                  &lt;ClientRectangle&gt;13.4,0,1.8,0.4&lt;/ClientRectangle&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Font&gt;Arial,7&lt;/Font&gt;
+                  &lt;Guid&gt;b621fdc5478547edb676162519e46d0e&lt;/Guid&gt;
+                  &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+                  &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                  &lt;Name&gt;Text41&lt;/Name&gt;
+                  &lt;Page isRef="8" /&gt;
+                  &lt;Parent isRef="42" /&gt;
+                  &lt;Text&gt;{dsTotaisNew.ValorComissao}&lt;/Text&gt;
+                  &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                  &lt;TextFormat Ref="48" type="NumberFormat" isKey="true"&gt;
+                    &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                    &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                    &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+                  &lt;/TextFormat&gt;
+                  &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+                  &lt;Type&gt;DataColumn&lt;/Type&gt;
+                  &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+                &lt;/Text41&gt;
+              &lt;/Components&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Name&gt;pnlDetail&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="41" /&gt;
+            &lt;/pnlDetail&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;DataRelationName isNull="true" /&gt;
+          &lt;DataSourceName&gt;dsTotaisNew&lt;/DataSourceName&gt;
+          &lt;Filters isList="true" count="0" /&gt;
+          &lt;Name&gt;dtParcelas&lt;/Name&gt;
+          &lt;Page isRef="8" /&gt;
+          &lt;Parent isRef="8" /&gt;
+          &lt;Sort isList="true" count="2"&gt;
+            &lt;value&gt;ASC&lt;/value&gt;
+            &lt;value&gt;TipoDocParcelamento&lt;/value&gt;
+          &lt;/Sort&gt;
+        &lt;/dtParcelas&gt;
+        &lt;GroupFooterBand5 Ref="49" type="GroupFooterBand" isKey="true"&gt;
+          &lt;Border&gt;None;Black;1;Dot;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,10.8,19,0.2&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupFooterBand5&lt;/Name&gt;
+          &lt;Page isRef="8" /&gt;
+          &lt;Parent isRef="8" /&gt;
+        &lt;/GroupFooterBand5&gt;
+        &lt;rsGeral Ref="50" type="ReportSummaryBand" isKey="true"&gt;
+          &lt;Border&gt;Top, Bottom;Black;1;Solid;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,11.8,19,0.4&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="4"&gt;
+            &lt;Text44 Ref="51" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;10.4,0,3.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text44&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="50" /&gt;
+              &lt;Text&gt;{dsTotaisNew.ValorTotal}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="52" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;0&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;0&lt;/PositivePattern&gt;
+              &lt;/TextFormat&gt;
+              &lt;Type&gt;DataColumn&lt;/Type&gt;
+            &lt;/Text44&gt;
+            &lt;Text45 Ref="53" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,0,6.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;fd9e70c4788e4fefb689805cb6c365ef&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text45&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="50" /&gt;
+              &lt;Text&gt;Total Geral&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text45&gt;
+            &lt;Text46 Ref="54" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;6.6,0,1.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;75276d7dd9ac4817a927e0534e6f83f6&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text46&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="50" /&gt;
+              &lt;Text&gt;{vQtdeItens}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="55" type="NumberFormat" isKey="true"&gt;
+                &lt;DecimalDigits&gt;0&lt;/DecimalDigits&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+                &lt;UseLocalSetting&gt;False&lt;/UseLocalSetting&gt;
+              &lt;/TextFormat&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text46&gt;
+            &lt;Text47 Ref="56" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;8.2,0,1.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;33653a7bfa2345e8a46dd2ea73215947&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text47&lt;/Name&gt;
+              &lt;Page isRef="8" /&gt;
+              &lt;Parent isRef="50" /&gt;
+              &lt;Text&gt;{vQtdeVendas}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="57" type="NumberFormat" isKey="true"&gt;
+                &lt;DecimalDigits&gt;0&lt;/DecimalDigits&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+                &lt;UseLocalSetting&gt;False&lt;/UseLocalSetting&gt;
+              &lt;/TextFormat&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text47&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;rsGeral&lt;/Name&gt;
+          &lt;Page isRef="8" /&gt;
+          &lt;Parent isRef="8" /&gt;
+        &lt;/rsGeral&gt;
+      &lt;/Components&gt;
+      &lt;Conditions isList="true" count="0" /&gt;
+      &lt;Guid&gt;4f6dfc53fd0f40f499042957a624d5cf&lt;/Guid&gt;
+      &lt;Margins&gt;1,1,1,1&lt;/Margins&gt;
+      &lt;Name&gt;pgNew&lt;/Name&gt;
+      &lt;PageHeight&gt;29.7&lt;/PageHeight&gt;
+      &lt;PageWidth&gt;21&lt;/PageWidth&gt;
+      &lt;Report isRef="0" /&gt;
+      &lt;Watermark Ref="58" type="Stimulsoft.Report.Components.StiWatermark" isKey="true"&gt;
+        &lt;Font&gt;Arial,100&lt;/Font&gt;
+        &lt;TextBrush&gt;[50:0:0:0]&lt;/TextBrush&gt;
+      &lt;/Watermark&gt;
+    &lt;/pgNew&gt;
+    &lt;pgOld Ref="59" type="Page" isKey="true"&gt;
+      &lt;Border&gt;None;Black;2;Solid;False;4;Black&lt;/Border&gt;
+      &lt;Brush&gt;Transparent&lt;/Brush&gt;
+      &lt;Components isList="true" count="10"&gt;
+        &lt;PageHeaderBand1 Ref="60" type="PageHeaderBand" isKey="true"&gt;
+          &lt;Border&gt;Bottom;Black;1;Solid;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,0.4,19,2.4&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="11"&gt;
+            &lt;Text4 Ref="61" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,1.8,6.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text4&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="60" /&gt;
+              &lt;Text&gt;Vendedor&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text4&gt;
+            &lt;Text6 Ref="62" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;6.6,1.4,1.2,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;ca3ba337ef994c30950dda3f5b0bf6b6&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text6&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="60" /&gt;
+              &lt;Text&gt;Qtde
+Peças&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text6&gt;
+            &lt;Text7 Ref="63" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;8,1.4,1.2,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8,Bold&lt;/Font&gt;
+              &lt;Guid&gt;2d197d27a2cf4a4887451cff4b5f6e97&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text7&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="60" /&gt;
+              &lt;Text&gt;Qtde
+Vendas&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text7&gt;
+            &lt;Text8 Ref="64" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;9.4,1.4,1.4,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;46f4a7b9f5e446e8a55ba7b29624db49&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text8&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="60" /&gt;
+              &lt;Text&gt;Média
+Peças&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text8&gt;
+            &lt;Text9 Ref="65" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;11.2,1.4,2.4,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;80450c8c289e41c3b310e1400ac24a29&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text9&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="60" /&gt;
+              &lt;Text&gt;Total das
+Vendas&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text9&gt;
+            &lt;Text10 Ref="66" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;17.4,1.4,1.4,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;b0a16d3c4482431ba09af96e5531c666&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text10&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="60" /&gt;
+              &lt;Text&gt;%
+Part&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text10&gt;
+            &lt;Text12 Ref="67" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0.4,0.2,18.2,1.2&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,16,Bold&lt;/Font&gt;
+              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text12&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="60" /&gt;
+              &lt;Text&gt;Desempenho de Vendas
+Resumido&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text12&gt;
+            &lt;Text15 Ref="68" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;13.8,1.4,1.4,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;a3b8ff69d29f48d9bd7a3d8c81e9b24a&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text15&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="60" /&gt;
+              &lt;Text&gt;% Comis&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text15&gt;
+            &lt;Text17 Ref="69" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;15.4,1.4,1.8,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;aa5d461e52df423aa5eae46b085b124e&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text17&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="60" /&gt;
+              &lt;Text&gt;Valor Comis&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text17&gt;
+            &lt;Text19 Ref="70" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;17.6,0,1.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;c83ae5c2b37f42f3bd2abba56c3b785c&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text19&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="60" /&gt;
+              &lt;Text&gt;{PageNumber}/{TotalPageCount}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text19&gt;
+            &lt;Text20 Ref="71" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0.2,1.4,6.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;b265e89ce8a14f55b1565d98c22e8ced&lt;/Guid&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text20&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="60" /&gt;
+              &lt;Text&gt;{string.Format("Período: {0:dd/MM/yyyy} até {1:dd/MM/yyyy}.",PDTINI,PDTFIM)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
+            &lt;/Text20&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;PageHeaderBand1&lt;/Name&gt;
+          &lt;Page isRef="59" /&gt;
+          &lt;Parent isRef="59" /&gt;
+        &lt;/PageHeaderBand1&gt;
+        &lt;GroupHeaderBand2 Ref="72" type="GroupHeaderBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,3.6,19,0&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupHeaderBand2&lt;/Name&gt;
+          &lt;Page isRef="59" /&gt;
+          &lt;Parent isRef="59" /&gt;
+        &lt;/GroupHeaderBand2&gt;
+        &lt;DatadsTotais2 Ref="73" type="DataBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;BusinessObjectGuid isNull="true" /&gt;
+          &lt;ClientRectangle&gt;0,4.4,19,0&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;DataSourceName&gt;dsTotais&lt;/DataSourceName&gt;
+          &lt;Filters isList="true" count="0" /&gt;
+          &lt;Name&gt;DatadsTotais2&lt;/Name&gt;
+          &lt;Page isRef="59" /&gt;
+          &lt;Parent isRef="59" /&gt;
+          &lt;Sort isList="true" count="0" /&gt;
+        &lt;/DatadsTotais2&gt;
+        &lt;GroupFooterBand2 Ref="74" type="GroupFooterBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,5.2,19,0.4&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="1"&gt;
+            &lt;Text21 Ref="75" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;0,0,9.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;12ca187e95dd4bd7a9e8de0f937a1a47&lt;/Guid&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text21&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="74" /&gt;
+              &lt;Text&gt;Loja/Unidade(s): {dsTotais.Unidade}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text21&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupFooterBand2&lt;/Name&gt;
+          &lt;Page isRef="59" /&gt;
+          &lt;Parent isRef="59" /&gt;
+        &lt;/GroupFooterBand2&gt;
+        &lt;FooterBand1 Ref="76" type="FooterBand" isKey="true"&gt;
+          &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,6.4,19,0.2&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;FooterBand1&lt;/Name&gt;
+          &lt;Page isRef="59" /&gt;
+          &lt;Parent isRef="59" /&gt;
+        &lt;/FooterBand1&gt;
+        &lt;DataBand1 Ref="77" type="DataBand" isKey="true"&gt;
+          &lt;AfterPrintEvent&gt;vtt += dsTotais.Total&lt;/AfterPrintEvent&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;BusinessObjectGuid isNull="true" /&gt;
+          &lt;ClientRectangle&gt;0,7.4,19,0&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;DataRelationName isNull="true" /&gt;
+          &lt;DataSourceName&gt;dsTotais&lt;/DataSourceName&gt;
+          &lt;Filters isList="true" count="0" /&gt;
+          &lt;Name&gt;DataBand1&lt;/Name&gt;
+          &lt;Page isRef="59" /&gt;
+          &lt;Parent isRef="59" /&gt;
+          &lt;Sort isList="true" count="0" /&gt;
+        &lt;/DataBand1&gt;
+        &lt;GroupHeaderBand1 Ref="78" type="GroupHeaderBand" isKey="true"&gt;
+          &lt;Border&gt;Bottom;Black;1;Dot;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+          &lt;ClientRectangle&gt;0,8.2,19,0.2&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Condition&gt;{dsTotais.Nome}&lt;/Condition&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupHeaderBand1&lt;/Name&gt;
+          &lt;Page isRef="59" /&gt;
+          &lt;Parent isRef="59" /&gt;
+        &lt;/GroupHeaderBand1&gt;
+        &lt;DatadsTotais Ref="79" type="DataBand" isKey="true"&gt;
+          &lt;AfterPrintEvent&gt;varTotalGeral += dsTotais.Total;&lt;/AfterPrintEvent&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;BusinessObjectGuid isNull="true" /&gt;
+          &lt;ClientRectangle&gt;0,9.2,19,0&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;DataSourceName&gt;dsTotais&lt;/DataSourceName&gt;
+          &lt;Filters isList="true" count="0" /&gt;
+          &lt;Name&gt;DatadsTotais&lt;/Name&gt;
+          &lt;Page isRef="59" /&gt;
+          &lt;Parent isRef="59" /&gt;
+          &lt;Sort isList="true" count="0" /&gt;
+        &lt;/DatadsTotais&gt;
+        &lt;GroupFooterBand1 Ref="80" type="GroupFooterBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+          &lt;ClientRectangle&gt;0,10,19,6.6&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="9"&gt;
+            &lt;DatadsTotais_Nome Ref="81" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;0,0,6.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DatadsTotais_Nome&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="80" /&gt;
+              &lt;Text&gt;{dsTotais.Nome}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DatadsTotais_Nome&gt;
+            &lt;Text1 Ref="82" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;8,0,1.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text1&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="80" /&gt;
+              &lt;Text&gt;{CountDistinct(DatadsTotais, dsTotais.ID_CAB)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="83" type="NumberFormat" isKey="true"&gt;
+                &lt;DecimalDigits&gt;0&lt;/DecimalDigits&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+                &lt;UseLocalSetting&gt;False&lt;/UseLocalSetting&gt;
+              &lt;/TextFormat&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text1&gt;
+            &lt;DatadsTotais_QtdePecas Ref="84" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;6.6,0,1.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DatadsTotais_QtdePecas&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="80" /&gt;
+              &lt;Text&gt;{Sum(dsTotais.QtdePecas)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="85" type="NumberFormat" isKey="true"&gt;
+                &lt;DecimalDigits&gt;0&lt;/DecimalDigits&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+                &lt;UseLocalSetting&gt;False&lt;/UseLocalSetting&gt;
+              &lt;/TextFormat&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Totals&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DatadsTotais_QtdePecas&gt;
+            &lt;DatadsTotais_Total Ref="86" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;11.2,0,2.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DatadsTotais_Total&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="80" /&gt;
+              &lt;Text&gt;{Sum(DatadsTotais,dsTotais.Total)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="87" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;0&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;0&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$ &lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DatadsTotais_Total&gt;
+            &lt;Text2 Ref="88" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;9.4,0,1.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;6161c907a69f44369afb7c2a0646ab31&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text2&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="80" /&gt;
+              &lt;Text&gt;{Sum(dsTotais.QtdePecas) / CountDistinct(DatadsTotais, dsTotais.ID_CAB)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="89" type="NumberFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+              &lt;/TextFormat&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text2&gt;
+            &lt;Text3 Ref="90" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;17.4,0,1.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;82050bf640f34ed19bafc32f4c7d3829&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text3&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="80" /&gt;
+              &lt;Text&gt;{Format("{0:N2}", ( SumD(dsTotais.Total) * 100 ) / vtt)}%&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text3&gt;
+            &lt;Text16 Ref="91" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;13.8,0,1.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;a98b1c1d7e7142178c4ad491bd4343e6&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text16&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="80" /&gt;
+              &lt;Text&gt;{dsTotais.PercComissao}%&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="92" type="NumberFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+              &lt;/TextFormat&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text16&gt;
+            &lt;Text18 Ref="93" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;15.4,0,1.8,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;b621fdc5478547edb676162519e46d0e&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text18&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="80" /&gt;
+              &lt;Text&gt;{Sum(DatadsTotais,dsTotais.vlrComissao)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="94" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;9&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;2&lt;/PositivePattern&gt;
+                &lt;Symbol&gt;R$&lt;/Symbol&gt;
+              &lt;/TextFormat&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text18&gt;
+            &lt;pnlTDP Ref="95" type="Stimulsoft.Report.Components.StiPanel" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+              &lt;ClientRectangle&gt;0,0.4,19,4.6&lt;/ClientRectangle&gt;
+              &lt;Components isList="true" count="5"&gt;
+                &lt;GroupHeaderBand4 Ref="96" type="GroupHeaderBand" isKey="true"&gt;
+                  &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;0,0.4,19,0&lt;/ClientRectangle&gt;
+                  &lt;Components isList="true" count="0" /&gt;
+                  &lt;Condition&gt;{dsParcelas.flag010}&lt;/Condition&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Name&gt;GroupHeaderBand4&lt;/Name&gt;
+                  &lt;Page isRef="59" /&gt;
+                  &lt;Parent isRef="95" /&gt;
+                &lt;/GroupHeaderBand4&gt;
+                &lt;GroupHeaderBand3 Ref="97" type="GroupHeaderBand" isKey="true"&gt;
+                  &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                  &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+                  &lt;ClientRectangle&gt;0,1.2,19,0.6&lt;/ClientRectangle&gt;
+                  &lt;Components isList="true" count="2"&gt;
+                    &lt;DatadsParcelas_TipoDocPacrcelamento Ref="98" type="Text" isKey="true"&gt;
+                      &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                      &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+                      &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+                      &lt;ClientRectangle&gt;3,0,8.6,0.4&lt;/ClientRectangle&gt;
+                      &lt;Conditions isList="true" count="0" /&gt;
+                      &lt;Font&gt;Arial,8&lt;/Font&gt;
+                      &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+                      &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                      &lt;Name&gt;DatadsParcelas_TipoDocPacrcelamento&lt;/Name&gt;
+                      &lt;Page isRef="59" /&gt;
+                      &lt;Parent isRef="97" /&gt;
+                      &lt;Text&gt;{dsParcelas.TipoDocParcelamento}&lt;/Text&gt;
+                      &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                      &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+                      &lt;Type&gt;DataColumn&lt;/Type&gt;
+                      &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+                    &lt;/DatadsParcelas_TipoDocPacrcelamento&gt;
+                    &lt;DatadsParcelas_Valor Ref="99" type="Text" isKey="true"&gt;
+                      &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                      &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+                      &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+                      &lt;ClientRectangle&gt;11.6,0,1.4,0.4&lt;/ClientRectangle&gt;
+                      &lt;Conditions isList="true" count="0" /&gt;
+                      &lt;Font&gt;Arial,8&lt;/Font&gt;
+                      &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+                      &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+                      &lt;Name&gt;DatadsParcelas_Valor&lt;/Name&gt;
+                      &lt;Page isRef="59" /&gt;
+                      &lt;Parent isRef="97" /&gt;
+                      &lt;Text&gt;{Sum(DatadsParcelas,dsParcelas.Valor)}&lt;/Text&gt;
+                      &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+                      &lt;TextFormat Ref="100" type="NumberFormat" isKey="true"&gt;
+                        &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                        &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                        &lt;NegativePattern&gt;0&lt;/NegativePattern&gt;
+                        &lt;UseLocalSetting&gt;False&lt;/UseLocalSetting&gt;
+                      &lt;/TextFormat&gt;
+                      &lt;Type&gt;Totals&lt;/Type&gt;
+                      &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+                    &lt;/DatadsParcelas_Valor&gt;
+                  &lt;/Components&gt;
+                  &lt;Condition&gt;{dsParcelas.TipoDocParcelamento}&lt;/Condition&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Name&gt;GroupHeaderBand3&lt;/Name&gt;
+                  &lt;Page isRef="59" /&gt;
+                  &lt;Parent isRef="95" /&gt;
+                &lt;/GroupHeaderBand3&gt;
+                &lt;DatadsParcelas Ref="101" type="DataBand" isKey="true"&gt;
+                  &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                  &lt;BusinessObjectGuid isNull="true" /&gt;
+                  &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+                  &lt;ClientRectangle&gt;0,2.6,19,0&lt;/ClientRectangle&gt;
+                  &lt;Components isList="true" count="0" /&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;DataRelationName&gt;rParcelas&lt;/DataRelationName&gt;
+                  &lt;DataSourceName&gt;dsParcelas&lt;/DataSourceName&gt;
+                  &lt;Filters isList="true" count="0" /&gt;
+                  &lt;MasterComponent isRef="79" /&gt;
+                  &lt;Name&gt;DatadsParcelas&lt;/Name&gt;
+                  &lt;Page isRef="59" /&gt;
+                  &lt;Parent isRef="95" /&gt;
+                  &lt;Sort isList="true" count="2"&gt;
+                    &lt;value&gt;ASC&lt;/value&gt;
+                    &lt;value&gt;TipoDocPacrcelamento&lt;/value&gt;
+                  &lt;/Sort&gt;
+                &lt;/DatadsParcelas&gt;
+                &lt;GroupFooterBand3 Ref="102" type="GroupFooterBand" isKey="true"&gt;
+                  &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;0,3.4,19,0&lt;/ClientRectangle&gt;
+                  &lt;Components isList="true" count="0" /&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Name&gt;GroupFooterBand3&lt;/Name&gt;
+                  &lt;Page isRef="59" /&gt;
+                  &lt;Parent isRef="95" /&gt;
+                &lt;/GroupFooterBand3&gt;
+                &lt;GroupFooterBand4 Ref="103" type="GroupFooterBand" isKey="true"&gt;
+                  &lt;Border&gt;Bottom;Black;1;Dot;False;4;Black&lt;/Border&gt;
+                  &lt;Brush&gt;Transparent&lt;/Brush&gt;
+                  &lt;ClientRectangle&gt;0,4.2,19,0.2&lt;/ClientRectangle&gt;
+                  &lt;Components isList="true" count="0" /&gt;
+                  &lt;Conditions isList="true" count="0" /&gt;
+                  &lt;Name&gt;GroupFooterBand4&lt;/Name&gt;
+                  &lt;Page isRef="59" /&gt;
+                  &lt;Parent isRef="95" /&gt;
+                &lt;/GroupFooterBand4&gt;
+              &lt;/Components&gt;
+              &lt;Conditions isList="true" count="1"&gt;
+                &lt;value&gt;_x007B_PSHOWTDP_x007D_,Red,Transparent,Arial_x002C_8,True,False,,,None&lt;/value&gt;
+              &lt;/Conditions&gt;
+              &lt;Enabled&gt;False&lt;/Enabled&gt;
+              &lt;Name&gt;pnlTDP&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="80" /&gt;
+            &lt;/pnlTDP&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupFooterBand1&lt;/Name&gt;
+          &lt;Page isRef="59" /&gt;
+          &lt;Parent isRef="59" /&gt;
+        &lt;/GroupFooterBand1&gt;
+        &lt;ReportSummaryBand1 Ref="104" type="ReportSummaryBand" isKey="true"&gt;
+          &lt;Border&gt;Top, Bottom;Black;1;Solid;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,17.4,19,0.4&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="4"&gt;
+            &lt;Text5 Ref="105" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;10.4,0,3.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text5&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="104" /&gt;
+              &lt;Text&gt;{varTotalGeral}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="106" type="CurrencyFormat" isKey="true"&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;0&lt;/NegativePattern&gt;
+                &lt;PositivePattern&gt;0&lt;/PositivePattern&gt;
+              &lt;/TextFormat&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text5&gt;
+            &lt;Text11 Ref="107" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;ClientRectangle&gt;0,0,6.4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;fd9e70c4788e4fefb689805cb6c365ef&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text11&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="104" /&gt;
+              &lt;Text&gt;Total Geral&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+            &lt;/Text11&gt;
+            &lt;Text13 Ref="108" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;6.6,0,1.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;75276d7dd9ac4817a927e0534e6f83f6&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text13&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="104" /&gt;
+              &lt;Text&gt;{Sum(dsTotais.QtdePecas)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="109" type="NumberFormat" isKey="true"&gt;
+                &lt;DecimalDigits&gt;0&lt;/DecimalDigits&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+                &lt;UseLocalSetting&gt;False&lt;/UseLocalSetting&gt;
+              &lt;/TextFormat&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Totals&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text13&gt;
+            &lt;Text14 Ref="110" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;8.2,0,1.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Arial,8&lt;/Font&gt;
+              &lt;Guid&gt;33653a7bfa2345e8a46dd2ea73215947&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text14&lt;/Name&gt;
+              &lt;Page isRef="59" /&gt;
+              &lt;Parent isRef="104" /&gt;
+              &lt;Text&gt;{CountDistinct(DataBand1,dsTotais.ID_CAB)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="111" type="NumberFormat" isKey="true"&gt;
+                &lt;DecimalDigits&gt;0&lt;/DecimalDigits&gt;
+                &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
+                &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
+                &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
+                &lt;UseLocalSetting&gt;False&lt;/UseLocalSetting&gt;
+              &lt;/TextFormat&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
+              &lt;Type&gt;Totals&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text14&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;ReportSummaryBand1&lt;/Name&gt;
+          &lt;Page isRef="59" /&gt;
+          &lt;Parent isRef="59" /&gt;
+        &lt;/ReportSummaryBand1&gt;
+      &lt;/Components&gt;
+      &lt;Conditions isList="true" count="0" /&gt;
+      &lt;Enabled&gt;False&lt;/Enabled&gt;
+      &lt;Guid&gt;cf1219df350f492bbbe8cdb8e68fd80a&lt;/Guid&gt;
+      &lt;Margins&gt;1,1,1,1&lt;/Margins&gt;
+      &lt;Name&gt;pgOld&lt;/Name&gt;
+      &lt;PageHeight&gt;29.7&lt;/PageHeight&gt;
+      &lt;PageWidth&gt;21&lt;/PageWidth&gt;
+      &lt;Report isRef="0" /&gt;
+      &lt;Watermark Ref="112" type="Stimulsoft.Report.Components.StiWatermark" isKey="true"&gt;
+        &lt;Font&gt;Arial,100&lt;/Font&gt;
+        &lt;TextBrush&gt;[50:0:0:0]&lt;/TextBrush&gt;
+      &lt;/Watermark&gt;
+    &lt;/pgOld&gt;
+  &lt;/Pages&gt;
+  &lt;PrinterSettings Ref="113" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" /&gt;
+  &lt;ReferencedAssemblies isList="true" count="8"&gt;
+    &lt;value&gt;System.Dll&lt;/value&gt;
+    &lt;value&gt;System.Drawing.Dll&lt;/value&gt;
+    &lt;value&gt;System.Windows.Forms.Dll&lt;/value&gt;
+    &lt;value&gt;System.Data.Dll&lt;/value&gt;
+    &lt;value&gt;System.Xml.Dll&lt;/value&gt;
+    &lt;value&gt;Stimulsoft.Controls.Dll&lt;/value&gt;
+    &lt;value&gt;Stimulsoft.Base.Dll&lt;/value&gt;
+    &lt;value&gt;Stimulsoft.Report.Dll&lt;/value&gt;
+  &lt;/ReferencedAssemblies&gt;
+  &lt;ReportAlias&gt;0045-DESEMPENHODEVENDAS-RESUMIDO110219141720&lt;/ReportAlias&gt;
+  &lt;ReportCacheMode&gt;On&lt;/ReportCacheMode&gt;
+  &lt;ReportChanged&gt;2/11/2019 2:16:57 PM&lt;/ReportChanged&gt;
+  &lt;ReportCreated&gt;1/14/2011 3:06:20 PM&lt;/ReportCreated&gt;
+  &lt;ReportFile&gt;C:\Users\Kaichiro\AppData\Local\Temp\3\0045-DESEMPENHODEVENDAS-RESUMIDO110219141720&lt;/ReportFile&gt;
+  &lt;ReportGuid&gt;8a0afe55a52d4329a04ba55b67ba25aa&lt;/ReportGuid&gt;
+  &lt;ReportName&gt;0045-DESEMPENHODEVENDAS-RESUMIDO110219141720&lt;/ReportName&gt;
+  &lt;ReportUnit&gt;Centimeters&lt;/ReportUnit&gt;
+  &lt;ReportVersion&gt;2012.3.1500&lt;/ReportVersion&gt;
+  &lt;Script&gt;using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        
+        public Report()
+        {
+            this.InitializeComponent();
+        }
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+&lt;/Script&gt;
+  &lt;ScriptLanguage&gt;CSharp&lt;/ScriptLanguage&gt;
+  &lt;Styles isList="true" count="0" /&gt;
+&lt;/StiSerializer&gt;</Layout>
+    <Nome>0045 - DESEMPENHO DE VENDAS - RESUMIDO</Nome>
+    <Tipo>DiretoComSQL</Tipo>
+    <UsoInterno>False</UsoInterno>
+  </Atributos>
+  <Relacionamentos>
+    <Parametros>
+      <Record Id="PPERCCOMISDIN" Tipo="ParametroRelatorio">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>% Comis. Din.</Etiqueta>
+          <NomeInterno>PPERCCOMISDIN</NomeInterno>
+          <Ordem>50</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Numero</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PSHOWTDP" Tipo="ParametroRelatorio">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Mostrar TipoDocParc?</Etiqueta>
+          <NomeInterno>PSHOWTDP</NomeInterno>
+          <Ordem>40</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>VerdadeFalso</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PDTINI" Tipo="ParametroRelatorio">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Data Inicial</Etiqueta>
+          <NomeInterno>PDTINI</NomeInterno>
+          <Ordem>11</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Data</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PDTFIM" Tipo="ParametroRelatorio">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Data Final</Etiqueta>
+          <NomeInterno>PDTFIM</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Data</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PINDICE" Tipo="ParametroRelatorio">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Indice Comissão</Etiqueta>
+          <NomeInterno>PINDICE</NomeInterno>
+          <Ordem>30</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Numero</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PUNIDADES" Tipo="ParametroRelatorio">
+        <Atributos>
+          <Comando>Unidade.allLoadedObjects-&gt;orderBy(Descricao)</Comando>
+          <Etiqueta>Unidades</Etiqueta>
+          <NomeInterno>PUNIDADES</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>Unidade.AllInstances</PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="Descfricao" Tipo="CampoParametroRelatorio">
+              <Atributos>
+                <Comando>self.Descricao</Comando>
+                <NomeInterno>Descfricao</NomeInterno>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+    </Parametros>
+    <Consultas>
+      <Record Id="" Tipo="Consulta">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <NomeInterno>
+          </NomeInterno>
+          <PreComando>
+          </PreComando>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+    </Consultas>
+  </Relacionamentos>
+</Classe>
