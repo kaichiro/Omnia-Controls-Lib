@@ -1,11 +1,11 @@
 git checkout master
-git pull origin master
+git push origin master
 git checkout ocl
-git pull origin ocl
+git push origin ocl
 git checkout sql
-git pull origin sql
+git push origin sql
 git checkout report
-git pull origin report
+git push origin report
 git checkout XML_imports
-git pull origin XML_imports
+git push origin XML_imports
 git checkout master
