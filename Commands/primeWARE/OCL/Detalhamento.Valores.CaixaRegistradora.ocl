@@ -1,0 +1,30 @@
+CaixaRegistradora.allInstances->select( cr | 
+  (cr.DataCaixa >= #2018-12-01) 
+  and 
+  (cr.DataCaixa <= #2018-12-01T23:59:59) 
+)
+
+let pme = self.MovimentosEstoque->select( cme | (not cme.Cancelado) and cme.State.sqlLike('%Processad%') ).Parcelas->select( pme | pme.TipoDocParcelamento.ParticipaCaixa ).Valor->sum in (
+let vlrAbertura = self.ValorAbertura in (
+let MovCx = (self.Movimentos->select( mcr | mcr.OperacaoCaixaRegistradora.Tipo = enumTipoMovCaixaRegistradora::Retirada ).Valor->sum + 0.0) * (-1) in (
+let mfReceber = self.MovimentosFinanceiros->select( mf | (not mf.Cancelado) and (mf.Sistema = enumSistemaContas::Receber) ).ValorMovimento->sum + 0.0 in (
+let mfPagar = (self.MovimentosFinanceiros->select( mf | (not mf.Cancelado) and (mf.Sistema = enumSistemaContas::Pagar) ).ValorMovimento->sum + 0.0) * (-1) in (
+  pme
+  .union(vlrAbertura)
+  .union(MovCx)
+  .union(mfReceber)
+  .union(mfPagar)
+)))))
+
+
+let pme = self.MovimentosEstoque->select( cme | (not cme.Cancelado) and cme.State.sqlLike('%Processad%') ).Parcelas->select( pme | pme.TipoDocParcelamento.ParticipaCaixa ).Valor->sum in (
+let vlrAbertura = self.ValorAbertura in (
+let MovCx = (self.Movimentos->select( mcr | mcr.OperacaoCaixaRegistradora.Tipo = enumTipoMovCaixaRegistradora::Retirada ).Valor->sum + 0.0) * (-1) in (
+let mfReceber = self.MovimentosFinanceiros->select( mf | (not mf.Cancelado) and (mf.Sistema = enumSistemaContas::Receber) ).ValorMovimento->sum + 0.0 in (
+let mfPagar = (self.MovimentosFinanceiros->select( mf | (not mf.Cancelado) and (mf.Sistema = enumSistemaContas::Pagar) ).ValorMovimento->sum + 0.0) * (-1) in (
+  (pme.toDecimal.format('C2') + '   pme')
+  .union(vlrAbertura.toDecimal.format('C2') + '   vlrAbertura')
+  .union(MovCx.toDecimal.format('C2') + '   MovCx')
+  .union(mfReceber.toDecimal.format('C2') + '   mf_Rec')
+  .union(mfPagar.toDecimal.format('C2') + '   mf_Pag')
+)))))

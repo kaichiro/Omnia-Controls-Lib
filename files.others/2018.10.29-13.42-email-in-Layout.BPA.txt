@@ -1,0 +1,59 @@
+Segue instruções recebidas para gerar o arquivo txt do BPA.
+
+Como informado, segue anexo orientação a respeito do layout do arquivo TXT para ser lido no Sistema Ministerial.
+
+Ele segue um passo a passo.  Inicialmente, ele tem o cabeçalho do arquivo (como mostrado na primeira parte da planilha em anexo).  Segue, abaixo uma breve explanação:
+
+CBC-HDR - Sempre informar 01;
+CBC-HDR (2) - Sempre informar como #BPA# (informativo se é produção ambulatorial)
+CBC-MVM - Competência da produção.  Por exemplo, se estiver obtendo a produção de Agosto/2018, será informado na forma de AAAAMM - 201808
+CBC-LIN - Totais de linhas.  Será explanado abaixo, mas cada folha de produção, no Individual (que é o caso do TFD) equivale a 99 linhas;
+CBC-FLH - Totais de Folhas de produção.  Como citado, cada folha equivale a 99 sequências (linhas);
+CBC-SMT-VRF - Campo Controle.  É explanado na planilha, no final, como é a forma de obtê-lo.  Extremamente importante, pois este campo é o que verifica se o arquivo é válido;
+CBC-RSP - Nome do Órgão Responsável.  No caso, Tratamento Fora de Domicílio.  Lembrando que é um campo de 30 carácteres.  Pode ser resumido, mas é necessário complementar com espaços;
+CBC-SGL - Sigla do Órgão Responsável.  Pode resumir para TFD, mas complementando com espaços;
+CBC-CGCCPF - CPF/CGC do Prestador.  No caso, informar como 29178233000160 (CGC da Prefeitura);
+CBC-DST - Nome do Órgão de Saúde de Destino.  No caso, informar SECRETARIA MUNICIPAL DE SAUDE DE RESENDE (Se ultrapassar os 30, pode deixar até o SAUDE);
+CBC-DST-IN - Informar sempre M (Órgão Destino Municipal);
+CBC-VERSAO - Campo livre;
+
+A segunda etapa do arquivo de BPA é relativo a BPA-I (como informado na Planilha, Boletim de Produção Ambulatorial INDIVIDUALIZADA).  Seguem os dados dos campos explanados ali:
+
+PRD-IDENT - Identificação do tipo de produção.  Sempre informar 03;
+PRD-CNES - CNES da Unidade.  No caso, informar como 7213352 - CENTRAL DE REGULACAO - RESENDE;
+PRD-CMP - Competência da Produção.  Ex.: Agosto/2018 -> 201808.
+PRD-CNSMED - Cartão SUS do Médico.  É um campo que pode ser mudado, dependendo do médico auditor.  Atualmente é o Dr. Nicolau (CNS: 980016277433755).  Poderia haver um campo para alterar no sistema?  Fica a sugestão!
+PRD-CBO - Código Brasileiro de Ocupação do Médico.  Da mesma forma que o anterior, este é um campo que corresponde a especialidade do profissional que autoriza.  O atual é o Dr. Nicolau (CBO: 225270)
+PRD_DTATEN - Data de Atendimento (no caso do TFD, data da viagem).  Formato é, sem barras, AAAAMMDD.  Exemplo, uma viagem feita em 28/08/2018, ficará como 20180828.
+PRD_FLH - Campo Folha (3 dígitos, complementar com zeros).  Este campo são as folhas de produção.  Como mencionado anteriormente, cada folha equivale a um total de 99 sequências (no Individualizado, como é o caso do TFD), ou 20, no BPA Consolidado (que não é o caso do TFD);
+PRD_SEQ - Campo Sequência.  Cada Folha de produção, equivale a 99 sequências (linhas de produção);
+PRD-PA - Campo Procedimento.  São os dois códigos de Procedimentos (0803010125 - Transporte de Paciente por via Terrestre e 0803010109 - Transporte de Acompanhante por Via Terrestre);
+PRD_CNSPAC - Cartão SUS do Paciente
+PRD_SEXO - Sexo do Paciente.  M para Masculino e F para Feminino;
+PRD_IBGE - Código IBGE da residência do Paciente.  Códigos em planilha em anexo!
+PRD_CID - Código CID.  Códigos e Descrição em Planilha em anexo!
+PRD_IDADE - Idade do Paciente.
+PRD_QT - Quantidade dos módulos do Procedimento.
+PRD_CATEN - Caráter de Atendimento.  Códigos e Descrição em Planilha em anexo!
+PRD_NAUT - Campo pode ser em branco.  Refere-se ao número do prontuário, mas não há necessidade.
+PRD_ORG - Origem das Informações.  Sempre deverá ser BPA.
+PRD_NMPAC - Nome do Paciente
+PRD_DTNASC - Dt. de Nascimento do Paciente.  Segue a forma de AAAAMMDD, sem as barras.
+PRD_RACA - Raça do Paciente.  Codificação e Descrição em anexo!
+PRD_ETNIA - Etnia do Paciente (caso a raça seja 05, Indígena).  Deixar em branco.
+PRD_NAC - Nacionalidade do Paciente (Todos são Brasileiros, então 010.  Mas há codificação e Descrição em anexos)
+PRD_SRV / PRD_CLF / PRD-EQUIPE-SEQ / PRD_EQUIPE_AREA / PRD_CNPJ - Deixar em branco (complementar com espaços)
+PRD_CEP_PCNTE - CEP do Paciente, sem o traço
+PRD_LOGRAD_PCNTE - Código do Logradouro.  Codificação e Descrição em planilha em anexo!
+PRD_END_PCNTE - Endereço do Paciente (sem a codificação do Logradouro);
+PRD_COMPL_PCNTE - Complemento do Endereço do Paciente;
+PRD_NUM_PCNTE - Número do Endereço do Paciente;
+PRD_BAIRRO_PCNTE - Bairro do Endereço do Paciente;
+PRD_DDTEL_PCNTE - DDD e Telefone do Paciente; (Campo não obrigatório - Porém importante se houver)
+PRD_EMAIL_PCNTE - Email do Paciente.  Como o telefone, campo não obrigatório.
+
+Cálculo do Campo Controle.
+
+1) Somar o código de todos os procedimentos + quantidade;
+2) Obter o resto da divisão do resultado por 1111;
+3) Somar 1111 ao resto da divisão.
