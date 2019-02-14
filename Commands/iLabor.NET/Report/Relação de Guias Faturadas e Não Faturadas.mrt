@@ -1,0 +1,1383 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.0" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <Databases isList="true" count="1">
+      <iLabor Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>Connection</Alias>
+        <ConnectionString>Password=30915283;Persist Security Info=True;Data Source=.;Integrated Security=False;Initial Catalog=iLaborSCMR;User ID=sa</ConnectionString>
+        <Name>iLabor</Name>
+      </iLabor>
+    </Databases>
+    <DataSources isList="true" count="3">
+      <dsGeral01 Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>dsGeral01</Alias>
+        <Columns isList="true" count="5">
+          <value>flag,System.Int32</value>
+          <value>UnidadeDescricao,System.String</value>
+          <value>QtdeGuias,System.Int32</value>
+          <value>isGuiaFaturada,System.Int32</value>
+          <value>StatusGuia,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <ConnectOnStart>False</ConnectOnStart>
+        <Dictionary isRef="1" />
+        <Name>dsGeral01</Name>
+        <NameInSource>iLabor</NameInSource>
+        <Parameters isList="true" count="2">
+          <value>_x0040_pDTIni,varDTIni,4,0</value>
+          <value>_x0040_pDTFim,varDTFim,4,0</value>
+        </Parameters>
+        <SqlCommand>set dateformat ymd;
+
+with infos010 as
+(
+	select 
+	u.ECO_ID UnidadeId
+	, u.Nome UnidadeDescricao
+	, pp.Nr_Guia
+	, case when fp.Fatura is not null then 1 else 0 end isGuiaFaturada
+	from Protocolo p
+	left join Unidade u on p.Unidade = u.ECO_ID
+	inner join Protocolo_Procedimento pp on p.ECO_ID = pp.Protocolo
+	left join Fatura_Procedimento fp on pp.ECO_ID = fp.Protocolo_Procedimento
+	where p.Data_Entrada between @pDTIni and @pDTFim
+	{vUnGlobal}
+)
+, infos020 as
+(
+	select distinct
+	x.UnidadeId
+	, x.UnidadeDescricao
+	, x.Nr_Guia
+	, x.isGuiaFaturada
+	from infos010 x
+)
+, infos030 as
+(
+	select
+	x.UnidadeDescricao
+	, count(x.Nr_Guia) QtdeGuias
+	, x.isGuiaFaturada
+	from infos020 x
+	group by
+	x.UnidadeDescricao
+	, x.isGuiaFaturada
+
+)
+	select
+	1 flag
+	, x.UnidadeDescricao
+	, QtdeGuias
+	, x.isGuiaFaturada
+	, 'Quantidade de Guias Faturadas' + case x.isGuiaFaturada when 0 then ' não' else '' end + ' faturadas' StatusGuia
+	from infos030 x</SqlCommand>
+      </dsGeral01>
+      <dsListaUnidades Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>dsListaUnidades</Alias>
+        <Columns isList="true" count="2">
+          <value>ECO_ID,System.Int32</value>
+          <value>Entity,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <ConnectOnStart>False</ConnectOnStart>
+        <Dictionary isRef="1" />
+        <Name>dsListaUnidades</Name>
+        <NameInSource>iLabor</NameInSource>
+        <Parameters isList="true" count="0" />
+        <SqlCommand>select
+u.ECO_ID,
+(u.Nome + ' - ' + str(u.ECO_ID)) Entity
+from Unidade u
+order by u.Nome</SqlCommand>
+      </dsListaUnidades>
+      <dsGeral02 Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>dsGeral02</Alias>
+        <Columns isList="true" count="5">
+          <value>flag,System.Int32</value>
+          <value>UnidadeDescricao,System.String</value>
+          <value>QtdeGuias,System.Int32</value>
+          <value>isGuiaFaturada,System.Int32</value>
+          <value>StatusFaturamentoGuia,System.String</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <ConnectOnStart>False</ConnectOnStart>
+        <Dictionary isRef="1" />
+        <Name>dsGeral02</Name>
+        <NameInSource>iLabor</NameInSource>
+        <Parameters isList="true" count="2">
+          <value>_x0040_pDTIni,varDTIni,4,0</value>
+          <value>_x0040_pDTFim,varDTFim,4,0</value>
+        </Parameters>
+        <SqlCommand>set dateformat ymd;
+
+with infos010 as
+(
+	select 
+	p.ECO_ID idProtocolo, u.Nome UnidadeDescricao
+	from Protocolo p
+	left join Unidade u on p.Unidade = u.ECO_ID
+	where p.Data_Entrada between @pDTIni and @pDTFim
+	{vUnGlobal}
+)
+, infos020 as
+(
+	select 
+	x.idProtocolo, x.UnidadeDescricao, pp.ECO_ID idPP, pp.Nr_Guia
+	from infos010 x
+	inner join Protocolo_Procedimento pp on x.idProtocolo = pp.Protocolo
+)
+, infos030 as
+(
+	select
+	x.idProtocolo, x.UnidadeDescricao, x.idPP, x.Nr_Guia, fp.ECO_ID idFP
+	from infos020 x
+	left join Fatura_Procedimento fp on x.idPP = fp.Protocolo_Procedimento
+)
+, infos040 as
+(
+	select
+	x.idProtocolo, x.UnidadeDescricao, x.idPP, x.Nr_Guia, case when x.idFP is not null then 1 else 0 end isGuiaFaturada
+	from infos030 x
+)
+, infos050 as
+(
+	select distinct
+	x.UnidadeDescricao, x.Nr_Guia, x.isGuiaFaturada
+	from infos040 x
+)
+	select 
+	1 flag,
+	x.UnidadeDescricao, COUNT(x.Nr_Guia) QtdeGuias, x.isGuiaFaturada,
+	case x.isGuiaFaturada when 1 then 'Quantidade de Guias Faturadas' else 'Quantidade de Guias NÃO Faturadas' end StatusFaturamentoGuia
+	from infos050 x
+	group by
+	x.UnidadeDescricao, x.isGuiaFaturada
+	order by x.UnidadeDescricao</SqlCommand>
+      </dsGeral02>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="4">
+      <value>,varDTIni,varDTIni,System.DateTime,_x0032__x002F_13_x002F_2019,False,False</value>
+      <value>,varDTFim,varDTFim,System.DateTime,_x0032__x002F_13_x002F_2019,False,False</value>
+      <value>,vUnGlobal,vUnGlobal,System.String,,False,False</value>
+      <value>,varTimeBeginProcess,varTimeBeginProcess,System.DateTime,_x0032__x002F_13_x002F_2019,False,False</value>
+    </Variables>
+  </Dictionary>
+  <GlobalizationStrings isList="true" count="0" />
+  <Pages isList="true" count="3">
+    <frmParameter Ref="6" type="Stimulsoft.Report.ReportControls.StiForm" isKey="true">
+      <BackColor>Control</BackColor>
+      <Components isList="true" count="4">
+        <GroupBox1 Ref="7" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
+          <BackColor>Control</BackColor>
+          <ClientRectangle>8,8,264,88</ClientRectangle>
+          <Components isList="true" count="4">
+            <Label1 Ref="8" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <ClientRectangle>24,24,88,16</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>24, 24</Location>
+              <Name>Label1</Name>
+              <Page isRef="6" />
+              <Parent isRef="7" />
+              <Size>88, 16</Size>
+              <Text>inicial</Text>
+            </Label1>
+            <dtpDTIni Ref="9" type="Stimulsoft.Report.ReportControls.StiDateTimePickerControl" isKey="true">
+              <BackColor>Window</BackColor>
+              <ClientRectangle>24,48,96,20</ClientRectangle>
+              <Components isList="true" count="0" />
+              <CustomFormat>dd/MM/yyyy</CustomFormat>
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Format>Custom</Format>
+              <Location>24, 48</Location>
+              <MaxDate>12/31/9998 12:00:00 AM</MaxDate>
+              <MinDate>1/1/1753 12:00:00 AM</MinDate>
+              <Name>dtpDTIni</Name>
+              <Page isRef="6" />
+              <Parent isRef="7" />
+              <Size>96, 20</Size>
+              <Value>2/13/2019 3:18:15 PM</Value>
+            </dtpDTIni>
+            <Label2 Ref="10" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <ClientRectangle>144,24,88,16</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>144, 24</Location>
+              <Name>Label2</Name>
+              <Page isRef="6" />
+              <Parent isRef="7" />
+              <Size>88, 16</Size>
+              <Text>final</Text>
+            </Label2>
+            <dtpDTFim Ref="11" type="Stimulsoft.Report.ReportControls.StiDateTimePickerControl" isKey="true">
+              <BackColor>Window</BackColor>
+              <ClientRectangle>144,48,96,20</ClientRectangle>
+              <Components isList="true" count="0" />
+              <CustomFormat>dd/MM/yyyy</CustomFormat>
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Format>Custom</Format>
+              <Location>144, 48</Location>
+              <MaxDate>12/31/9998 12:00:00 AM</MaxDate>
+              <MinDate>1/1/1753 12:00:00 AM</MinDate>
+              <Name>dtpDTFim</Name>
+              <Page isRef="6" />
+              <Parent isRef="7" />
+              <Size>96, 20</Size>
+              <Value>2/13/2019 3:18:20 PM</Value>
+            </dtpDTFim>
+          </Components>
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>8, 8</Location>
+          <Name>GroupBox1</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Size>264, 88</Size>
+          <Text>Período:</Text>
+        </GroupBox1>
+        <GroupBox2 Ref="12" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
+          <BackColor>Control</BackColor>
+          <ClientRectangle>8,104,264,168</ClientRectangle>
+          <Components isList="true" count="2">
+            <cbUnidades Ref="13" type="Stimulsoft.Report.ReportControls.StiCheckBoxControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <CheckedChangedEvent>for (int i = 0; i &lt; clbUnidades.Control.Items.Count; i++)
+{ 
+	clbUnidades.Control.SetItemChecked(i, cbUnidades.Checked); 
+}
+</CheckedChangedEvent>
+              <ClientRectangle>8,0,128,16</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>8, 0</Location>
+              <Name>cbUnidades</Name>
+              <Page isRef="6" />
+              <Parent isRef="12" />
+              <Size>128, 16</Size>
+              <Text>Todas as Unidades?</Text>
+            </cbUnidades>
+            <clbUnidades Ref="14" type="Stimulsoft.Report.ReportControls.StiCheckedListBoxControl" isKey="true">
+              <BackColor>Window</BackColor>
+              <CheckOnClick>True</CheckOnClick>
+              <ClientRectangle>16,24,232,128</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <Items isList="true" count="0" />
+              <Location>16, 24</Location>
+              <Name>clbUnidades</Name>
+              <Page isRef="6" />
+              <Parent isRef="12" />
+              <SelectedIndexChangedEvent>bool CheckUn = true;
+for (int i = 0; i &lt; clbUnidades.Control.Items.Count; i++)
+{
+	if ( !clbUnidades.Control.GetItemChecked(i) )	
+	{ CheckUn = false; }    
+}
+cbUnidades.Checked = CheckUn;</SelectedIndexChangedEvent>
+              <Size>232, 128</Size>
+            </clbUnidades>
+          </Components>
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>8, 104</Location>
+          <Name>GroupBox2</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Size>264, 168</Size>
+          <Text>Group Box</Text>
+        </GroupBox2>
+        <btnOk Ref="15" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
+          <ClickEvent>varTimeBeginProcess = System.DateTime.Now;
+
+dsGeral01.Disconnect();
+dsGeral02.Disconnect();
+
+varDTIni = new DateTime(dtpDTIni.Value.Year, dtpDTIni.Value.Month, dtpDTIni.Value.Day, 0, 0, 0);
+varDTFim = new DateTime(dtpDTFim.Value.Year, dtpDTFim.Value.Month, dtpDTFim.Value.Day, 23, 59, 59);
+
+vUnGlobal = "";
+string vUn1 = "";
+if(!cbUnidades.Checked)
+{
+	for(int i = 0; i &lt; clbUnidades.Control.CheckedItems.Count; i++)
+	{
+		dsListaUnidades.First();
+		while(!dsListaUnidades.IsEof)
+		{
+			if(clbUnidades.Control.CheckedItems[i].ToString() == dsListaUnidades.Entity) 
+			{
+				vUn1 += dsListaUnidades.ECO_ID.ToString() + ", ";
+			}			
+			dsListaUnidades.Next();
+		}
+	}
+	vUn1 += "0";
+	if(vUn1 != "0")
+	{
+		vUnGlobal = " and u.ECO_ID in ( " + vUn1 + " ) ";
+	}
+}
+
+/* dsGeral01.Connect(); */
+dsGeral02.Connect();
+
+/*
+string vPeriodo = string.Format("ini: {0:dd/MM/yyyy HH:mm:ss}\r\nfim: {1:dd/MM/yyyy HH:mm:ss}", varDTIni, varDTFim);
+
+string vSQLCommand = dsGeral01.SqlCommand;
+
+MessageBox.Show(
+	vSQLCommand
+	+ "\r\n" +
+	vPeriodo
+);
+*/</ClickEvent>
+          <ClientRectangle>32,280,96,24</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Default>True</Default>
+          <DialogResult>OK</DialogResult>
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>32, 280</Location>
+          <Name>btnOk</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Size>96, 24</Size>
+          <Text>&amp;Ok</Text>
+        </btnOk>
+        <btnCancel Ref="16" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
+          <Cancel>True</Cancel>
+          <ClientRectangle>152,280,96,24</ClientRectangle>
+          <Components isList="true" count="0" />
+          <DialogResult>Cancel</DialogResult>
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>152, 280</Location>
+          <Name>btnCancel</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+          <Size>96, 24</Size>
+          <Text>&amp;Cancelar</Text>
+        </btnCancel>
+      </Components>
+      <Font>Microsoft Sans Serif,8</Font>
+      <Guid>b5027ef62da243c59e825df56400d149</Guid>
+      <LoadFormEvent>dsListaUnidades.Disconnect();
+dsListaUnidades.Connect();
+
+clbUnidades.Control.Items.Clear();
+
+dsListaUnidades.First();
+
+cbUnidades.Checked = true;
+
+int iUn = 0;
+
+while (!dsListaUnidades.IsEof)
+{   
+	clbUnidades.Control.Items.Add( dsListaUnidades.Entity );
+	clbUnidades.Control.SetItemChecked(iUn, cbUnidades.Checked);
+	iUn++;
+	dsListaUnidades.Next();
+}
+
+dtpDTIni.Value = new DateTime(2019, 01, 02);
+dtpDTFim.Value = new DateTime(2019, 01, 02);
+</LoadFormEvent>
+      <Location>0, 0</Location>
+      <Name>frmParameter</Name>
+      <Page isRef="6" />
+      <Report isRef="0" />
+      <Size>288, 336</Size>
+      <Text>Parâmetros</Text>
+    </frmParameter>
+    <Page1 Ref="17" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="7">
+        <PageHeader2 Ref="18" type="PageHeaderBand" isKey="true">
+          <Border>Bottom;Black;1;Double;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,19,1.4</ClientRectangle>
+          <Components isList="true" count="4">
+            <Text32 Ref="19" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8,0.8,11,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text32</Name>
+              <Page isRef="17" />
+              <Parent isRef="18" />
+              <Text>{string.Format("Hoje: {0:dddd, d' de 'MMMM' de 'yyyy', 'HH:mm:ss.}", Time)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="20" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text32>
+            <Text33 Ref="21" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0.8,7.8,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text33</Name>
+              <Page isRef="17" />
+              <Parent isRef="18" />
+              <Text>{string.Format("Período: {0:dd/MM/yyyy} até {1:dd/MM/yyyy}.", varDTIni, varDTFim)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="22" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text33>
+            <Text34 Ref="23" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>17.8,0,1.2,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,6</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text34</Name>
+              <Page isRef="17" />
+              <Parent isRef="18" />
+              <Text>{string.Format("{0}/{1}", PageNumber, TotalPageCount)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="24" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text34>
+            <Text35 Ref="25" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1.2,0,16.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,16,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text35</Name>
+              <Page isRef="17" />
+              <Parent isRef="18" />
+              <Text>{ReportName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="26" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text35>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>PageHeader2</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+        </PageHeader2>
+        <PageFooter2 Ref="27" type="PageFooterBand" isKey="true">
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <CanShrink>True</CanShrink>
+          <ClientRectangle>0,26.9,19,0.8</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text36 Ref="28" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>3,0,13,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,6</Font>
+              <HorAlignment>Center</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text36</Name>
+              <Page isRef="17" />
+              <Parent isRef="27" />
+              <Text>{string.Format("{0:yyyy} © Copyright iLabor.NET - Gestão Laboratorial   Fone: 62 | 3093 7826", Today)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="29" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text36>
+            <Text37 Ref="30" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.2,0.1,2.8,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,6</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text37</Name>
+              <Page isRef="17" />
+              <Parent isRef="27" />
+              <Text>{System.DateTime.Now - varTimeBeginProcess}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="31" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text37>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>PageFooter2</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+        </PageFooter2>
+        <GroupHeader4 Ref="32" type="GroupHeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,2.6,19,0.4</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Condition>{dsGeral02.flag}</Condition>
+          <Conditions isList="true" count="0" />
+          <Name>GroupHeader4</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+        </GroupHeader4>
+        <GroupHeader3 Ref="33" type="GroupHeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,3.8,19,1</ClientRectangle>
+          <Components isList="true" count="4">
+            <DatadsGeral02_UnidadeDescricao Ref="34" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,6.4,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10,Bold</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>DatadsGeral02_UnidadeDescricao</Name>
+              <Page isRef="17" />
+              <Parent isRef="33" />
+              <Text>{dsGeral02.UnidadeDescricao}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="35" type="GeneralFormat" isKey="true" />
+              <VertAlignment>Center</VertAlignment>
+            </DatadsGeral02_UnidadeDescricao>
+            <Text14 Ref="36" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>6.6,0.6,1,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text14</Name>
+              <Page isRef="17" />
+              <Parent isRef="33" />
+              <Text>{Sum(DatadsGeral02,dsGeral02.QtdeGuias)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="37" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text14>
+            <Text15 Ref="38" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,0.6,6,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text15</Name>
+              <Page isRef="17" />
+              <Parent isRef="33" />
+              <Text>Quantidade de Guias Cadastradas:</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="39" type="GeneralFormat" isKey="true" />
+              <Type>Totals</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text15>
+            <Text20 Ref="40" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8,0.6,1.4,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text20</Name>
+              <Page isRef="17" />
+              <Parent isRef="33" />
+              <Text>100,00%</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="41" type="GeneralFormat" isKey="true" />
+              <Type>Totals</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text20>
+          </Components>
+          <Condition>{dsGeral02.UnidadeDescricao}</Condition>
+          <Conditions isList="true" count="0" />
+          <Name>GroupHeader3</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+        </GroupHeader3>
+        <DatadsGeral02 Ref="42" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,5.6,19,0</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Conditions isList="true" count="0" />
+          <DataRelationName />
+          <DataSourceName>dsGeral02</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DatadsGeral02</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+          <Sort isList="true" count="2">
+            <value>DESC</value>
+            <value>isGuiaFaturada</value>
+          </Sort>
+        </DatadsGeral02>
+        <GroupFooter3 Ref="43" type="GroupFooterBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,6.4,19,1.4</ClientRectangle>
+          <Components isList="true" count="6">
+            <Text16 Ref="44" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>6.6,0,1,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text16</Name>
+              <Page isRef="17" />
+              <Parent isRef="43" />
+              <Text>{SumIf(DatadsGeral02,dsGeral02.QtdeGuias,dsGeral02.isGuiaFaturada == 1)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="45" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text16>
+            <Text17 Ref="46" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>6.6,0.4,1,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text17</Name>
+              <Page isRef="17" />
+              <Parent isRef="43" />
+              <Text>{SumIf(DatadsGeral02,dsGeral02.QtdeGuias,dsGeral02.isGuiaFaturada == 0)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="47" type="GeneralFormat" isKey="true" />
+              <Type>Totals</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text17>
+            <Text18 Ref="48" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,0,6,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text18</Name>
+              <Page isRef="17" />
+              <Parent isRef="43" />
+              <Text>Quantidade de Guias Faturadas:</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="49" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text18>
+            <Text19 Ref="50" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,0.4,6,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text19</Name>
+              <Page isRef="17" />
+              <Parent isRef="43" />
+              <Text>Quantidade de Guias NÃO Faturadas:</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="51" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text19>
+            <Text21 Ref="52" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8,0,1.4,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text21</Name>
+              <Page isRef="17" />
+              <Parent isRef="43" />
+              <Text>{string.Format("{0:N2}%", (SumIf(DatadsGeral02,dsGeral02.QtdeGuias,dsGeral02.isGuiaFaturada == 1)*100)/Sum(DatadsGeral02,dsGeral02.QtdeGuias))}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="53" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text21>
+            <Text22 Ref="54" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8,0.4,1.4,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text22</Name>
+              <Page isRef="17" />
+              <Parent isRef="43" />
+              <Text>{string.Format("{0:N2}%", (SumIf(DatadsGeral02,dsGeral02.QtdeGuias,dsGeral02.isGuiaFaturada == 0)*100)/Sum(DatadsGeral02,dsGeral02.QtdeGuias))}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="55" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text22>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>GroupFooter3</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+        </GroupFooter3>
+        <GroupFooter4 Ref="56" type="GroupFooterBand" isKey="true">
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,8.6,19,2.2</ClientRectangle>
+          <Components isList="true" count="9">
+            <Text23 Ref="57" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8.2,0.8,1.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text23</Name>
+              <Page isRef="17" />
+              <Parent isRef="56" />
+              <Text>{SumIf(DatadsGeral02,dsGeral02.QtdeGuias,dsGeral02.isGuiaFaturada == 1)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="58" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text23>
+            <Text24 Ref="59" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8.2,1.4,1.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text24</Name>
+              <Page isRef="17" />
+              <Parent isRef="56" />
+              <Text>{SumIf(DatadsGeral02,dsGeral02.QtdeGuias,dsGeral02.isGuiaFaturada == 0)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="60" type="GeneralFormat" isKey="true" />
+              <Type>Totals</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text24>
+            <Text25 Ref="61" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,0.8,7.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text25</Name>
+              <Page isRef="17" />
+              <Parent isRef="56" />
+              <Text>Quantidade de Guias Faturadas:</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="62" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text25>
+            <Text26 Ref="63" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,1.4,7.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text26</Name>
+              <Page isRef="17" />
+              <Parent isRef="56" />
+              <Text>Quantidade de Guias NÃO Faturadas:</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="64" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text26>
+            <Text27 Ref="65" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.6,0.8,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text27</Name>
+              <Page isRef="17" />
+              <Parent isRef="56" />
+              <Text>{string.Format("{0:N2}%", (SumIf(DatadsGeral02,dsGeral02.QtdeGuias,dsGeral02.isGuiaFaturada == 1)*100)/Sum(DatadsGeral02,dsGeral02.QtdeGuias))}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="66" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text27>
+            <Text28 Ref="67" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.6,1.4,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text28</Name>
+              <Page isRef="17" />
+              <Parent isRef="56" />
+              <Text>{string.Format("{0:N2}%", (SumIf(DatadsGeral02,dsGeral02.QtdeGuias,dsGeral02.isGuiaFaturada == 0)*100)/Sum(DatadsGeral02,dsGeral02.QtdeGuias))}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="68" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text28>
+            <Text29 Ref="69" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8.2,0.2,1.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10,Bold</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text29</Name>
+              <Page isRef="17" />
+              <Parent isRef="56" />
+              <Text>{Sum(DatadsGeral02,dsGeral02.QtdeGuias)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="70" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text29>
+            <Text30 Ref="71" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.6,0.2,7.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10,Bold</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text30</Name>
+              <Page isRef="17" />
+              <Parent isRef="56" />
+              <Text>Quantidade de Guias Cadastradas:</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="72" type="GeneralFormat" isKey="true" />
+              <Type>Totals</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text30>
+            <Text31 Ref="73" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.6,0.2,1.8,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text31</Name>
+              <Page isRef="17" />
+              <Parent isRef="56" />
+              <Text>100,00%</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="74" type="GeneralFormat" isKey="true" />
+              <Type>Totals</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text31>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>GroupFooter4</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+        </GroupFooter4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>8a30b8b8503b428ea3f6e333d79a655b</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <Page isRef="17" />
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="75" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+    <pgMain Ref="76" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="12">
+        <PageHeader1 Ref="77" type="PageHeaderBand" isKey="true">
+          <Border>Bottom;Black;1;Double;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,19,1.4</ClientRectangle>
+          <Components isList="true" count="4">
+            <Text8 Ref="78" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>8,0.8,11,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="76" />
+              <Parent isRef="77" />
+              <Text>{string.Format("Hoje: {0:dddd, d' de 'MMMM' de 'yyyy', 'HH:mm:ss.}", Time)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="79" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text8>
+            <Text9 Ref="80" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0.8,7.8,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="76" />
+              <Parent isRef="77" />
+              <Text>{string.Format("Período: {0:dd/MM/yyyy} até {1:dd/MM/yyyy}.", varDTIni, varDTFim)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="81" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text9>
+            <Text10 Ref="82" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>17.8,0,1.2,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,6</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="76" />
+              <Parent isRef="77" />
+              <Text>{string.Format("{0}/{1}", PageNumber, TotalPageCount)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="83" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text10>
+            <Text11 Ref="84" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>1.2,0,16.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,16,Bold</Font>
+              <HorAlignment>Center</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="76" />
+              <Parent isRef="77" />
+              <Text>{ReportName}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="85" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text11>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>PageHeader1</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+        </PageHeader1>
+        <PageFooter1 Ref="86" type="PageFooterBand" isKey="true">
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <CanShrink>True</CanShrink>
+          <ClientRectangle>0,26.9,19,0.8</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text7 Ref="87" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>3,0,13,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,6</Font>
+              <HorAlignment>Center</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="76" />
+              <Parent isRef="86" />
+              <Text>{string.Format("{0:yyyy} © Copyright iLabor.NET - Gestão Laboratorial   Fone: 62 | 3093 7826", Today)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="88" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text7>
+            <Text12 Ref="89" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.2,0.1,2.8,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,6</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="76" />
+              <Parent isRef="86" />
+              <Text>{System.DateTime.Now - varTimeBeginProcess}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="90" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text12>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>PageFooter1</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+        </PageFooter1>
+        <ghGeral Ref="91" type="GroupHeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,2.6,19,0</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Condition>{dsGeral01.flag}</Condition>
+          <Conditions isList="true" count="0" />
+          <Name>ghGeral</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+        </ghGeral>
+        <ghUnidade Ref="92" type="GroupHeaderBand" isKey="true">
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,3.4,19,0.8</ClientRectangle>
+          <Components isList="true" count="2">
+            <DatadsGeral01_UnidadeDescricao Ref="93" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.8,0.2,5,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>DatadsGeral01_UnidadeDescricao</Name>
+              <Page isRef="76" />
+              <Parent isRef="92" />
+              <Text>Unidade de Atendimento:</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="94" type="GeneralFormat" isKey="true" />
+              <VertAlignment>Center</VertAlignment>
+            </DatadsGeral01_UnidadeDescricao>
+            <Text1 Ref="95" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>5.8,0.2,12.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="76" />
+              <Parent isRef="92" />
+              <Text>{dsGeral01.UnidadeDescricao}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="96" type="GeneralFormat" isKey="true" />
+              <VertAlignment>Center</VertAlignment>
+            </Text1>
+          </Components>
+          <Condition>{dsGeral01.UnidadeDescricao}</Condition>
+          <Conditions isList="true" count="0" />
+          <Name>ghUnidade</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+        </ghUnidade>
+        <dtRegistros Ref="97" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <CanShrink>True</CanShrink>
+          <ClientRectangle>0,5,19,0.8</ClientRectangle>
+          <Components isList="true" count="2">
+            <DatadsGeral01_QtdeGuias Ref="98" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>3.6,0,7.8,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>DatadsGeral01_QtdeGuias</Name>
+              <Page isRef="76" />
+              <Parent isRef="97" />
+              <Text>{dsGeral01.StatusGuia + ':'}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="99" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </DatadsGeral01_QtdeGuias>
+            <DatadsGeral01_isGuiaFaturada Ref="100" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>11.4,0,0.8,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>DatadsGeral01_isGuiaFaturada</Name>
+              <Page isRef="76" />
+              <Parent isRef="97" />
+              <Text>{dsGeral01.QtdeGuias}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="101" type="GeneralFormat" isKey="true" />
+              <VertAlignment>Center</VertAlignment>
+            </DatadsGeral01_isGuiaFaturada>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName />
+          <DataSourceName>dsGeral01</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>dtRegistros</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+          <Sort isList="true" count="2">
+            <value>DESC</value>
+            <value>isGuiaFaturada</value>
+          </Sort>
+        </dtRegistros>
+        <gfUnidade Ref="102" type="GroupFooterBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,6.6,19,0.8</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text2 Ref="103" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.8,0,1.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8,Bold| Italic| Underline</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="76" />
+              <Parent isRef="102" />
+              <Text>{Sum(dtRegistros,dsGeral01.QtdeGuias)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="104" type="GeneralFormat" isKey="true" />
+              <Type>Totals</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+            <Text3 Ref="105" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>6.2,0,4.6,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8,Bold| Italic| Underline</Font>
+              <HorAlignment>Center</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="76" />
+              <Parent isRef="102" />
+              <Text>Total de Guias (parcial):</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="106" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text3>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>gfUnidade</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+        </gfUnidade>
+        <gfGeral Ref="107" type="GroupFooterBand" isKey="true">
+          <Border>Top;Black;1;Double;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,8.2,19,1.2</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text4 Ref="108" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.4,0.2,1.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,12,Bold| Italic| Underline</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="76" />
+              <Parent isRef="107" />
+              <Text>{Sum(dtRegistros,dsGeral01.QtdeGuias)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="109" type="GeneralFormat" isKey="true" />
+              <Type>Totals</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text4>
+            <Text13 Ref="110" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>3.8,0.2,6.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,12,Bold| Italic| Underline</Font>
+              <HorAlignment>Center</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text13</Name>
+              <Page isRef="76" />
+              <Parent isRef="107" />
+              <Text>Total de Guias (geral):</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="111" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text13>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>gfGeral</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+        </gfGeral>
+        <GroupHeader2 Ref="112" type="GroupHeaderBand" isKey="true">
+          <Border>Top;Black;1;Dash;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,10.2,19,0.2</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Condition>{dsGeral01.flag}</Condition>
+          <Conditions isList="true" count="0" />
+          <Name>GroupHeader2</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+        </GroupHeader2>
+        <GroupHeader1 Ref="113" type="GroupHeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,11.2,19,0.8</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text5 Ref="114" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.8,0.2,9.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10</Font>
+              <HorAlignment>Center</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="76" />
+              <Parent isRef="113" />
+              <Text>{dsGeral01.StatusGuia + ':'}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="115" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text5>
+            <Text6 Ref="116" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.4,0.2,1.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,10</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="76" />
+              <Parent isRef="113" />
+              <Text>{Sum(Data1,dsGeral01.QtdeGuias)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="117" type="GeneralFormat" isKey="true" />
+              <Type>Totals</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text6>
+          </Components>
+          <Condition>{dsGeral01.isGuiaFaturada}</Condition>
+          <Conditions isList="true" count="0" />
+          <Name>GroupHeader1</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+          <SortDirection>Descending</SortDirection>
+        </GroupHeader1>
+        <Data1 Ref="118" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,12.8,19,0</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Conditions isList="true" count="0" />
+          <DataRelationName />
+          <DataSourceName>dsGeral01</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>Data1</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+          <Sort isList="true" count="0" />
+        </Data1>
+        <GroupFooter1 Ref="119" type="GroupFooterBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,13.6,19,0</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Conditions isList="true" count="0" />
+          <Name>GroupFooter1</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+        </GroupFooter1>
+        <GroupFooter2 Ref="120" type="GroupFooterBand" isKey="true">
+          <Border>Top;Black;1;Dash;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,14.4,19,0.2</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Conditions isList="true" count="0" />
+          <Name>GroupFooter2</Name>
+          <Page isRef="76" />
+          <Parent isRef="76" />
+        </GroupFooter2>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Enabled>False</Enabled>
+      <Guid>570a44e9b82a42c0b7ba092c91dab4d2</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>pgMain</Name>
+      <Page isRef="76" />
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="121" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </pgMain>
+  </Pages>
+  <PrinterSettings Ref="122" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Relação de Guias Faturadas e Não Faturadas</ReportAlias>
+  <ReportChanged>2/14/2019 10:44:34 AM</ReportChanged>
+  <ReportCreated>2/13/2019 11:35:38 AM</ReportCreated>
+  <ReportGuid>6a64057e497c48a0907f6914ba948d72</ReportGuid>
+  <ReportName>Relação de Guias Faturadas e Não Faturadas</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2007.3.100</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        
+        public Report()
+        {
+            this.InitializeComponent();
+        }
+        #region StiReport Designer generated code - do not modify#endregion StiReport Designer generated code - do not modify
+    }
+}</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>
