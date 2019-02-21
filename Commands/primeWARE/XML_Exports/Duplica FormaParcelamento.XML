@@ -1,0 +1,397 @@
+<?xml version="1.0"?>
+<Classe Tipo="Rotina">
+  <Atributos>
+    <Ativo>True</Ativo>
+    <Comentarios>
+    </Comentarios>
+    <Descricao>Duplica FormaParcelamento</Descricao>
+    <MostrarProgresso>True</MostrarProgresso>
+    <ProgressoExecucao>
+    </ProgressoExecucao>
+  </Atributos>
+  <Relacionamentos>
+    <Parametros>
+      <Record Id="PDEMAISUNIDADES" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Unidade.allLoadedObjects-&gt;difference(PFPORIGEM.Unidades)-&gt;orderBy( und | und.Descricao )</Comando>
+          <Etiqueta>Demais Unidades</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PDEMAISUNIDADES</NomeInterno>
+          <Ordem>140</Ordem>
+          <PreComando>Unidade.allInstances</PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self.Descricao" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self.Descricao</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PDIAFIXO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Dia Fixo</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PDIAFIXO</NomeInterno>
+          <Ordem>60</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Inteiro</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PFPORIGEM.DiaFixo</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PTDPPADRAO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>TipoDocParcelamento.allLoadedObjects-&gt;select( tdp |
+  (tdp.Sistema = PSISTEMA)
+  and
+  tdp.Descricao.sqlLikeCaseInsensitive('%{0}%')
+)-&gt;orderBy( tdp | tdp.Descricao )</Comando>
+          <Etiqueta>TDP Padrão</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PTDPPADRAO</NomeInterno>
+          <Ordem>30</Ordem>
+          <PreComando>TipoDocParcelamento.allInstances-&gt;select( tdp |
+  (tdp.Sistema = PSISTEMA)
+  and
+  tdp.Descricao.sqlLikeCaseInsensitive('%{0}%')
+)</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PFPORIGEM.TipoParcelamentoPadrao</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let tdp = self-&gt;first in ( tdp.Sistema.asString + ' - ' + tdp.Descricao )" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let tdp = self-&gt;first in ( tdp.Sistema.asString + ' - ' + tdp.Descricao )</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PDEMAISTDPS" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>TipoDocParcelamento.allLoadedObjects-&gt;select( tdp | (tdp.Sistema = PSISTEMA) )-&gt;difference(PFPORIGEM.TiposParcelamentos)-&gt;orderBy(Descricao)</Comando>
+          <Etiqueta>Demais TDPs</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PDEMAISTDPS</NomeInterno>
+          <Ordem>120</Ordem>
+          <PreComando>TipoDocParcelamento.allInstances-&gt;select( tdp | (tdp.Sistema = PSISTEMA) )</PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let tdp = self-&gt;first in ( tdp.Sistema.asString + ' - ' + tdp.Descricao )" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let tdp = self-&gt;first in ( tdp.Sistema.asString + ' - ' + tdp.Descricao )</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PPRAZODEMAISPARC" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Prazo Nº Parc</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PPRAZODEMAISPARC</NomeInterno>
+          <Ordem>80</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Inteiro</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PFPORIGEM.PrazoParcelas</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PTDPSORIGEM" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>PFPORIGEM.TiposParcelamentos-&gt;orderBy( tdp | tdp.Descricao )</Comando>
+          <Etiqueta>TDPs Origem</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PTDPSORIGEM</NomeInterno>
+          <Ordem>110</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let tdp = self-&gt;first in ( tdp.Sistema.asString + ' - ' + tdp.Descricao )" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let tdp = self-&gt;first in ( tdp.Sistema.asString + ' - ' + tdp.Descricao )</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PPRAZOFIRSTPARC" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Prazo 1º Parc</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PPRAZOFIRSTPARC</NomeInterno>
+          <Ordem>70</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Inteiro</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PFPORIGEM.PrazoPrimeiraParcela</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PFIXARDIA" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Fixar Dia</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PFIXARDIA</NomeInterno>
+          <Ordem>50</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>VerdadeFalso</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PFPORIGEM.FixarDia</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PCASASDECIMAIS" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Casas Decimais</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PCASASDECIMAIS</NomeInterno>
+          <Ordem>90</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Inteiro</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PFPORIGEM.CasasArredondamento</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PDESCRICAO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Descrição</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PDESCRICAO</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Texto</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PFPORIGEM.Descricao</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PUNIDADESORIGEM" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>PFPORIGEM.Unidades</Comando>
+          <Etiqueta>Unidades Origem</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PUNIDADESORIGEM</NomeInterno>
+          <Ordem>130</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self.Descricao" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self.Descricao</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PPARCRESTO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Jogar Resto Parc</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PPARCRESTO</NomeInterno>
+          <Ordem>100</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Inteiro</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PFPORIGEM.ParcelaRestoArred</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PNRPARCELAS" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Nr Parcelas</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PNRPARCELAS</NomeInterno>
+          <Ordem>40</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Inteiro</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PFPORIGEM.NrParcelas</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PSISTEMA" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>enumSistemaContas.allInstances</Comando>
+          <Etiqueta>Sistema</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PSISTEMA</NomeInterno>
+          <Ordem>25</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PFPORIGEM.Sistema</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self.asString" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self.asString</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PFPORIGEM" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>FormaParcelamento.allLoadedObjects-&gt;select( fp | fp.Descricao.sqlLikeCaseInsensitive('%{0}%') )-&gt;orderBy( fp | fp.Descricao )</Comando>
+          <Etiqueta>FP Origem</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PFPORIGEM</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>FormaParcelamento.allInstances-&gt;select( fp | fp.Descricao.sqlLikeCaseInsensitive('%{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let fp = self-&gt;first in (&#xD;&#xA;  fp.Sistema.asString&#xD;&#xA;  + ' - ' +&#xD;&#xA;  fp.Descricao&#xD;&#xA;)" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let fp = self-&gt;first in (
+  fp.Sistema.asString
+  + ' - ' +
+  fp.Descricao
+)</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+    </Parametros>
+    <Comandos>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>let newFP = FormaParcelamento.Create in (
+  newFP.Descricao := PDESCRICAO
+  ; newFP.Ativo := true
+  ; newFP.CasasArredondamento :=PCASASDECIMAIS
+  ; newFP.DiaFixo := PDIAFIXO
+  ; newFP.FixarDia := PFIXARDIA
+  ; newFP.NrParcelas := PNRPARCELAS
+  ; newFP.ParcelaRestoArred := PPARCRESTO
+  ; newFP.PrazoParcelas := PPRAZODEMAISPARC
+  ; newFP.PrazoPrimeiraParcela := PPRAZOFIRSTPARC
+  ; newFP.Sistema := PSISTEMA
+  ; newFP.TipoParcelamentoPadrao := PTDPPADRAO
+  ; PUNIDADESORIGEM-&gt;collect( und | newFP.Unidades-&gt;add( und ) )
+  ; PDEMAISUNIDADES-&gt;collect( und | newFP.Unidades-&gt;add( und ) )
+  ; PTDPSORIGEM-&gt;collect( tdp | newFP.TiposParcelamentos-&gt;add( tdp ) )
+  ; PDEMAISTDPS-&gt;collect( tdp | newFP.TiposParcelamentos-&gt;add( tdp ) )
+)</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>10</Ordem>
+        </Atributos>
+      </Record>
+    </Comandos>
+  </Relacionamentos>
+</Classe>
