@@ -1,0 +1,15 @@
+('
+CabecalhoMovimentoEstoque.allInstances->select( cme |
+  (cme.DataEmissao >= #2019-02-15)
+  and
+  (cme.DataEmissao <= #2019-02-15T23:59:59)
+  and
+  (cme.Unidade.Descricao = \'Mr. Brook Gyn Shop\')
+  and
+  (cme.TipoMovimentoEstoque.Descricao = \'NFC-E\')
+)
+').EnsureObjects(CabecalhoMovimentoEstoque)
+->collect( cme |
+  cme.CalculaValores
+  ; cme.VerificaValores
+)
