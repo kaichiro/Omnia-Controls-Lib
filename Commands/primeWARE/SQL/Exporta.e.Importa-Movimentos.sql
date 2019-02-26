@@ -1,25 +1,32 @@
 /* Padrão para Date */
 set dateformat ymd;
 
-declare @p_data_ini datetime = '2019-02-15';
+declare @p_data_ini datetime = '2019-02-15 15:25:00';
+declare @p_data_fim datetime = '2019-02-19 23:59:59';
 
 /* Base de Dados com informações a serem exportadas */
-use primeWARE_MrBrook
+use primeWARE_Erro
+print 'Setando ( [' + ltrim(rtrim(str(db_ID()))) + '] ' + db_name() + ') como base de dados corrente';
 
 declare @p_tme_id uniqueidentifier = (select top 1 tme.ECO_ID from TipoMovimentoEstoque tme where tme.Descricao = 'NFC-E');
 declare @p_und_id uniqueidentifier = (select top 1 und.ECO_ID from Unidade und where und.Descricao = 'Mr. Brook Gyn Shop');
 
 /* Tabela temporária para guardar os ECO_ID's dos cabecalhos a serem exportados */
+print 'Criando tabela temporária #CMEs';
 create table #CMEs (ECO_ID uniqueidentifier);
 
 /* Populando tabela temporária dos ECO_ID's dos cabecalhos a serem exportados */
+print 'Populando tabela temporária #CMEs';
 insert into #CMEs
 	select cme.ECO_ID from CabecalhoMovimentoEstoque cme
-	where cme.DataEmissao >= @p_data_ini and cme.Unidade = @p_und_id and cme.TipoMovimentoEstoque = @p_tme_id
+	where cme.DataEmissao between @p_data_ini and @p_data_fim and cme.Unidade = @p_und_id and cme.TipoMovimentoEstoque = @p_tme_id
 	order by cme.DataEmissao asc;
 
+select 'Quantidade de cabecalhos selecionados: ', COUNT(x.ECO_ID) from #CMEs x;
+
 /* /// BEGIND - Sessão que cria tabelas temporárias \\\ */
-CREATE TABLE #CME (
+print 'Criando tabela temporária #CME';
+CREATE TABLE #CME(
 	[ECO_ID] [uniqueidentifier] NOT NULL,
 	[AgenteVenda] [uniqueidentifier] NULL,
 	[AntecipacaoTributaria] [varchar](25) NULL,
@@ -91,6 +98,8 @@ CREATE TABLE #CME (
 	[Peso] [float] NOT NULL,
 	[Altura] [float] NOT NULL
 );
+
+print 'Criando tabela temporária #IME';
 CREATE TABLE #IME(
 	[ECO_ID] [uniqueidentifier] NOT NULL,
 	[AgenteVenda] [uniqueidentifier] NULL,
@@ -146,8 +155,9 @@ CREATE TABLE #IME(
 	[Serial] [varchar](100) NOT NULL,
 	[OutrasDespesasRateado] [float] NOT NULL,
 	[Fiscal] [uniqueidentifier] NULL,
-	[AtualizaSaldoEstoque] [bit] NULL,
+	[AtualizaSaldoEstoque] [bit] NULL
 );
+print 'Criando tabela temporária #PME';
 CREATE TABLE #PME (
 	[ECO_ID] [uniqueidentifier] NOT NULL,
 	[Cabecalho] [uniqueidentifier] NULL,
@@ -163,15 +173,17 @@ CREATE TABLE #PME (
 	[TEFValor] [float] NOT NULL,
 	[TipoDocParcelamento] [uniqueidentifier] NULL,
 	[Valor] [float] NOT NULL,
-	[NrParcela] [int] NOT NULL,
+	[NrParcela] [int] NOT NULL
 );
+print 'Criando tabela temporária #CMEN';
 CREATE TABLE #CMEN (
 	[ECO_ID] [uniqueidentifier] NOT NULL,
 	[ECO_TYPE] [smallint] NOT NULL,
 	[Movimento] [uniqueidentifier] NULL,
 	[Numerador] [uniqueidentifier] NULL,
-	[Numero] [varchar](50) NOT NULL,
+	[Numero] [varchar](50) NOT NULL
 );
+print 'Criando tabela temporária #OBS';
 CREATE TABLE #OBS (
 	[ECO_ID] [uniqueidentifier] NOT NULL,
 	[CabecalhoMovimentoEstoque] [uniqueidentifier] NULL,
@@ -179,37 +191,386 @@ CREATE TABLE #OBS (
 	[ECO_TYPE] [smallint] NOT NULL,
 	[Texto] [text] NULL,
 	[TipoObservacao] [uniqueidentifier] NULL,
-	[Usuario] [uniqueidentifier] NULL,
+	[Usuario] [uniqueidentifier] NULL
 );
 /* \\\ END - Sessão que cria tabelas temporárias /// */
 
 
 /* /// BEGIND - Sessão que popula tabelas temporárias \\\ */
+print 'Inserindo registros em tabela temporária #CME';
 insert into #CME select cme.* from #CMEs x inner join CabecalhoMovimentoEstoque cme on x.ECO_ID = cme.ECO_ID;
+print 'Inserindo registros em tabela temporária #IME';
 insert into #IME select ime.* from #CMEs x inner join ItemMovimentoEstoque ime on x.ECO_ID = ime.Cabecalho;
+print 'Inserindo registros em tabela temporária #PME';
 insert into #PME select pme.* from #CMEs x inner join ParcelaMovimentoEstoque pme on x.ECO_ID = pme.Cabecalho;
+print 'Inserindo registros em tabela temporária #CMEN';
 insert into #CMEN select cmen.* from #CMEs x inner join CabMovEstoqueNumero cmen on x.ECO_ID = cmen.Movimento;
+print 'Inserindo registros em tabela temporária #OBS';
 insert into #OBS select obs.* from #CMEs x inner join ObsCabMovEstoque obs on x.ECO_ID = obs.CabecalhoMovimentoEstoque;
 /* \\\ END - Sessão que popula tabelas temporárias /// */
 
-/* /// BEGIND - Sessão que popula outra base de dados com os dados das tabelas temporárias \\\ */
-use primeWARE_MrBrook2;
+print '---'
 
-insert into CabecalhoMovimentoEstoque select * from #CME;
-insert into ItemMovimentoEstoque select * from #IME;
-insert into ParcelaMovimentoEstoque select * from #PME;
-insert into CabMovEstoqueNumero select * from #CMEN;
-insert into ObsCabMovEstoque select * from #OBS;
+/* /// BEGIND - Sessão que popula outra base de dados com os dados das tabelas temporárias \\\ */
+use primeWARE;
+print 'Setando ( [' + ltrim(rtrim(str(db_ID()))) + '] ' + db_name() + ') como base de dados corrente';
+
+print 'Iniciando INSERT INTO em CabecalhoMovimentoEstoque';
+
+insert into CabecalhoMovimentoEstoque
+(ECO_ID
+, AgenteVenda
+, AntecipacaoTributaria
+, CaixaRegistradora
+, Cancelado
+, CFOP
+, DataAtualizacaoEstoque
+, DataDigitacao
+, DataEmissao
+, ECO_TYPE
+, EnderecoCobranca
+, EnderecoEntrega
+, FormaParcelamento
+, Gerente
+, ModeloDocFiscal
+, MovimentoFinanceiroHeader
+, MovimentoTitular
+, NumeroCOO
+, Personalidade
+, QuantidadeQuitada
+, SerieSubSerieNF
+, SituacaoDocFiscal
+, State
+, TabelaPreco
+, TipoMovimentoEstoque
+, TipoTributacao
+, TipoValorTotalBaseCOFINS
+, TipoValorTotalBaseCOFINSST
+, TipoValorTotalBaseICMS
+, TipoValorTotalBaseICMSST
+, TipoValorTotalBaseIPI
+, TipoValorTotalBasePIS
+, TipoValorTotalBasePISST
+, TipoValorTotalCOFINS
+, TipoValorTotalCOFINSST
+, TipoValorTotalDescontos
+, TipoValorTotalFrete
+, TipoValorTotalICMS
+, TipoValorTotalICMSST
+, TipoValorTotalIPI
+, TipoValorTotalNF
+, TipoValorTotalOutros
+, TipoValorTotalPIS
+, TipoValorTotalPISST
+, TipoValorTotalProduto
+, TipoValorTotalSeguro
+, Tributo
+, Unidade
+, UnidadeDestino
+, RegimeTributario
+, FinalidadeEmissao
+, DataContingencia
+, TipoEmissaoNFe
+, JustificativaContingencia
+, IESubstitutoTributario
+, TipoOperacao
+, VersaoProcessadorNFe
+, FormatoImpressaoNFe
+, ProcessadorNFe
+, DataSaida
+, DataVencimentoMovimento
+, ExportacaoUFEmbarque
+, AgenteVendaParticipante
+, ExportacaoLocalEmbarque
+, ModeloCFReferenciado
+, Contrato
+, NumeroPadrao
+, AparelhoECF
+, Peso
+, Altura
+)
+select ECO_ID
+, AgenteVenda
+, AntecipacaoTributaria
+, CaixaRegistradora
+, Cancelado
+, CFOP
+, DataAtualizacaoEstoque
+, DataDigitacao
+, DataEmissao
+, ECO_TYPE
+, EnderecoCobranca
+, EnderecoEntrega
+, FormaParcelamento
+, Gerente
+, ModeloDocFiscal
+, MovimentoFinanceiroHeader
+, MovimentoTitular
+, NumeroCOO
+, Personalidade
+, QuantidadeQuitada
+, SerieSubSerieNF
+, SituacaoDocFiscal
+, State
+, TabelaPreco
+, TipoMovimentoEstoque
+, TipoTributacao
+, TipoValorTotalBaseCOFINS
+, TipoValorTotalBaseCOFINSST
+, TipoValorTotalBaseICMS
+, TipoValorTotalBaseICMSST
+, TipoValorTotalBaseIPI
+, TipoValorTotalBasePIS
+, TipoValorTotalBasePISST
+, TipoValorTotalCOFINS
+, TipoValorTotalCOFINSST
+, TipoValorTotalDescontos
+, TipoValorTotalFrete
+, TipoValorTotalICMS
+, TipoValorTotalICMSST
+, TipoValorTotalIPI
+, TipoValorTotalNF
+, TipoValorTotalOutros
+, TipoValorTotalPIS
+, TipoValorTotalPISST
+, TipoValorTotalProduto
+, TipoValorTotalSeguro
+, Tributo
+, Unidade
+, UnidadeDestino
+, RegimeTributario
+, FinalidadeEmissao
+, DataContingencia
+, TipoEmissaoNFe
+, JustificativaContingencia
+, IESubstitutoTributario
+, TipoOperacao
+, VersaoProcessadorNFe
+, FormatoImpressaoNFe
+, ProcessadorNFe
+, DataSaida
+, DataVencimentoMovimento
+, ExportacaoUFEmbarque
+, AgenteVendaParticipante
+, ExportacaoLocalEmbarque
+, ModeloCFReferenciado
+, Contrato
+, NumeroPadrao
+, AparelhoECF
+, Peso
+, Altura
+ from #CME;
+print 'INSERT INTO em CabecalhoMovimentoEstoque finalizado';
+
+print '---';
+
+print 'Iniciando INSERT INTO em ItemMovimentoEstoque';
+insert into ItemMovimentoEstoque
+(ECO_ID
+, AgenteVenda
+, AliquotaCOFINS
+, AliquotaICMS
+, AliquotaIPI
+, AliquotaPIS
+, Cabecalho
+, Cabecalho_O
+, CFOP
+, CodigoBarras
+, DataPrevistaEntrega
+, DescontosRateados
+, ECO_TYPE
+, ItemECF
+, ModalidadeBaseICMS
+, ModalidadeBaseICMSST
+, OrigemMercadoria
+, PercMargemAdicICMSST
+, Peso
+, ProdutoFinal
+, Quantidade
+, QuantidadeQuitada
+, ReducaoBCICMS
+, ReducaoBCICMSST
+, SitTributariaCOFINS
+, SitTributariaICMS
+, SitTributariaIPI
+, SitTributariaPIS
+, StateSaldo
+, StateSaldoOrigem
+, TabelaPreco
+, TipoAtualizacaoEstoque
+, TipoUnidadeMedida
+, TipoValorCOFINS
+, TipoValorCOFINSST
+, TipoValorICMS
+, TipoValorICMSST
+, TipoValorIPI
+, TipoValorPIS
+, TipoValorPISST
+, TipoValorPrecoCusto
+, UltimoPrecoCusto
+, UltimoPrecoMedio
+, ValorUnitario
+, Volume
+, SeguroRateado
+, FreteRateado
+, TipoValorTotal
+, SolucaoDefeito
+, DefeitoReclamado
+, StateItemOS
+, Serial
+, OutrasDespesasRateado
+, Fiscal
+, AtualizaSaldoEstoque
+) select ECO_ID
+, AgenteVenda
+, AliquotaCOFINS
+, AliquotaICMS
+, AliquotaIPI
+, AliquotaPIS
+, Cabecalho
+, Cabecalho_O
+, CFOP
+, CodigoBarras
+, DataPrevistaEntrega
+, DescontosRateados
+, ECO_TYPE
+, ItemECF
+, ModalidadeBaseICMS
+, ModalidadeBaseICMSST
+, OrigemMercadoria
+, PercMargemAdicICMSST
+, Peso
+, ProdutoFinal
+, Quantidade
+, QuantidadeQuitada
+, ReducaoBCICMS
+, ReducaoBCICMSST
+, SitTributariaCOFINS
+, SitTributariaICMS
+, SitTributariaIPI
+, SitTributariaPIS
+, StateSaldo
+, StateSaldoOrigem
+, TabelaPreco
+, TipoAtualizacaoEstoque
+, TipoUnidadeMedida
+, TipoValorCOFINS
+, TipoValorCOFINSST
+, TipoValorICMS
+, TipoValorICMSST
+, TipoValorIPI
+, TipoValorPIS
+, TipoValorPISST
+, TipoValorPrecoCusto
+, UltimoPrecoCusto
+, UltimoPrecoMedio
+, ValorUnitario
+, Volume
+, SeguroRateado
+, FreteRateado
+, TipoValorTotal
+, SolucaoDefeito
+, DefeitoReclamado
+, StateItemOS
+, Serial
+, OutrasDespesasRateado
+, Fiscal
+, AtualizaSaldoEstoque
+ from #IME;
+print 'INSERT INTO em ItemMovimentoEstoque finalizado';
+
+print '---' ;
+
+print 'Iniciando INSERT INTO em ParcelaMovimentoEstoque';
+insert into ParcelaMovimentoEstoque
+(ECO_ID
+, Cabecalho
+, CodigoBarras
+, DataVencimento
+, ECO_TYPE
+, LinhaDigitavel
+, NrDocumento
+, Personalidade
+, TEFDataHora
+, TEFNSU
+, TEFRede
+, TEFValor
+, TipoDocParcelamento
+, Valor
+, NrParcela
+) select ECO_ID
+, Cabecalho
+, CodigoBarras
+, DataVencimento
+, ECO_TYPE
+, LinhaDigitavel
+, NrDocumento
+, Personalidade
+, TEFDataHora
+, TEFNSU
+, TEFRede
+, TEFValor
+, TipoDocParcelamento
+, Valor
+, NrParcela
+ from #PME;
+print 'INSERT INTO em ItemMovimentoEstoque ParcelaMovimentoEstoque';
+
+print '---' ;
+
+print 'Iniciando INSERT INTO em CabMovEstoqueNumero';
+insert into CabMovEstoqueNumero (ECO_ID
+, ECO_TYPE
+, Movimento
+, Numerador
+, Numero
+) select ECO_ID
+, ECO_TYPE
+, Movimento
+, Numerador
+, Numero
+ from #CMEN;
+print 'INSERT INTO em CabMovEstoqueNumero finalizado';
+
+print '---' ;
+
+print 'Iniciando INSERT INTO em ObsCavMovEstoque';
+insert into ObsCabMovEstoque (ECO_ID
+, CabecalhoMovimentoEstoque
+, Data
+, ECO_TYPE
+, Texto
+, TipoObservacao
+, Usuario
+) select ECO_ID
+, CabecalhoMovimentoEstoque
+, Data
+, ECO_TYPE
+, Texto
+, TipoObservacao
+, Usuario
+ from #OBS;
+print 'INSERT INTO em ObsCabMovEstoque finalizado';
+
+print '---' ;
 
 /* \\\ END - Sessão que popula outra base de dados com os dados das tabelas temporárias /// */
 
 /* /// BEGIND - Sessão que deleta tabelas temporárias \\\ */
+print 'Iniciando DROP TABLE #OBS';
 drop table #OBS;
+print 'Iniciando DROP TABLE #CMEN';
 drop table #CMEN;
+print 'Iniciando DROP TABLE #PME';
 drop table #PME;
+print 'Iniciando DROP TABLE #IME';
 drop table #IME;
+print 'Iniciando DROP TABLE #CME';
 drop table #CME;
 
+print 'Iniciando DROP TABLE #CMEs';
 drop table #CMEs;
-/* \\\ END - Sessão que deleta tabelas temporárias /// */
 
+print 'DROP TABLE finalizado';
+
+/* \\\ END - Sessão que deleta tabelas temporárias /// */
