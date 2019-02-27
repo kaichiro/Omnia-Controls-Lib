@@ -12,4 +12,5 @@ CabecalhoMovimentoEstoque.allInstances->select( cme |
 ->collect( cme |
   cme.CalculaValores
   ; cme.VerificaValores
+  ; cme->select(c | c.Parcelas->notEmpty).Parcelas->collect (p | p.CalculaValores)
 )
