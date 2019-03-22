@@ -1,0 +1,6 @@
+'Tubo.allInstances->select( tb | tb.Descricao = \'SEM TUBO\')'.EnsureObjects(Tubo)
+->select( tubo | tubo->notEmpty )
+->collect( tubo |
+  'Procedimento.allInstances->select( proc | proc.Tubo->isEmpty )'.EnsureObjects(Procedimento)->collect( proc | proc.Tubo := tubo )
+)
+
