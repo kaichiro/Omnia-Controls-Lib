@@ -1,0 +1,207 @@
+<?xml version="1.0"?>
+<Classe Tipo="Rotina">
+  <Atributos>
+    <Ativo>True</Ativo>
+    <Comentarios>
+    </Comentarios>
+    <Descricao>Exporta Classe</Descricao>
+    <MostrarProgresso>True</MostrarProgresso>
+    <ProgressoExecucao>Executando comandos da rotina de ordem 20</ProgressoExecucao>
+  </Atributos>
+  <Relacionamentos>
+    <Parametros>
+      <Record Id="P_EXPO_REL_TO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Export to</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>P_EXPO_REL_TO</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>OpenFileDialog</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PTME" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>TipoMovimentoEstoque.allLoadedObjects-&gt;select( tme | tme.Descricao.sqlLikeCaseInsensitive('%{0}%') or tme.Abreviacao.sqlLikeCaseInsensitive('{0}') or tme.GrupoTipoMovEstoque.Descricao.sqlLikeCaseInsensitive('%{0}%')  )-&gt;orderBy( tme | tme.GrupoTipoMovEstoque.Descricao, tme.Descricao )</Comando>
+          <Etiqueta>TME</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PTME</NomeInterno>
+          <Ordem>50</Ordem>
+          <PreComando>TipoMovimentoEstoque.allInstances-&gt;select( tme | tme.Descricao.sqlLikeCaseInsensitive('%{0}%') or tme.Abreviacao.sqlLikeCaseInsensitive('{0}') or tme.GrupoTipoMovEstoque.Descricao.sqlLikeCaseInsensitive('%{0}%')  )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let tme = self-&gt;first in (&#xD;&#xA;  tme.GrupoTipoMovEstoque.Descricao&#xD;&#xA;  + ' - ' +&#xD;&#xA;  tme.Abreviacao &#xD;&#xA;  + ' - ' +&#xD;&#xA;  tme.Descricao&#xD;&#xA;)&#xD;&#xA;" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let tme = self-&gt;first in (
+  tme.GrupoTipoMovEstoque.Descricao
+  + ' - ' +
+  tme.Abreviacao 
+  + ' - ' +
+  tme.Descricao
+)
+</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="P_EXPO_TME_TO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Exporto to</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>P_EXPO_TME_TO</NomeInterno>
+          <Ordem>60</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>OpenFileDialog</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="P_EXPO_ROT_TO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Export to</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>P_EXPO_ROT_TO</NomeInterno>
+          <Ordem>40</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>OpenFileDialog</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PRELATORIO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Relatorio.allLoadedObjects-&gt;select( r | r.Nome.sqlLikeCaseInsensitive('%{0}%') )-&gt;orderBy( r | r.Nome )</Comando>
+          <Etiqueta>Relatório</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PRELATORIO</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>Relatorio.allInstances-&gt;select( r | r.Nome.sqlLikeCaseInsensitive('%{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self.Nome" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self.Nome</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PROTINA" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Rotina.allLoadedObjects-&gt;select( r | r.Descricao.sqlLikeCaseInsensitive('%{0}%') )-&gt;orderBy( r | r.Descricao )</Comando>
+          <Etiqueta>Rotina</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PROTINA</NomeInterno>
+          <Ordem>30</Ordem>
+          <PreComando>Rotina.allInstances-&gt;select( r | r.Descricao.sqlLikeCaseInsensitive('%{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self.Descricao" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self.Descricao</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+    </Parametros>
+    <Comandos>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>if PTME-&gt;notEmpty and (P_EXPO_TME_TO.trim.Length &gt; 0) then
+  PTME.ExportClass(P_EXPO_TME_TO)-&gt;select( 'TipoMovimentoEstoque Exportado com sucesso!'.Msg )
+else
+  false
+endif
+</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>30</Ordem>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>if PRELATORIO-&gt;notEmpty and (P_EXPO_REL_TO.trim.Length &gt; 0) then
+  PRELATORIO.ExportClass(P_EXPO_REL_TO)-&gt;select( 'Relótorio Exportado com sucesso!'.Msg )
+else
+  false
+endif
+</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>10</Ordem>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>if PROTINA-&gt;notEmpty and (P_EXPO_ROT_TO.trim.Length &gt; 0) then
+  PROTINA.ExportClass(P_EXPO_ROT_TO)-&gt;select( 'Rotina Exportada com sucesso!'.Msg )
+else
+  false
+endif
+</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>20</Ordem>
+        </Atributos>
+      </Record>
+    </Comandos>
+  </Relacionamentos>
+</Classe>
