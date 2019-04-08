@@ -75,12 +75,12 @@ WHERE cme.ECO_ID = '{PCAB}'
     &lt;Relations isList="true" count="0" /&gt;
     &lt;Report isRef="0" /&gt;
     &lt;Variables isList="true" count="7"&gt;
-      &lt;value&gt;primeWARE,PCAB,PCAB,System.String,daeb3949-0d45-4951-ba1d-116353679ac2,True,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PDTFIM,PDTFIM,System.DateTime,_x0032__x002F_17_x002F_2017_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PDTINI,PDTINI,System.DateTime,_x0032__x002F_17_x002F_2017_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PCAB,PCAB,System.String,a9ded015-05ec-4b9d-8ee0-f9cdaf2e56e5,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTFIM,PDTFIM,System.DateTime,_x0034__x002F_5_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTINI,PDTINI,System.DateTime,_x0033__x002F_1_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
       &lt;value&gt;primeWARE,PUSER,PUSER,System.String,_x0030_de63e9a-29a0-417a-8e55-82672d70dc41,True,False&lt;/value&gt;
       &lt;value&gt;primeWARE,PUNDTRAB,PUNDTRAB,System.String,_x0039_f3bfaaf-8d1d-446f-a650-22b3e32442c9,True,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PNRPEDIDO1,PNRPEDIDO1,System.String,_x0032_31086,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PNRPEDIDO1,PNRPEDIDO1,System.String,,True,False&lt;/value&gt;
       &lt;value&gt;,varNrPagCorrente,varNrPagCorrente,System.Int32,,False,False&lt;/value&gt;
     &lt;/Variables&gt;
   &lt;/Dictionary&gt;
@@ -113,9 +113,9 @@ WHERE cme.ECO_ID = '{PCAB}'
           &lt;Components isList="true" count="13"&gt;
             &lt;Text1 Ref="7" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;7.9,0.4,1.6,0.4&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;8.3,0,1.6,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
-              &lt;Font&gt;Courier New,10&lt;/Font&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text1&lt;/Name&gt;
@@ -127,7 +127,7 @@ WHERE cme.ECO_ID = '{PCAB}'
             &lt;/Text1&gt;
             &lt;Text2 Ref="8" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;7.9,0.8,1.6,0.4&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;8.3,0.4,1.6,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
               &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
               &lt;Guid&gt;03398c4750454c23a16d15bb7e9641ad&lt;/Guid&gt;
@@ -142,9 +142,9 @@ WHERE cme.ECO_ID = '{PCAB}'
             &lt;/Text2&gt;
             &lt;Text3 Ref="9" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;5.8,0.4,1.6,0.4&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;6.2,0,1.6,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
-              &lt;Font&gt;Courier New,10&lt;/Font&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
               &lt;Guid&gt;6271575959db47a3a1e4bf9cd2a2838e&lt;/Guid&gt;
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
@@ -157,7 +157,7 @@ WHERE cme.ECO_ID = '{PCAB}'
             &lt;/Text3&gt;
             &lt;Text4 Ref="10" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;5.4,0.8,2.4,0.4&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;5.8,0.4,2.4,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
               &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
               &lt;Guid&gt;a51ec0425ca64b2a872135c6eba9c685&lt;/Guid&gt;
@@ -172,7 +172,7 @@ WHERE cme.ECO_ID = '{PCAB}'
             &lt;/Text4&gt;
             &lt;Text5 Ref="11" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;0.2,0.4,1.4,0.8&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;0.6,0,1.4,0.8&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
               &lt;Font&gt;Courier New,20,Bold&lt;/Font&gt;
               &lt;Guid&gt;8173f27f83414b698124652f6e78e27d&lt;/Guid&gt;
@@ -184,10 +184,11 @@ WHERE cme.ECO_ID = '{PCAB}'
               &lt;Text&gt;NF:&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
             &lt;/Text5&gt;
             &lt;Text6 Ref="12" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;1.6,0.4,3.6,0.8&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;2,0,3.6,0.8&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
               &lt;Font&gt;Courier New,20,Bold&lt;/Font&gt;
               &lt;Guid&gt;76f385e0c2fd44839877e71a7dbb4e62&lt;/Guid&gt;
@@ -198,12 +199,13 @@ WHERE cme.ECO_ID = '{PCAB}'
               &lt;Text&gt;{dsGeral010.NrNF}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;DataColumn&lt;/Type&gt;
+              &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
             &lt;/Text6&gt;
             &lt;Text7 Ref="13" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;0.2,1.4,1.8,0.4&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;0.6,0.8,1.8,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
-              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Font&gt;Courier New,8,Bold&lt;/Font&gt;
               &lt;Guid&gt;f9c3ca51093c4e6cb1f32195532db350&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text7&lt;/Name&gt;
@@ -215,9 +217,9 @@ WHERE cme.ECO_ID = '{PCAB}'
             &lt;/Text7&gt;
             &lt;Text8 Ref="14" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;0.2,2,1.8,0.4&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;0.6,1.2,1.8,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
-              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Font&gt;Courier New,8,Bold&lt;/Font&gt;
               &lt;Guid&gt;d8e5b38b92584c4abe51d04777a821cb&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text8&lt;/Name&gt;
@@ -229,9 +231,9 @@ WHERE cme.ECO_ID = '{PCAB}'
             &lt;/Text8&gt;
             &lt;Text9 Ref="15" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;2,1.4,7.6,0.4&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;2.4,0.8,7.6,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
-              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Font&gt;Courier New,8,Bold&lt;/Font&gt;
               &lt;Guid&gt;795cd8f7327f4a6c997b2ff4071e1aaf&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text9&lt;/Name&gt;
@@ -243,9 +245,9 @@ WHERE cme.ECO_ID = '{PCAB}'
             &lt;/Text9&gt;
             &lt;Text10 Ref="16" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;2,2,7.6,0.4&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;2.4,1.2,7.6,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
-              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Font&gt;Courier New,8,Bold&lt;/Font&gt;
               &lt;Guid&gt;cd19e98f4a104520b96b99eeb741b7d4&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text10&lt;/Name&gt;
@@ -259,9 +261,9 @@ WHERE cme.ECO_ID = '{PCAB}'
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;CanShrink&gt;True&lt;/CanShrink&gt;
-              &lt;ClientRectangle&gt;0.2,2.4,9.4,0.8&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;0.6,1.6,9.4,0.6&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
-              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Font&gt;Courier New,8,Bold&lt;/Font&gt;
               &lt;Guid&gt;2074fcb04b4d48d9900343adc5ad9333&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text11&lt;/Name&gt;
@@ -274,9 +276,9 @@ WHERE cme.ECO_ID = '{PCAB}'
             &lt;/Text11&gt;
             &lt;Text12 Ref="18" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;0.2,3.4,9.4,0.4&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;0.6,2.2,9.4,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
-              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Font&gt;Courier New,8,Bold&lt;/Font&gt;
               &lt;Guid&gt;6e7b06075213405cbfe933617f5468c2&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text12&lt;/Name&gt;
@@ -288,11 +290,10 @@ WHERE cme.ECO_ID = '{PCAB}'
             &lt;/Text12&gt;
             &lt;Text13 Ref="19" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
-              &lt;ClientRectangle&gt;0.2,3.8,9.4,0.8&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;0.6,2.6,9.4,0.8&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
-              &lt;Font&gt;Courier New,16,Bold&lt;/Font&gt;
+              &lt;Font&gt;Courier New,12,Bold&lt;/Font&gt;
               &lt;Guid&gt;c04ad9e41dbd4cd483b757057d473732&lt;/Guid&gt;
-              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text13&lt;/Name&gt;
               &lt;Page isRef="4" /&gt;
@@ -312,7 +313,7 @@ WHERE cme.ECO_ID = '{PCAB}'
       &lt;/Components&gt;
       &lt;Conditions isList="true" count="0" /&gt;
       &lt;Guid&gt;39c86b290ed445fda1dc04432014884f&lt;/Guid&gt;
-      &lt;Margins&gt;0.5,0.5,2.2,0.5&lt;/Margins&gt;
+      &lt;Margins&gt;0.5,0.5,0,0.5&lt;/Margins&gt;
       &lt;Name&gt;Page1&lt;/Name&gt;
       &lt;PageHeight&gt;8.6&lt;/PageHeight&gt;
       &lt;PageWidth&gt;10.9&lt;/PageWidth&gt;
@@ -334,13 +335,13 @@ WHERE cme.ECO_ID = '{PCAB}'
     &lt;value&gt;Stimulsoft.Base.Dll&lt;/value&gt;
     &lt;value&gt;Stimulsoft.Report.Dll&lt;/value&gt;
   &lt;/ReferencedAssemblies&gt;
-  &lt;ReportAlias&gt;ETIQUETASPARATRANSPORTE270319142311&lt;/ReportAlias&gt;
+  &lt;ReportAlias&gt;ETIQUETASPARATRANSPORTE050419164924&lt;/ReportAlias&gt;
   &lt;ReportCacheMode&gt;On&lt;/ReportCacheMode&gt;
-  &lt;ReportChanged&gt;3/27/2019 2:22:46 PM&lt;/ReportChanged&gt;
+  &lt;ReportChanged&gt;4/5/2019 4:49:18 PM&lt;/ReportChanged&gt;
   &lt;ReportCreated&gt;3/27/2019 12:17:23 PM&lt;/ReportCreated&gt;
-  &lt;ReportFile&gt;C:\Users\Kaichiro\AppData\Local\Temp\2\ETIQUETASPARATRANSPORTE270319142311&lt;/ReportFile&gt;
-  &lt;ReportGuid&gt;0572d0ffab3c4fdca853752e4bd30fd2&lt;/ReportGuid&gt;
-  &lt;ReportName&gt;ETIQUETASPARATRANSPORTE270319142311&lt;/ReportName&gt;
+  &lt;ReportFile&gt;C:\Users\Kaichiro\AppData\Local\Temp\2\ETIQUETASPARATRANSPORTE050419164924&lt;/ReportFile&gt;
+  &lt;ReportGuid&gt;b836e984cf704e22babe66bead3a0d9d&lt;/ReportGuid&gt;
+  &lt;ReportName&gt;ETIQUETASPARATRANSPORTE050419164924&lt;/ReportName&gt;
   &lt;ReportUnit&gt;Centimeters&lt;/ReportUnit&gt;
   &lt;ReportVersion&gt;2012.3.1500&lt;/ReportVersion&gt;
   &lt;Script&gt;using System;
@@ -392,6 +393,8 @@ namespace Reports
     cme.NumeroPadrao.Numero.sqlLike('%{0}')
     or
     cme.Personalidade.Nome.sqlLikeCaseInsensitive('%{0}%')
+    or
+    cme.Numeros-&gt;exists( cmenOrc | (cmenOrc.Numerador.Etiqueta = 'Orcamento') and cmenOrc.Numero.sqlLike('%{0}') )
   )
   and
   (cme.TipoMovimentoEstoque.GrupoTipoMovEstoque.Descricao = 'NFEORC')
@@ -414,6 +417,8 @@ namespace Reports
     cme.NumeroPadrao.Numero.sqlLike('%{0}')
     or
     cme.Personalidade.Nome.sqlLikeCaseInsensitive('%{0}%')
+    or
+    cme.Numeros-&gt;exists( cmenOrc | (cmenOrc.Numerador.Etiqueta = 'Orcamento') and cmenOrc.Numero.sqlLike('%{0}') )
   )
   and
   (cme.TipoMovimentoEstoque.GrupoTipoMovEstoque.Descricao = 'NFEORC')
@@ -437,9 +442,9 @@ namespace Reports
   cme.TipoMovimentoEstoque.asstring
   + ' - ' + 
   cme.Personalidade.asString
-  + ' - ' + 
+  + ' -= ' + 
   cme.Transportador.asString
-  + ' - ' + 
+  + ' =- ' + 
   cme.Transportador.Volume.asString
 )
 </Comando>
