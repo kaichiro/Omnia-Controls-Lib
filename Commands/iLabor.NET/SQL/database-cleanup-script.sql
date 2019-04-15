@@ -7,6 +7,7 @@ declare @varDTIniProcessCurrently datetime;
 
 declare @varDTFim datetime = '2010-12-31 23:59:59';
 
+print 'Excluindo registros com datas menores/iguais à ' + convert(varchar, @varDTFim ,121)
 print convert(varchar, GETDATE() ,121) + ' - Iniciando script (FULL)' 
 print ''
 
@@ -33,6 +34,17 @@ create table #MovimentoEstoqueInutilizadoTMP (ID int);
 create table #MovimentoEstoqueRequisicaoTMP (ID int);
 create table #MovimentoEstoqueTransferenciaTMP (ID int);
 create table #MovimentoEstoqueItemTMP (ID int);
+
+create table #MapaTrabalhoTMP (ID int);
+create table #FaturaTMP (ID int);
+create table #FaturaParcelamentoTMP (ID int);
+create table #FaturaPlanoTMP (ID int);
+create table #FaturaProcedimentoTMP (ID int);
+create table #AuditoriaTMP (ID int);
+create table #AuditoriaAcaoTMP (ID int);
+create table #ObjetoAuditadoTMP (ID int);
+create table #AtestadoTMP (ID int);
+create table #ReciboTMP (ID int);
 print convert(varchar, GETDATE() ,121) + ' (' + convert(varchar, getdate() - @varDTIniProcessCurrently, 114) + ') - ' + 'Criação de tabelas temporárias finalizada'
 print ''
 
@@ -88,6 +100,38 @@ insert into #MovimentoEstoqueTransferenciaTMP select met.ECO_ID from #MovimentoE
 print 'MovimentoEstoqueItem'
 insert into #MovimentoEstoqueItemTMP select mei.ECO_ID from #MovimentoEstoqueTMP me inner join MovimentoEstoqueItem mei on me.ID = mei.MovimentoEstoque
 insert into #iLaborAuditoriaTMP select ia.ECO_ID from #MovimentoEstoqueItemTMP mei inner join iLaborAuditoria ia on mei.ID = ia.MovimentoEstoqueItem
+
+print 'MapaTrabalho';
+insert into #MapaTrabalhoTMP select mp.ECO_ID from MapaTrabalho mp where mp.Data_Geracao <= @varDTFim;
+insert into #iLaborAuditoriaTMP select ia.ECO_ID from #MapaTrabalhoTMP mp inner join iLaborAuditoria ia on mp.ID = ia.MapaTrabalho;
+
+print 'Fatura';
+insert into #FaturaTMP select f.ECO_ID from Fatura f where f.Data_Teto <= @varDTFim;
+insert into #iLaborAuditoriaTMP select ia.ECO_ID from #FaturaTMP f inner join iLaborAuditoria ia on f.ID = ia.Fatura;
+print 'FaturaParcelamento';
+insert into #FaturaParcelamentoTMP select fp.ECO_ID from #FaturaTMP f inner join Fatura_Parcelamento fp on f.ID = fp.Fatura;
+insert into #iLaborAuditoriaTMP select ia.ECO_ID from #FaturaParcelamentoTMP fp inner join iLaborAuditoria ia on fp.ID = ia.Fatura_Parcelamento;
+print 'FaturaPlano';
+insert into #FaturaPlanoTMP select fp.ECO_ID from #FaturaTMP f inner join Fatura_Plano fp on f.ID = fp.Fatura;
+insert into #iLaborAuditoriaTMP select ia.ECO_ID from #FaturaPlanoTMP fp inner join iLaborAuditoria ia on fp.ID = ia.Fatura_Plano;
+print 'FaturaProcedimento';
+insert into #FaturaProcedimentoTMP select fp.ECO_ID from #FaturaTMP f inner join Fatura_Procedimento fp on f.ID = fp.Fatura;
+insert into #iLaborAuditoriaTMP select ia.ECO_ID from #FaturaProcedimentoTMP fp inner join iLaborAuditoria ia on fp.ID = ia.Fatura_Procedimento;
+
+print 'Auditoria';
+insert into #AuditoriaTMP select a.ECO_ID from Auditoria a where a.Data <= @varDTFim;
+print 'AuditoriaAcao';
+insert into #AuditoriaAcaoTMP select aa.ECO_ID from #AuditoriaTMP a inner join AuditoriaAcao aa on a.ID = aa.Auditoria;
+print 'ObjetoAuditado';
+insert into #ObjetoAuditadoTMP select oa.ECO_ID from #AuditoriaTMP a inner join ObjetoAuditado oa on a.ID = oa.Auditoria;
+
+print 'Atestado';
+insert into #AtestadoTMP select a.ECO_ID from #ProtocoloTMP p inner join Atestado a on p.ID = a.Protocolo;
+insert into #iLaborAuditoriaTMP select ia.ECO_ID from #AtestadoTMP a inner join iLaborAuditoria ia on a.ID = ia.Atestado;
+
+print 'Recibo';
+insert into #ReciboTMP select r.ECO_ID from #ProtocoloTMP p inner join Recibo r on p.ID = r.Protocolo;
+insert into #iLaborAuditoriaTMP select ia.ECO_ID from #ReciboTMP r inner join iLaborAuditoria ia on r.ID = ia.Atestado;
 print convert(varchar, GETDATE() ,121) + ' (' + convert(varchar, getdate() - @varDTIniProcessCurrently, 114) + ') - ' + 'Inserção de registros finalizada em tabelas temporárias'
 print ''
 
@@ -114,6 +158,17 @@ delete from MovimentoEstoqueInutilizado where exists(select ID from #MovimentoEs
 delete from MovimentoEstoqueRequisicao where exists(select ID from #MovimentoEstoqueRequisicaoTMP where ECO_ID = ID);
 delete from MovimentoEstoqueTransferencia where exists(select ID from #MovimentoConferenciaTransferenciaTMP where ECO_ID = ID);
 delete from MovimentoEstoqueItem where exists(select ID from #MovimentoEstoqueItemTMP where ECO_ID = ID);
+
+delete from MapaTrabalho where exists(select ID from #MapaTrabalhoTMP where ECO_ID = ID);
+delete from Fatura where exists(select ID from #FaturaTMP where ECO_ID = ID);
+delete from Fatura_Parcelamento where exists(select ID from #FaturaParcelamentoTMP where ECO_ID = ID);
+delete from Fatura_Plano where exists(select ID from #FaturaPlanoTMP where ECO_ID = ID);
+delete from Fatura_Procedimento where exists(select ID from #FaturaProcedimentoTMP where ECO_ID = ID);
+delete from Auditoria where exists(select ID from #AuditoriaTMP where ECO_ID = ID);
+delete from AuditoriaAcao where exists(select ID from #AuditoriaAcaoTMP where ECO_ID = ID);
+delete from ObjetoAuditado where exists(select ID from #ObjetoAuditadoTMP where ECO_ID = ID);
+delete from Atestado where exists(select ID from #AtestadoTMP where ECO_ID = ID);
+delete from Recibo where exists(select ID from #ReciboTMP where ECO_ID = ID);
 print convert(varchar, GETDATE() ,121) + ' (' + convert(varchar, getdate() - @varDTIniProcessCurrently, 114) + ') - ' + 'Comandos para exclusão de registros finalizado'
 print ''
 
@@ -140,8 +195,17 @@ if exists(select * from tempdb.dbo.sysobjects o where o.name like '#MovimentoEst
 if exists(select * from tempdb.dbo.sysobjects o where o.name like '#MovimentoEstoqueRequisicaoTMP%') drop table #MovimentoEstoqueRequisicaoTMP;
 if exists(select * from tempdb.dbo.sysobjects o where o.name like '#MovimentoEstoqueTransferenciaTMP%') drop table #MovimentoEstoqueTransferenciaTMP;
 if exists(select * from tempdb.dbo.sysobjects o where o.name like '#MovimentoEstoqueItemTMP%') drop table #MovimentoEstoqueItemTMP;
+if exists(select * from tempdb.dbo.sysobjects o where o.name like '#MapaTrabalhoTMP%') drop table #MapaTrabalhoTMP;
+if exists(select * from tempdb.dbo.sysobjects o where o.name like '#FaturaTMP%') drop table #FaturaTMP;
+if exists(select * from tempdb.dbo.sysobjects o where o.name like '#FaturaParcelamentoTMP%') drop table #FaturaParcelamentoTMP;
+if exists(select * from tempdb.dbo.sysobjects o where o.name like '#FaturaPlanoTMP%') drop table #FaturaPlanoTMP;
+if exists(select * from tempdb.dbo.sysobjects o where o.name like '#FaturaProcedimentoTMP%') drop table #FaturaProcedimentoTMP;
+if exists(select * from tempdb.dbo.sysobjects o where o.name like '#AuditoriaTMP%') drop table #AuditoriaTMP;
+if exists(select * from tempdb.dbo.sysobjects o where o.name like '#AuditoriaAcaoTMP%') drop table #AuditoriaAcaoTMP;
+if exists(select * from tempdb.dbo.sysobjects o where o.name like '#ObjetoAuditadoTMP%') drop table #ObjetoAuditadoTMP;
+if exists(select * from tempdb.dbo.sysobjects o where o.name like '#AtestadoTMP%') drop table #AtestadoTMP;
+if exists(select * from tempdb.dbo.sysobjects o where o.name like '#ReciboTMP%') drop table #ReciboTMP;
 print convert(varchar, GETDATE() ,121) + ' (' + convert(varchar, getdate() - @varDTIniProcessCurrently, 114) + ') - ' + 'Tabelas temporárias excluídas';
 print '';
 
 print convert(varchar, GETDATE() ,121) + ' (' + convert(varchar, getdate() - @varDTIniProcessFull, 114) + ') - ' + 'Scrip (FULL) finalizado';
-
