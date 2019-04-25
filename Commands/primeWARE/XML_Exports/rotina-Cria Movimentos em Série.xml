@@ -1,0 +1,891 @@
+<?xml version="1.0"?>
+<Classe Tipo="Rotina">
+  <Atributos>
+    <Ativo>True</Ativo>
+    <Comentarios>
+    </Comentarios>
+    <Descricao>Cria Movimentos em Série</Descricao>
+    <MostrarProgresso>False</MostrarProgresso>
+    <ProgressoExecucao>
+    </ProgressoExecucao>
+  </Atributos>
+  <Relacionamentos>
+    <Parametros>
+      <Record Id="PNRDOC" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Nr Doc</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PNRDOC</NomeInterno>
+          <Ordem>95</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Texto</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PTDP" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>TipoDocParcelamento.allLoadedObjects-&gt;select( tdp | tdp.Descricao.sqlLikeCaseInsensitive('{0}%') and (PFP.Sistema = tdp.Sistema) )-&gt;orderBy(Descricao)</Comando>
+          <Etiqueta>*Tipo Documento</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PTDP</NomeInterno>
+          <Ordem>90</Ordem>
+          <PreComando>TipoDocParcelamento.allInstances-&gt;select( tdp | tdp.Descricao.sqlLikeCaseInsensitive('{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PFP.TipoParcelamentoPadrao</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self.asString" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self.asString</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PDTFIRSTVENCTO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>*Dt First Vencto</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PDTFIRSTVENCTO</NomeInterno>
+          <Ordem>40</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Data</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>DateTime.Now</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PUNIDADE" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Unidade.allLoadedObjects-&gt;select( und |
+  und.Descricao.sqlLikeCaseInsensitive('%{0}%')
+  and
+  PUSER.AgentesVendas.Unidades-&gt;exists( unds | unds = und )
+)
+-&gt;orderBy( und | und.Descricao )</Comando>
+          <Etiqueta>*Unidade/Loja</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PUNIDADE</NomeInterno>
+          <Ordem>50</Ordem>
+          <PreComando>Unidade.allInstances-&gt;select( und |
+  und.Descricao.sqlLikeCaseInsensitive('%{0}%')
+  and
+  PUSER.AgentesVendas.Unidades-&gt;exists( unds | unds = und )
+)
+</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>if PPRAZOPARCELAS &lt;&gt; 0 then
+('
+Qtde Repectições: '+PQTDEREPETICOES.asString+'
+Prazo parcelas: '+PPRAZOPARCELAS.asString+'
+Dt First Vencto: '+PDTFIRSTVENCTO.formatDateTime('dd/MM/yyyy')
++'\r\n'
++
+'Total:' + (if (not PDIVIDIRVALOR) then PVLRUNIT * PQTDEREPETICOES else PVLRUNIT endif).toDecimal.Format('C2')
++'\r\n'
++
+'0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35'.Split(',').strToInt
+-&gt;subSequence(0,PQTDEREPETICOES)-&gt;collect( x |
+PDTFIRSTVENCTO.addDays( x * PPRAZOPARCELAS ).formatDateTime('dd/MM/yyyy')
++
+' - '+(x+1).asString+' º '
++ (if PDIVIDIRVALOR then PVLRUNIT / PQTDEREPETICOES else PVLRUNIT endif).toDecimal.Format('C2')
+)-&gt;asCommaList.Replace('", "','\r\n').Replace('"','')+
+'
+').Msg
+else
+  true
+endif
+; PUNDTRAB-&gt;select( undTrab | undTrab.AgentesVendas-&gt;exists( av | av.Personalidade = PUSER ) )-&gt;first
+</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.asString + if self-&gt;first.UnidadeEstoque-&gt;notEmpty then ' ('+self-&gt;first.UnidadeEstoque.Descricao+')' else '' endif" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.asString + if self-&gt;first.UnidadeEstoque-&gt;notEmpty then ' ('+self-&gt;first.UnidadeEstoque.Descricao+')' else '' endif</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PPRODUTO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Produto.allLoadedObjects-&gt;select( prd |
+  prd.Referencia.sqlLikeCaseInsensitive('{0}%')
+  or
+  prd.Descricao.sqlLikeCaseInsensitive('{0}%')
+)
+-&gt;orderBy(Descricao)</Comando>
+          <Etiqueta>*Produto</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PPRODUTO</NomeInterno>
+          <Ordem>70</Ordem>
+          <PreComando>Produto.allInstances-&gt;select( prd |
+  prd.Referencia.sqlLikeCaseInsensitive('{0}%')
+  or
+  prd.Descricao.sqlLikeCaseInsensitive('{0}%')
+)
+</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Referencia + ' - ' + self-&gt;first.Descricao" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Referencia + ' - ' + self-&gt;first.Descricao</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PVLRUNIT" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>*Valor</Etiqueta>
+          <Formato>C2</Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PVLRUNIT</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Numero</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>0.0</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PTP" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>TabelaPreco.allLoadedObjects-&gt;select( tp | 
+  tp.Descricao.sqlLikeCaseInsensitive('{0}%') 
+  and 
+  tp.TabelaPrecoUnidades-&gt;exists( tpu | tpu.Unidade = PUNIDADE) 
+)-&gt;orderBy(Descricao)</Comando>
+          <Etiqueta>*Tabela Preço</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PTP</NomeInterno>
+          <Ordem>100</Ordem>
+          <PreComando>TabelaPreco.allInstances-&gt;select( tp | 
+  tp.Descricao.sqlLikeCaseInsensitive('{0}%') 
+  and 
+  tp.TabelaPrecoUnidades-&gt;exists( tpu | tpu.Unidade = PUNIDADE) 
+)
+</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>let tabPreco = 'select ECO_ID from TabelaPreco'.SQLEnsure(TabelaPreco)-&gt;select( tp | tp.TabelaPrecoUnidades-&gt;exists( tpu | tpu.Unidade = PUNIDADE) )
+in
+(
+  if tabPreco-&gt;size = 1 then
+    tabPreco-&gt;first
+  else
+    'select ECO_ID from TabelaPreco where Descricao = \'abc123xzwty\''.SQLEnsure(TabelaPreco)-&gt;first
+  endif
+)
+</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self.asString" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self.asString</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PFP" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>FormaParcelamento.allLoadedObjects-&gt;select( fp | fp.Descricao.sqlLikeCaseInsensitive('{0}%') and (fp.Sistema = PTME.SistemaContas) )-&gt;orderBy(Descricao)</Comando>
+          <Etiqueta>*Forma Parcelamento</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PFP</NomeInterno>
+          <Ordem>80</Ordem>
+          <PreComando>FormaParcelamento.allInstances-&gt;select( fp | fp.Descricao.sqlLikeCaseInsensitive('{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self.asString" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self.asString</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PPERSONALIDADE" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Personalidade.allLoadedObjects-&gt;select( pers | pers.Nome.sqlLikeCaseInsensitive('{0}%') )-&gt;orderBy( pers | pers.Nome )</Comando>
+          <Etiqueta>*Personalidade</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PPERSONALIDADE</NomeInterno>
+          <Ordem>5</Ordem>
+          <PreComando>Personalidade.allInstances-&gt;select( pers | pers.Nome.sqlLikeCaseInsensitive('{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self.asString" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self.asString</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PTME" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>TipoMovimentoEstoque.allLoadedObjects-&gt;select( tme |
+  tme.AtualizaFinanceiro
+  and
+  not(tme.AtualizarQtdeOrigem)
+  and
+  (tme.TipoEmissorDocFiscal = enumTipoEmissorDocFiscal::Nenhum)
+  and
+  (
+    tme.Abreviacao.sqlLikeCaseInsensitive('{0}')
+    or
+    tme.Descricao.sqlLikeCaseInsensitive('{0}%')
+  )
+  and
+  tme.Unidades-&gt;exists( und | und = PUNIDADE )
+)
+-&gt;orderBy(Descricao)
+</Comando>
+          <Etiqueta>*Tipo Mov</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PTME</NomeInterno>
+          <Ordem>60</Ordem>
+          <PreComando>TipoMovimentoEstoque.allInstances-&gt;select( tme |
+  tme.AtualizaFinanceiro
+  and
+  not(tme.AtualizarQtdeOrigem)
+  and
+  (tme.TipoEmissorDocFiscal = 'Nenhum')
+  and
+  (
+    tme.Abreviacao.sqlLikeCaseInsensitive('{0}')
+    or
+    tme.Descricao.sqlLikeCaseInsensitive('{0}%')
+  )
+  and
+  tme.Unidades-&gt;exists( und | und = PUNIDADE )
+)
+</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>('TipoMovimentoEstoque.allInstances-&gt;select( tme | tme.Abreviacao = \'LFP\' )').EnsureObjects(TipoMovimentoEstoque)-&gt;first</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Abreviacao + ' - ' + self-&gt;first.Descricao" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Abreviacao + ' - ' + self-&gt;first.Descricao</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PQTDEREPETICOES" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>*Qtde Repetições</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PQTDEREPETICOES</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Inteiro</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>if PPERSONALIDADE-&gt;isEmpty then 'ATENÇÃO!!!\r\n\r\nQuando parâmetro (Prazo parcelas) for maior que ZERO, o vencimento dos demais movimentos, seguirá este modelo. Ex.:\r\nQtde Repetições: 3\r\nPrazo Parcelas: 10\r\nDt First Vencto: 01/08/2016\r\nO vencimento das parcelas ficará da seguinte forma:\r\n* 01/08/2016 primeiro vencimento\r\n* 11/08/2016 segundo vencimento\r\n* 21/08/2016 terceiro vencimento\r\n\r\nParâmetro (Prazo parcelas) permanecendo ZERO, o vencimento ocorrerá no mesmo dia para os meses subsequentes.'.Msg else true endif
+; 1</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PABRIRMOV" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Abrir Movimento</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PABRIRMOV</NomeInterno>
+          <Ordem>110</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>VerdadeFalso</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>false</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PPRAZOPARCELAS" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Prazo parcelas:</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PPRAZOPARCELAS</NomeInterno>
+          <Ordem>30</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Inteiro</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>0</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PDIVIDIRVALOR" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Dividir valor?</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PDIVIDIRVALOR</NomeInterno>
+          <Ordem>15</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>VerdadeFalso</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+    </Parametros>
+    <Comandos>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>let dtAgora = DateTime.Now in (
+let tdp = PTDP in (
+let und = PUNIDADE in (
+let tme = PTME in (
+let prd = PPRODUTO in (
+let vlrUnit = if PDIVIDIRVALOR then PVLRUNIT / PQTDEREPETICOES else PVLRUNIT endif in (
+let pers = PPERSONALIDADE in (
+let fp = PFP in (
+let tp = PTP in (
+let qtdeRepeticoes = PQTDEREPETICOES in (
+'0,1,2,3,4,5,6,7,8,9,
+10,11,12,13,14,15,16,17,18,19,
+20,21,22,23,24,25,26,27,28,29,
+30,31,32,33,34,35,36,37,38,39,
+40,41,42,43,44,45,46,47,48,49,
+50,51,52,53,54,55,56,57,58,59,
+60,61,62,63,64,65,66,67,68,69,
+70,71,72,73,74,75,76,77,78,79,
+80,81,82,83,84,85,86,87,88,89,
+90,91,92,93,94,95,96,97,98,99,
+100,101,102,103,104,105,106,107,108,109,
+110,111,112,113,114,115,116,117,118,119,
+120
+'.Split(',').strToInt
+-&gt;subSequence(0, qtdeRepeticoes)
+-&gt;collect( x |
+if tp.TabelaPrecoUnidades-&gt;exists( u | u.Unidade = PUNIDADE ) then
+  let newCME = CabecalhoMovimentoEstoque.Create in (
+    newCME
+    ; newCME.TipoMovimentoEstoque := tme
+    ; newCME.Unidade := und
+    ; newCME.TabelaPreco := tp
+    ; newCME.DataEmissao := 
+        if x = 0 then 
+          PDTFIRSTVENCTO 
+        else 
+          if PPRAZOPARCELAS &gt; 0 then
+            PDTFIRSTVENCTO.addDays( x * PPRAZOPARCELAS )
+          else 
+            PDTFIRSTVENCTO-&gt;addMonths(x) 
+          endif
+        endif
+    ; newCME.DataDigitacao := DateTime.Now
+    ; newCME.DataSaida := newCME.DataEmissao
+    ; newCME.DataAtualizacaoEstoque := newCME.DataEmissao
+    ; newCME.Personalidade := pers
+    ; newCME.EnderecoEntrega
+    ; newCME.AgenteVenda
+    ; newCME.AgenteVendaParticipante
+    ; newCME.Gerente
+    ; newCME.QuantidadeQuitada := false
+    ; newCME.Cancelado := false
+
+    ;
+      let newIME = ItemMovimentoEstoque.Create in (
+        newIME.Cabecalho := newCME
+        ; newIME.Quantidade := 1
+        ; newIME.ProdutoFinal := prd.ProdutosFinais-&gt;first
+        ; newIME.ValorUnitario := vlrUnit
+        ; newIME.CodigoBarras := prd.ProdutosFinais-&gt;first.CodigoBarras
+        ; newIME.TipoAtualizacaoEstoque := newCME.TipoMovimentoEstoque.TipoAtuEstoquePadrao
+        ; newIME.CFOP
+        ; newIME.QuantidadeQuitada := false
+        ; newIME.AgenteVenda
+        ; newIME.AliquotaCOFINS
+        ; newIME.AliquotaICMS
+        ; newIME.AliquotaIPI
+        ; newIME.AliquotaPIS
+        ; newIME.DescontosRateados
+        ; newIME.FreteRateado
+        ; newIME.SeguroRateado
+        ; newIME.CalculaValores
+
+      )
+    ; newCME.CalculaValores
+    ;
+    if false then
+      let t = CabMovEstoqueTransportador.Create in ( 
+        t.CabecalhoMovimentoEstoque := newCME
+        ; t.Personalidade
+        ; t.ANTT
+        ; t.BaseICMS
+        ; t.CFOP
+        ; t.DataEmissao
+        ; t.Especie
+        ; t.Marca
+        ; t.ModeloDocFiscal
+        ; t.NumeracaoVolumes
+        ; t.NumeroCT
+        ; t.PesoBruto
+        ; t.PesoLiquido
+        ; t.Placa
+        ; t.Serie
+        ; t.SituacaoDocFiscal
+        ; t.TipoTransporte
+        ; t.UFPlaca
+        ; t.ValorICMS
+        ; t.ValorIsento
+        ; t.ValorOutros
+        ; t.Volume
+        ; t.ModalidadeFrete
+        ; t.ValorTotal
+        ; false
+      )
+    else false endif
+    ; newCME.CalculaValores
+    ; newCME.FormaParcelamento := fp
+    ; newCME.Parcelas.delete
+    ;
+    if true then
+      let newParc = ParcelaMovimentoEstoque.Create in (
+        newParc.Cabecalho := newCME
+        ; newParc.CodigoBarras
+        ; newParc.DataVencimento := newParc.Cabecalho.DataEmissao
+        ; newParc.DiasPrazo
+        ; newParc.NrDocumento := PNRDOC
+        ; newParc.NrParcela
+        ; newParc.Valor := vlrUnit
+        ; newParc.TipoDocParcelamento := tdp
+        ; newParc.CalculaValores
+
+        ; false
+      )
+    else false endif
+    ;
+    if true then
+      let newObs = ObsCabMovEstoque.Create in (
+        newObs.CabecalhoMovimentoEstoque := newCME
+        ; newObs.Texto := dtAgora.formatDateTime('yyyy-MM-ddTHH:mm:ss')
+        ; newObs.TipoObservacao
+
+        ; false
+      )
+    else false endif
+    ; newCME.GeraNumeradoresAutomaticos(tme)
+    ; newCME.GeraNumeradoresManuais(tme)
+    ; newCME.SetNumeradorPadrao
+    ; if false then newCME.Parcelas-&gt;collect( parcels | parcels.NrDocumento := (newCME.NumeroPadrao.Numero + '-' + (x+1).asString); parcels.TipoDocParcelamento := tdp ); false else false endif
+    ; newCME.trProcessado
+
+    ; 
+    if PABRIRMOV then 
+      ('Abrindo Movimento\r\n'+newCME.asString+'\r\n('+(x+1).asString+'/'+qtdeRepeticoes.asString+')').Msg
+      ; newCME.UpdateLastUndoBlock-&gt;Refresh
+      ; newCME.ShowAutoForm
+      ; ('Fechando/Salvando Movimento\r\n'+newCME.asString+'\r\n('+(x+1).asString+'/'+qtdeRepeticoes.asString+')').Msg
+      ; false 
+    else 
+      false 
+    endif
+    ; newCME
+
+  )
+  ; false
+  else false endif
+)
+)
+
+)))))))))
+; 'Movimentos criados com sucesso!'.Msg
+</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>20</Ordem>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>False</Ativo>
+          <Comando>let dtAgora = DateTime.Now in (
+let tdp = PTDP in (
+let und = PUNIDADE in (
+let tme = PTME in (
+let prd = PPRODUTO in (
+let vlrUnit = PVLRUNIT in (
+let pers = PPERSONALIDADE in (
+let fp = PFP in (
+let tp = PTP in (
+let cmeTitular = CabecalhoMovimentoEstoque.Create in (
+  cmeTitular
+  ; cmeTitular.TipoMovimentoEstoque := ('TipoMovimentoEstoque.allInstances-&gt;select( tme | tme.Descricao = \'MASTER MOVIMENTOS EM SÉRIE\')').EnsureObjects(TipoMovimentoEstoque)-&gt;first
+  ; cmeTitular.Unidade := und
+  ; cmeTitular.TabelaPreco := tp
+  ; cmeTitular.DataEmissao := PDTFIRSTVENCTO 
+  ; cmeTitular.DataDigitacao := dtAgora
+  ; cmeTitular.DataSaida := dtAgora
+  ; cmeTitular.DataAtualizacaoEstoque := dtAgora
+  ; cmeTitular.Personalidade := pers
+  ; cmeTitular.NumeroCOO := PQTDEREPETICOES
+
+  ; let imeTitular = ItemMovimentoEstoque.Create in (
+    imeTitular.Cabecalho := cmeTitular
+    ; imeTitular.Quantidade := 1
+    ; imeTitular.ProdutoFinal := prd.ProdutosFinais-&gt;first
+    ; imeTitular.ValorUnitario := vlrUnit
+    ; imeTitular.CodigoBarras := prd.ProdutosFinais-&gt;first.CodigoBarras
+  )
+
+  ; cmeTitular.CalculaValores
+  ; 'cmeTitular.FormaParcelamento := fp'
+
+  ; cmeTitular.GeraNumeradoresAutomaticos(cmeTitular.TipoMovimentoEstoque)
+  ; cmeTitular.GeraNumeradoresManuais(cmeTitular.TipoMovimentoEstoque)
+  ; cmeTitular.SetNumeradorPadrao
+  ; cmeTitular.Numeros-&gt;select( nrs | nrs.Numerador.Etiqueta = 'MovSerieM' )-&gt;first.Numero := dtAgora.formatDateTime('yyyy-MM-ddTHH:mm:ss')
+  ; cmeTitular.Parcelas-&gt;collect( parcels | parcels.NrDocumento := cmeTitular.NumeroPadrao.Numero; parcels.TipoDocParcelamento := tdp )
+  ; cmeTitular.trProcessado
+  ; cmeTitular
+
+  ;
+let qtdeRepeticoes = PQTDEREPETICOES in (
+'0,1,2,3,4,5,6,7,8,9,
+10,11,12,13,14,15,16,17,18,19,
+20,21,22,23,24,25,26,27,28,29,
+30,31,32,33,34,35,36,37,38,39,
+40,41,42,43,44,45,46,47,48,49,
+50,51,52,53,54,55,56,57,58,59,
+60,61,62,63,64,65,66,67,68,69,
+70,71,72,73,74,75,76,77,78,79,
+80,81,82,83,84,85,86,87,88,89,
+90,91,92,93,94,95,96,97,98,99,
+100,101,102,103,104,105,106,107,108,109,
+110,111,112,113,114,115,116,117,118,119,
+120
+'.Split(',').strToInt
+-&gt;subSequence(0, qtdeRepeticoes)
+-&gt;collect( x |
+if tp.TabelaPrecoUnidades-&gt;exists( u | u.Unidade = PUNIDADE ) then
+  let newCME = CabecalhoMovimentoEstoque.Create in (
+    newCME
+    ; newCME.TipoMovimentoEstoque := tme
+    ; newCME.Unidade := und
+    ; newCME.TabelaPreco := tp
+    ; newCME.DataEmissao := 
+        if x = 0 then 
+          PDTFIRSTVENCTO 
+        else 
+          if PPRAZOPARCELAS &gt; 0 then
+            PDTFIRSTVENCTO.addDays( x * PPRAZOPARCELAS )
+          else 
+            PDTFIRSTVENCTO-&gt;addMonths(x) 
+          endif
+        endif
+    ; newCME.DataDigitacao := DateTime.Now
+    ; newCME.DataSaida := newCME.DataEmissao
+    ; newCME.DataAtualizacaoEstoque := newCME.DataEmissao
+    ; newCME.Personalidade := pers
+    ; newCME.EnderecoEntrega
+    ; newCME.AgenteVenda
+    ; newCME.AgenteVendaParticipante
+    ; newCME.Gerente
+    ; newCME.QuantidadeQuitada := false
+    ; newCME.Cancelado := false
+    ; newCME.MovimentoTitular := cmeTitular
+
+    ;
+      let newIME = ItemMovimentoEstoque.Create in (
+        newIME.Cabecalho := newCME
+        ; newIME.Quantidade := 1
+        ; newIME.ProdutoFinal := prd.ProdutosFinais-&gt;first
+        ; newIME.ValorUnitario := vlrUnit
+        ; newIME.CodigoBarras := prd.ProdutosFinais-&gt;first.CodigoBarras
+        ; newIME.TipoAtualizacaoEstoque := newCME.TipoMovimentoEstoque.TipoAtuEstoquePadrao
+        ; newIME.CFOP
+        ; newIME.QuantidadeQuitada := false
+        ; newIME.AgenteVenda
+        ; newIME.AliquotaCOFINS
+        ; newIME.AliquotaICMS
+        ; newIME.AliquotaIPI
+        ; newIME.AliquotaPIS
+        ; newIME.DescontosRateados
+        ; newIME.FreteRateado
+        ; newIME.SeguroRateado
+        ; newIME.CalculaValores
+
+      )
+    ; newCME.CalculaValores
+    ;
+    if false then
+      let t = CabMovEstoqueTransportador.Create in ( 
+        t.CabecalhoMovimentoEstoque := newCME
+        ; t.Personalidade
+        ; t.ANTT
+        ; t.BaseICMS
+        ; t.CFOP
+        ; t.DataEmissao
+        ; t.Especie
+        ; t.Marca
+        ; t.ModeloDocFiscal
+        ; t.NumeracaoVolumes
+        ; t.NumeroCT
+        ; t.PesoBruto
+        ; t.PesoLiquido
+        ; t.Placa
+        ; t.Serie
+        ; t.SituacaoDocFiscal
+        ; t.TipoTransporte
+        ; t.UFPlaca
+        ; t.ValorICMS
+        ; t.ValorIsento
+        ; t.ValorOutros
+        ; t.Volume
+        ; t.ModalidadeFrete
+        ; t.ValorTotal
+        ; false
+      )
+    else false endif
+    ; newCME.CalculaValores
+    ; newCME.FormaParcelamento := fp
+    ; newCME.Parcelas.delete
+    ;
+    if true then
+      let newParc = ParcelaMovimentoEstoque.Create in (
+        newParc.Cabecalho := newCME
+        ; newParc.CodigoBarras
+        ; newParc.DataVencimento := newParc.Cabecalho.DataEmissao
+        ; newParc.DiasPrazo
+        ; newParc.NrDocumento
+        ; newParc.NrParcela
+        ; newParc.Valor := vlrUnit
+        ; newParc.TipoDocParcelamento := tdp
+        ; newParc.CalculaValores
+
+        ; false
+      )
+    else false endif
+    ;
+    if true then
+      let newObs = ObsCabMovEstoque.Create in (
+        newObs.CabecalhoMovimentoEstoque := newCME
+        ; newObs.Texto := dtAgora.formatDateTime('yyyy-MM-ddTHH:mm:ss')
+        ; newObs.TipoObservacao
+
+        ; false
+      )
+    else false endif
+    ; newCME.GeraNumeradoresAutomaticos(tme)
+    ; newCME.GeraNumeradoresManuais(tme)
+    ; newCME.SetNumeradorPadrao
+    ; if false then newCME.Parcelas-&gt;collect( parcels | parcels.NrDocumento := (newCME.NumeroPadrao.Numero + '-' + (x+1).asString); parcels.TipoDocParcelamento := tdp ); false else false endif
+    ; newCME.trProcessado
+
+    ; 
+    if PABRIRMOV then 
+      ('Abrindo Movimento\r\n'+newCME.asString+'\r\n('+(x+1).asString+'/'+qtdeRepeticoes.asString+')').Msg
+      ; newCME.UpdateLastUndoBlock-&gt;Refresh
+      ; newCME.ShowAutoForm
+      ; ('Fechando/Salvando Movimento\r\n'+newCME.asString+'\r\n('+(x+1).asString+'/'+qtdeRepeticoes.asString+')').Msg
+      ; false 
+    else 
+      false 
+    endif
+    ; newCME
+
+  )
+  ; false
+  else false endif
+)
+)
+
+))))))))))
+; 'Movimentos criados com sucesso!'.Msg
+</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>10</Ordem>
+        </Atributos>
+      </Record>
+    </Comandos>
+    <Validacoes>
+      <Record Id="Informe um TipoMovimentoEstoque!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PTME-&gt;isEmpty</Comando>
+          <Descricao>Informe um TipoMovimentoEstoque!</Descricao>
+          <Mensagem>Informe um TipoMovimentoEstoque!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Informe um Produto!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PPRODUTO-&gt;isEmpty</Comando>
+          <Descricao>Informe um Produto!</Descricao>
+          <Mensagem>Informe um Produto!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Data para o primeiro vencimento não informada!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PDTFIRSTVENCTO-&gt;isEmpty or PDTFIRSTVENCTO-&gt;isNull</Comando>
+          <Descricao>Data para o primeiro vencimento não informada!</Descricao>
+          <Mensagem>Data para o primeiro vencimento não informada!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Informe uma Personalidade!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PPERSONALIDADE-&gt;isEmpty</Comando>
+          <Descricao>Informe uma Personalidade!</Descricao>
+          <Mensagem>Informe uma Personalidade!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Informe uma TabelaPreco!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PTP-&gt;isEmpty</Comando>
+          <Descricao>Informe uma TabelaPreco!</Descricao>
+          <Mensagem>Informe uma TabelaPreco!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Informe uma quantidade de repetições entre 1 e 120!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>(PQTDEREPETICOES &lt;= 0.0) or (PQTDEREPETICOES &gt; 120.0)</Comando>
+          <Descricao>Informe uma quantidade de repetições entre 1 e 120!</Descricao>
+          <Mensagem>Informe uma quantidade de repetições entre 1 e 120!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Parâmetro 'Prazo Parcelas' não pode ser negativo!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>False</Ativo>
+          <Comando>PPRAZOPARCELAS &gt; 0</Comando>
+          <Descricao>Parâmetro 'Prazo Parcelas' não pode ser negativo!</Descricao>
+          <Mensagem>Parâmetro 'Prazo Parcelas' não pode ser negativo!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Informe um Unidade!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PUNIDADE-&gt;isEmpty</Comando>
+          <Descricao>Informe um Unidade!</Descricao>
+          <Mensagem>Informe um Unidade!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Informe um TipoDocParcelamento!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PTDP-&gt;isEmpty</Comando>
+          <Descricao>Informe um TipoDocParcelamento!</Descricao>
+          <Mensagem>Informe um TipoDocParcelamento!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Informe uma FormaParcelamento!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PFP-&gt;isEmpty</Comando>
+          <Descricao>Informe uma FormaParcelamento!</Descricao>
+          <Mensagem>Informe uma FormaParcelamento!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Informe um Valor!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PVLRUNIT = 0.0</Comando>
+          <Descricao>Informe um Valor!</Descricao>
+          <Mensagem>Informe um Valor!</Mensagem>
+        </Atributos>
+      </Record>
+    </Validacoes>
+  </Relacionamentos>
+</Classe>
