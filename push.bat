@@ -13,4 +13,7 @@ git push azure report
 git checkout XML_imports
 git push origin XML_imports
 git push azure XML_imports
+git checkout diagrams
+git push origin diagrams
+git push azure diagrams
 git checkout master

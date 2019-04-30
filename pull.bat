@@ -13,4 +13,7 @@ git pull origin report
 git checkout XML_imports
 git pull azure XML_imports
 git pull origin XML_imports
+git checout diagrams
+git pull azure diagrams
+git pull origin diagrams
 git checkout master
