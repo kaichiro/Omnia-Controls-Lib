@@ -178,7 +178,7 @@ endif
         <Atributos>
           <Ativo>True</Ativo>
           <Comando>if PRELATORIO-&gt;notEmpty and (P_EXPO_REL_TO.trim.Length &gt; 0) then
-  PRELATORIO.ExportClass(P_EXPO_REL_TO)-&gt;select( 'Relótorio Exportado com sucesso!'.Msg )
+  PRELATORIO.ExportClass(P_EXPO_REL_TO)-&gt;select( 'Relatório Exportado com sucesso!'.Msg )
 else
   false
 endif
