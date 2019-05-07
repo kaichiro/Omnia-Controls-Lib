@@ -108,7 +108,7 @@ endif
           <Ativo>True</Ativo>
           <Comando>if PROTINA.Trim.Length &gt; 0 then
   PROTINA.ImportClass(Rotina)
-  ; 'Rorinta importada com sucesso!'.Msg
+  ; 'Rotina importada com sucesso!'.Msg
 else
   false
 endif
