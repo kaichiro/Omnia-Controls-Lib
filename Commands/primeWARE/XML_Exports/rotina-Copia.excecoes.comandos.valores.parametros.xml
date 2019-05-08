@@ -1,0 +1,329 @@
+<?xml version="1.0"?>
+<Classe Tipo="Rotina">
+  <Atributos>
+    <Ativo>True</Ativo>
+    <Comentarios>
+    </Comentarios>
+    <Descricao>Copia [Exceções, Comandos, Valores, Parâmetros]</Descricao>
+    <MostrarProgresso>True</MostrarProgresso>
+    <ProgressoExecucao>
+    </ProgressoExecucao>
+  </Atributos>
+  <Relacionamentos>
+    <Parametros>
+      <Record Id="PCOMANDOS" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>PTMEO.Comandos-&gt;orderBy(Ordem)</Comando>
+          <Etiqueta>Comandos</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PCOMANDOS</NomeInterno>
+          <Ordem>22</Ordem>
+          <PreComando>PTMEO.Comandos</PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Ordem.asString + ' | ' + self-&gt;first.Ativo.asString + '-' + self-&gt;first.QuandoExecutar.asString + ' | ' + self-&gt;first.Comando.Replace('\r\n',' ')" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Ordem.asString + ' | ' + self-&gt;first.Ativo.asString + '-' + self-&gt;first.QuandoExecutar.asString + ' | ' + self-&gt;first.Comando.Replace('\r\n',' ')</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PPARAMETROS" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>PTMEO.Parametros-&gt;orderBy(Ordem)</Comando>
+          <Etiqueta>Parâmetros</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PPARAMETROS</NomeInterno>
+          <Ordem>26</Ordem>
+          <PreComando>PTMEO.Parametros</PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Ordem.asString&#xD;&#xA;+ ' - ' + &#xD;&#xA;self-&gt;first.Etiqueta&#xD;&#xA;+ ' - ' + &#xD;&#xA;self-&gt;first.NomeInterno" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Ordem.asString
++ ' - ' + 
+self-&gt;first.Etiqueta
++ ' - ' + 
+self-&gt;first.NomeInterno</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PTMEO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>TipoMovimentoEstoque.allLoadedObjects-&gt;select( tme | tme.Abreviacao.sqlLikeCaseInsensitive('{0}') or tme.Descricao.sqlLikeCaseInsensitive('{0}%') )-&gt;orderBy(Descricao)</Comando>
+          <Etiqueta>TME Origem</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PTMEO</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>TipoMovimentoEstoque.allInstances-&gt;select( tme | tme.Abreviacao.sqlLikeCaseInsensitive('{0}') or tme.Descricao.sqlLikeCaseInsensitive('{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Abreviacao + '-' + self-&gt;first.Descricao" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Abreviacao + '-' + self-&gt;first.Descricao</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PTMED" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>TipoMovimentoEstoque.allLoadedObjects-&gt;select( tme | tme.Abreviacao.sqlLikeCaseInsensitive('{0}') or tme.Descricao.sqlLikeCaseInsensitive('{0}%') )-&gt;orderBy(Descricao)</Comando>
+          <Etiqueta>TME Destino</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PTMED</NomeInterno>
+          <Ordem>30</Ordem>
+          <PreComando>TipoMovimentoEstoque.allInstances-&gt;select( tme | tme.Abreviacao.sqlLikeCaseInsensitive('{0}%') or tme.Descricao.sqlLikeCaseInsensitive('{0}') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Abreviacao + '-' + self-&gt;first.Descricao" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Abreviacao + '-' + self-&gt;first.Descricao</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PVALORES" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>PTMEO.Valores-&gt;orderBy(Ordem)</Comando>
+          <Etiqueta>Valores</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PVALORES</NomeInterno>
+          <Ordem>24</Ordem>
+          <PreComando>PTMEO.Valores</PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Ordem.asString&#xD;&#xA;+ ' | V: ' +&#xD;&#xA;self-&gt;first.Visivel.asString&#xD;&#xA;+ '  A: ' +&#xD;&#xA;self-&gt;first.Ativo.asString&#xD;&#xA;+ ' | ' +&#xD;&#xA;self-&gt;first.Sigla&#xD;&#xA;+ ' | Operação: ' +&#xD;&#xA;self-&gt;first.Operacao.asString&#xD;&#xA;+ ' | TpReg: ' +&#xD;&#xA;self-&gt;first.TipoRegistro.asString&#xD;&#xA;+ ' | TpVlr: ' +&#xD;&#xA;self-&gt;first.TipoValor.asString&#xD;&#xA;+ ' | Desc: ' +&#xD;&#xA;self-&gt;first.Descricao&#xD;&#xA;" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Ordem.asString
++ ' | V: ' +
+self-&gt;first.Visivel.asString
++ '  A: ' +
+self-&gt;first.Ativo.asString
++ ' | ' +
+self-&gt;first.Sigla
++ ' | Operação: ' +
+self-&gt;first.Operacao.asString
++ ' | TpReg: ' +
+self-&gt;first.TipoRegistro.asString
++ ' | TpVlr: ' +
+self-&gt;first.TipoValor.asString
++ ' | Desc: ' +
+self-&gt;first.Descricao
+</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PEXCECOES" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>PTMEO.Excecoes-&gt;orderBy(Ordem)</Comando>
+          <Etiqueta>Exceções</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PEXCECOES</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>PTMEO.Excecoes</PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Ordem.asString + ' | ' + self-&gt;first.Ativo.asString + ' | ' + self-&gt;first.TipoRegistro.asString + ' | ' + self-&gt;first.Acao.asString + ' | ' + self-&gt;first.Aviso.asString" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Ordem.asString + ' | ' + self-&gt;first.Ativo.asString + ' | ' + self-&gt;first.TipoRegistro.asString + ' | ' + self-&gt;first.Acao.asString + ' | ' + self-&gt;first.Aviso.asString</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+    </Parametros>
+    <Comandos>
+      <Record Id="Copia Comandos" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PCOMANDOS-&gt;orderBy(Ordem)-&gt;collect( c |
+  let newC = ComandoTipoMovEstoque.Create in (
+    newC
+    ; newC.Ativo := c.Ativo
+    ; newC.Comando := c.Comando
+    ; newC.QuandoExecutar := c.QuandoExecutar
+    ; newC.TipoMovimentoEstoque := PTMED
+    ; newC
+  )
+)</Comando>
+          <Descricao>Copia Comandos</Descricao>
+          <Ordem>20</Ordem>
+        </Atributos>
+      </Record>
+      <Record Id="Copia Parâmetros" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PPARAMETROS-&gt;orderBy( x | x.Ordem )-&gt;collect( po |
+  let newP = ParametroTipoMovEstoque.Create
+  in
+  (
+    newP.CampoDados := po.CampoDados
+    ; newP.Comando := po.Comando
+    ; newP.ComandoParaDados := po.ComandoParaDados
+    ; newP.Etiqueta := po.Etiqueta
+    ; newP.NomeInterno := po.NomeInterno
+    ; newP.Ordem 
+    ; newP.PreComando := po.PreComando
+    ; newP.TipoEditor := po.TipoEditor
+    ; newP.UsoInterno := po.UsoInterno
+    ; newP.ValorInicial := po.ValorInicial
+    ; newP.TipoMovimentoEstoque := PTMED
+    ; 
+    po.Colunas-&gt;orderBy( y | y.Ordem)-&gt;collect( c |
+      let newC = ColunaParamTipoMovEstoque.Create 
+      in
+      (
+        newC.Comando := c.Comando
+        ; newC.Etiqueta := c.Etiqueta
+        ; newC.Formato := c.Formato
+        ; newC.Ordem
+        ; newC.Parametro := newP
+      )
+    )
+  )
+)
+</Comando>
+          <Descricao>Copia Parâmetros</Descricao>
+          <Ordem>40</Ordem>
+        </Atributos>
+      </Record>
+      <Record Id="Copia Exceções" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PEXCECOES-&gt;orderBy(Ordem)-&gt;collect( e |
+  let newE = TipoMovEstoqueExcecao.Create in (
+    newE.Acao := e.Acao
+    ; newE.Ativo := e.Ativo
+    ; newE.Aviso := '['+DateTime.Now.asString+'-new] ' + e.Aviso
+    ; newE.Expressao := e.Expressao
+    ; newE.ExpressaoRetornoSalvo := e.ExpressaoRetornoSalvo
+    ; newE.PreExpressao := e.PreExpressao
+    ; newE.TipoRegistro := e.TipoRegistro
+    ; newE.TipoMovimentoEstoque := PTMED
+    ; newE.Permissao := e.Permissao
+  )
+)
+</Comando>
+          <Descricao>Copia Exceções</Descricao>
+          <Ordem>10</Ordem>
+        </Atributos>
+      </Record>
+      <Record Id="Copia Valores" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PVALORES-&gt;orderBy(Ordem)-&gt;collect( v |
+  let newV = TipoMovEstoqueValor.Create in (
+    newV
+    ; newV.AliquotaPadrao := v.AliquotaPadrao
+    ; newV.Ativo := v.Ativo
+    ; newV.Descricao := v.Descricao
+    ; newV.Formula := v.Formula
+    ; newV.FormulaAliquotaPadrao := v.FormulaAliquotaPadrao
+    ; newV.FormulaValorPadrao := v.FormulaValorPadrao
+    ; newV.Operacao := v.Operacao
+    ; newV.PermiteAlterarAliquota := v.PermiteAlterarAliquota
+    ; newV.PermiteAlterarBase := v.PermiteAlterarBase
+    ; newV.PermiteAlterarValor := v.PermiteAlterarValor
+    ; newV.Sigla := v.Sigla
+    ; newV.TipoRegistro := v.TipoRegistro
+    ; newV.TipoValor := v.TipoValor
+    ; newV.UsoInterno := v.UsoInterno
+    ; newV.Visivel := v.Visivel
+    ; newV.TipoMovimentoEstoque := PTMED
+    ; newV
+  )
+)</Comando>
+          <Descricao>Copia Valores</Descricao>
+          <Ordem>30</Ordem>
+        </Atributos>
+      </Record>
+    </Comandos>
+    <Validacoes>
+      <Record Id="Selecione um TipoMovimentoEstoque origem!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PTMEO-&gt;isEmpty</Comando>
+          <Descricao>Selecione um TipoMovimentoEstoque origem!</Descricao>
+          <Mensagem>Selecione um TipoMovimentoEstoque origem!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Selecione um TipoMovimentoEstoque a receber as cópias!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PTMED-&gt;isEmpty</Comando>
+          <Descricao>Selecione um TipoMovimentoEstoque a receber as cópias!</Descricao>
+          <Mensagem>Selecione um TipoMovimentoEstoque a receber as cópias!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Selecione pelo menos uma das opções para ser copiada!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>(PEXCECOES-&gt;size + PCOMANDOS-&gt;size + PVALORES-&gt;size + PPARAMETROS-&gt;size) = 0</Comando>
+          <Descricao>Selecione pelo menos uma das opções para ser copiada!</Descricao>
+          <Mensagem>Selecione pelo menos uma das opções para ser copiada!</Mensagem>
+        </Atributos>
+      </Record>
+    </Validacoes>
+  </Relacionamentos>
+</Classe>
