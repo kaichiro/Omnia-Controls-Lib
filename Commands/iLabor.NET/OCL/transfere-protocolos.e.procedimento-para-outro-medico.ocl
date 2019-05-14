@@ -4,6 +4,7 @@
   ->collect( md |
     md.TransfereProcedimentos(medicoDestino)
     ; md.TransfereProtocolos(medicoDestino)
+    ; md.Id_Importado := 'deletar'
   )
 )
 ; 'Foram transferidos Protocolos e Protocolos_Procedimentos para médico destino'.Msg
