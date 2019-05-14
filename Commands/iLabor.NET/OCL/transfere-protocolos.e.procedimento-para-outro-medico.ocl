@@ -1,0 +1,9 @@
+'ATENÇÃO: antes da execução deste comando OCL, confira o registro de destino (que vai receber as transferências) e os registros de origens';
+('Medico.allInstances->select( md | (critério de seleção para o registro de médico a receber as movientações) )').EnsureObjects(Medico)->first->collect( medicoDestino |
+  ('Medico.allInstances->select( md | (critério de seleção para registros de médicos a serem transferidas as movimentações) )').EnsureObjects(Medico)
+  ->collect( md |
+    md.TransfereProcedimentos(medicoDestino)
+    ; md.TransfereProtocolos(medicoDestino)
+  )
+)
+; 'Foram transferidos Protocolos e Protocolos_Procedimentos para médico destino'.Msg
