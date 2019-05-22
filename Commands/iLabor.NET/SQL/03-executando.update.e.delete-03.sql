@@ -1,7 +1,7 @@
 use iLabor;
 
-declare @MedicoID_origem int = 326869069;
-declare @MedicoID_destino int = 326869321;
+declare @MedicoID_origem int = 20658191;
+declare @MedicoID_destino int = 17395637;
 
 update Protocolo 
 	set Medico = @MedicoID_destino 

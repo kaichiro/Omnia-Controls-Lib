@@ -15,7 +15,7 @@ with MedicosRepetidos as (
 	, md.Nome
 	, md.Sigla_Conselho
 	, md.UF_Conselho
-	having COUNT(md.ECO_ID) = 2
+	having COUNT(md.ECO_ID) > 1
 )
 , infos010 as (
 	select
