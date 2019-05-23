@@ -1,0 +1,706 @@
+<?xml version="1.0"?>
+<Classe Tipo="Relatorio">
+  <Atributos>
+    <Layout>&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?&gt;
+&lt;StiSerializer version="1.02" type="Net" application="StiReport"&gt;
+  &lt;BeginRenderEvent&gt;varDTIniProc = Time;
+
+varDTIni = new DateTime(PDATA.Year, PDATA.Month, PDATA.Day);
+varDTFim = new DateTime(PDATA.Year, PDATA.Month, PDATA.Day, 23, 59, 59);
+
+varTecnicos = 
+	string.Empty != PTECNICOS 
+	? string.Format(" and x.AgenteVendaID in ({0}) ", PTECNICOS) 
+	: string.Empty ;
+
+string vLocalReportName = Replace(Substring(ReportName,0,(int)Length(ReportName)-12), " ", "");
+vGlobalReportName = vLocalReportName;
+
+dsRelatorio.Connect();
+dsGeral010.Connect();&lt;/BeginRenderEvent&gt;
+  &lt;Dictionary Ref="1" type="Dictionary" isKey="true"&gt;
+    &lt;BusinessObjects isList="true" count="0" /&gt;
+    &lt;Databases isList="true" count="1"&gt;
+      &lt;primeWARE Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true"&gt;
+        &lt;Alias&gt;primeWARE&lt;/Alias&gt;
+        &lt;ConnectionStringEncrypted&gt;9GxTSF5MAYlqRv0USwElJ9FUaStFUdmJ7EfoneoR4q+DaLfrY10Z7UJJrPThhGBj1O5liUVUUZ3ME9CETQHhTtlw/aHJfQHtRUfV3OlF4V6UNGOjZ0vz8UpbjK1JbKRqlHDZjNVMMQ==&lt;/ConnectionStringEncrypted&gt;
+        &lt;Name&gt;primeWARE&lt;/Name&gt;
+      &lt;/primeWARE&gt;
+    &lt;/Databases&gt;
+    &lt;DataSources isList="true" count="2"&gt;
+      &lt;dsGeral010 Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;dsGeral010&lt;/Alias&gt;
+        &lt;Columns isList="true" count="7"&gt;
+          &lt;value&gt;flag,System.Int32&lt;/value&gt;
+          &lt;value&gt;Quantidade,System.Double&lt;/value&gt;
+          &lt;value&gt;PecaServico,System.String&lt;/value&gt;
+          &lt;value&gt;ProdutoCliente,System.String&lt;/value&gt;
+          &lt;value&gt;Data,System.DateTime&lt;/value&gt;
+          &lt;value&gt;Tecnico,System.String&lt;/value&gt;
+          &lt;value&gt;Cliente,System.String&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;ConnectOnStart&gt;False&lt;/ConnectOnStart&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;dsGeral010&lt;/Name&gt;
+        &lt;NameInSource&gt;primeWARE&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="2"&gt;
+          &lt;value&gt;_x0040_pDTIni,varDTIni,4,0&lt;/value&gt;
+          &lt;value&gt;_x0040_pDTFim,varDTFim,4,0&lt;/value&gt;
+        &lt;/Parameters&gt;
+        &lt;SqlCommand&gt;use primeWARE;
+
+set dateformat ymd;
+
+with Infos010 as (
+	select
+	cme.ECO_ID CabecalhoID
+	, cme.Personalidade PersonalidadeID
+	, ime.ECO_ID ItemMovEstoqueID
+	, ime.Quantidade
+	, ime.Serial
+	, coalesce(ime.AgenteVenda, cme.AgenteVenda) AgenteVendaID
+	, coalesce(ime.DataPrevistaEntrega, cme.DataEmissao) Data
+	, prd.Descricao Produto
+	, prd.TipoProduto
+	from GrupoTipoMovEstoque gtme
+	inner join TipoMovimentoEstoque tme on gtme.ECO_ID = tme.GrupoTipoMovEstoque
+	inner join CabecalhoMovimentoEstoque cme on tme.ECO_ID = cme.TipoMovimentoEstoque
+	inner join ItemMovimentoEstoque ime on cme.ECO_ID = ime.Cabecalho
+	inner join ProdutoFinal pf on ime.ProdutoFinal = pf.ECO_ID
+	inner join Produto prd on pf.Produto = prd.ECO_ID
+	where gtme.Descricao = 'ORDEM DE SERVICO'
+	and (
+		cme.DataEmissao between @pDTIni and @pDTFim
+		or 
+		ime.DataPrevistaEntrega between @pDTIni and @pDTFim
+	)
+	and cme.Cancelado = 0
+	and cme.QuantidadeQuitada = 0
+	and cme.State = 'Processado'
+	and ime.QuantidadeQuitada = 0
+)
+, Infos020 as (
+	select
+	x.CabecalhoID
+	, x.PersonalidadeID
+	, x.ItemMovEstoqueID
+	, x.Quantidade
+	, x.Serial
+	, x.AgenteVendaID
+	, x.Data
+	, x.Produto PecaServico
+	, x.TipoProduto
+	, (
+		select top 1 y.Produto from Infos010 y 
+		where x.CabecalhoID = y.CabecalhoID 
+		and x.Serial = y.Serial 
+		and y.TipoProduto = 'ProdutoAcabado'
+	) ProdutoCliente
+	from Infos010 x
+	where x.TipoProduto &amp;lt;&amp;gt; 'ProdutoAcabado'
+	and x.AgenteVendaID = '{PTECNICO}'
+	{varTecnicos} 
+)
+	select 
+	1 flag
+	, x.Quantidade
+	, x.PecaServico
+	, x.ProdutoCliente
+	, x.Data
+	, avPers.Nome Tecnico
+	, pers.Nome Cliente
+	from Infos020 x
+	left join AgenteVenda av on x.AgenteVendaID = av.ECO_ID
+	left join Personalidade avPers on av.Personalidade = avPers.ECO_ID
+	left join Personalidade pers on x.PersonalidadeID = pers.ECO_ID
+&lt;/SqlCommand&gt;
+      &lt;/dsGeral010&gt;
+      &lt;dsRelatorio Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;dsRelatorio&lt;/Alias&gt;
+        &lt;Columns isList="true" count="1"&gt;
+          &lt;value&gt;Nome,System.String&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;ConnectOnStart&gt;False&lt;/ConnectOnStart&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;dsRelatorio&lt;/Name&gt;
+        &lt;NameInSource&gt;primeWARE&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="0" /&gt;
+        &lt;SqlCommand&gt;select Nome from Relatorio where replace(Nome, ' ', '') = '{vGlobalReportName}'&lt;/SqlCommand&gt;
+      &lt;/dsRelatorio&gt;
+    &lt;/DataSources&gt;
+    &lt;Relations isList="true" count="0" /&gt;
+    &lt;Report isRef="0" /&gt;
+    &lt;Variables isList="true" count="11"&gt;
+      &lt;value&gt;primeWARE,PTECNICOS,PTECNICOS,System.String,,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDATA,PDATA,System.DateTime,_x0035__x002F_23_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PUSER,PUSER,System.String,_x0030_de63e9a-29a0-417a-8e55-82672d70dc41,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PUNDTRAB,PUNDTRAB,System.String,_x0034_ef566c7-aa1d-4f9f-bc26-11c8121c4ad4,True,False&lt;/value&gt;
+      &lt;value&gt;,varDTIni,varDTIni,System.DateTime,_x0035__x002F_23_x002F_2019_x0020_11:59:58_x0020_AM,False,False&lt;/value&gt;
+      &lt;value&gt;,varDTFim,varDTFim,System.DateTime,_x0035__x002F_23_x002F_2019_x0020_12:00:26_x0020_PM,False,False&lt;/value&gt;
+      &lt;value&gt;,varTecnicos,varTecnicos,System.String,,False,False&lt;/value&gt;
+      &lt;value&gt;,varDTIniProc,varDTIniProc,System.DateTime,_x0035__x002F_23_x002F_2019_x0020_12:55:08_x0020_PM,False,False&lt;/value&gt;
+      &lt;value&gt;,vGlobalReportName,vGlobalReportName,System.String,,False,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PTECNICO,PTECNICO,System.String,_x0030_029484e-e2d9-4d9d-a84c-c4fa66ce74eb,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PPECASAVULSAS,PPECASAVULSAS,System.String,,True,False&lt;/value&gt;
+    &lt;/Variables&gt;
+  &lt;/Dictionary&gt;
+  &lt;EngineVersion&gt;EngineV2&lt;/EngineVersion&gt;
+  &lt;GlobalizationStrings isList="true" count="0" /&gt;
+  &lt;MetaTags isList="true" count="0" /&gt;
+  &lt;Pages isList="true" count="1"&gt;
+    &lt;Page1 Ref="5" type="Page" isKey="true"&gt;
+      &lt;Border&gt;None;Black;2;Solid;False;4;Black&lt;/Border&gt;
+      &lt;Brush&gt;Transparent&lt;/Brush&gt;
+      &lt;Components isList="true" count="9"&gt;
+        &lt;PageHeaderBand1 Ref="6" type="PageHeaderBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,0.4,19.59,1.6&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="3"&gt;
+            &lt;Text7 Ref="7" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;[191:191:191]&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;0,0.6,19.6,0.8&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,18,Bold| Underline&lt;/Font&gt;
+              &lt;Guid&gt;35b27dd23cf9455c97cb674ba430b91f&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text7&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="6" /&gt;
+              &lt;Text&gt;{dsRelatorio.Nome}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;DataColumn&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text7&gt;
+            &lt;Text8 Ref="8" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;18.8,0,0.8,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Guid&gt;4bcc55ae5fd44fb386510c0e720a8762&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text8&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="6" /&gt;
+              &lt;Text&gt;{PageNumber}/{TotalPageCount}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text8&gt;
+            &lt;Text11 Ref="9" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;1,0,17.6,0.6&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;0b73be244edc4ea4b964592d238ed48c&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text11&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="6" /&gt;
+              &lt;Text&gt;TOLEDO E BERGAMINI PECAS E SERVICOS LTDE ME&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text11&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;PageHeaderBand1&lt;/Name&gt;
+          &lt;Page isRef="5" /&gt;
+          &lt;Parent isRef="5" /&gt;
+        &lt;/PageHeaderBand1&gt;
+        &lt;PageFooterBand1 Ref="10" type="PageFooterBand" isKey="true"&gt;
+          &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+          &lt;ClientRectangle&gt;0,25.14,19.59,0.8&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="2"&gt;
+            &lt;Text9 Ref="11" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;2.4,0.06,14.8,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Guid&gt;93f4e6485dfd4490acc3e0a6cc09f251&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text9&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;{string.Format("{0:yyyy} © Copyright primeWARE - E.R.P.   Fone: 62 | 3093 7826", Today)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text9&gt;
+            &lt;Text10 Ref="12" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;17.4,0.06,2.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,6&lt;/Font&gt;
+              &lt;Guid&gt;9e7df38d1ac145679145e8d6f62c64ae&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text10&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="10" /&gt;
+              &lt;Text&gt;{Time - varDTIniProc}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text10&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;PageFooterBand1&lt;/Name&gt;
+          &lt;Page isRef="5" /&gt;
+          &lt;Parent isRef="5" /&gt;
+        &lt;/PageFooterBand1&gt;
+        &lt;GroupHeaderBand1 Ref="13" type="GroupHeaderBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,2.8,19.59,0&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Condition&gt;{dsGeral010.flag}&lt;/Condition&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupHeaderBand1&lt;/Name&gt;
+          &lt;NewPageBefore&gt;True&lt;/NewPageBefore&gt;
+          &lt;Page isRef="5" /&gt;
+          &lt;Parent isRef="5" /&gt;
+          &lt;PrintOnAllPages&gt;True&lt;/PrintOnAllPages&gt;
+        &lt;/GroupHeaderBand1&gt;
+        &lt;GroupHeaderBand2 Ref="14" type="GroupHeaderBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,3.6,19.59,1.4&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="4"&gt;
+            &lt;DatadsGeral010_Tecnico Ref="15" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;0,0.8,2,0.6&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DatadsGeral010_Tecnico&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="14" /&gt;
+              &lt;Text&gt;Técnico:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DatadsGeral010_Tecnico&gt;
+            &lt;DatadsGeral010_Data Ref="16" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;0,0.2,2,0.6&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DatadsGeral010_Data&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="14" /&gt;
+              &lt;Text&gt;Data:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DatadsGeral010_Data&gt;
+            &lt;Text1 Ref="17" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;2.2,0.8,17.4,0.6&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;9521a989ab37471b83cf40feddf407b6&lt;/Guid&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text1&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="14" /&gt;
+              &lt;Text&gt;{dsGeral010.Tecnico}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text1&gt;
+            &lt;Text2 Ref="18" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;2.2,0.2,9.6,0.6&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,10,Bold&lt;/Font&gt;
+              &lt;Guid&gt;5bb647770b4c4270b7305dab13e26779&lt;/Guid&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text2&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="14" /&gt;
+              &lt;Text&gt;{dsGeral010.Data}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextFormat Ref="19" type="CustomFormat" isKey="true"&gt;
+                &lt;StringFormat&gt;dd/MM/yyyy - dddd&lt;/StringFormat&gt;
+              &lt;/TextFormat&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text2&gt;
+          &lt;/Components&gt;
+          &lt;Condition&gt;{dsGeral010.Tecnico}&lt;/Condition&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupHeaderBand2&lt;/Name&gt;
+          &lt;NewPageBefore&gt;True&lt;/NewPageBefore&gt;
+          &lt;Page isRef="5" /&gt;
+          &lt;Parent isRef="5" /&gt;
+          &lt;PrintOnAllPages&gt;True&lt;/PrintOnAllPages&gt;
+        &lt;/GroupHeaderBand2&gt;
+        &lt;GroupHeaderBand3 Ref="20" type="GroupHeaderBand" isKey="true"&gt;
+          &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,5.8,19.59,0.8&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="2"&gt;
+            &lt;DatadsGeral010_Cliente Ref="21" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;0,0.2,2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DatadsGeral010_Cliente&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="20" /&gt;
+              &lt;Text&gt;Cliente:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DatadsGeral010_Cliente&gt;
+            &lt;Text3 Ref="22" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;2.2,0.2,17.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Guid&gt;dda8e15b40f14220958178e2f7d53b7c&lt;/Guid&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text3&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="20" /&gt;
+              &lt;Text&gt;{dsGeral010.Cliente}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text3&gt;
+          &lt;/Components&gt;
+          &lt;Condition&gt;{dsGeral010.Cliente}&lt;/Condition&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupHeaderBand3&lt;/Name&gt;
+          &lt;Page isRef="5" /&gt;
+          &lt;Parent isRef="5" /&gt;
+          &lt;PrintOnAllPages&gt;True&lt;/PrintOnAllPages&gt;
+        &lt;/GroupHeaderBand3&gt;
+        &lt;DatadsGeral010 Ref="23" type="DataBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;BusinessObjectGuid isNull="true" /&gt;
+          &lt;CanBreak&gt;True&lt;/CanBreak&gt;
+          &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+          &lt;ClientRectangle&gt;0,7.4,19.59,0.8&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="3"&gt;
+            &lt;DatadsGeral010_Quantidade Ref="24" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;16.4,0,3.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DatadsGeral010_Quantidade&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="23" /&gt;
+              &lt;Text&gt;{dsGeral010.Quantidade}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DatadsGeral010_Quantidade&gt;
+            &lt;DatadsGeral010_PecaServico Ref="25" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;0.8,0,7.6,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DatadsGeral010_PecaServico&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="23" /&gt;
+              &lt;Text&gt;{dsGeral010.PecaServico}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DatadsGeral010_PecaServico&gt;
+            &lt;DatadsGeral010_ProdutoCliente Ref="26" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;8.6,0,7.6,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;DatadsGeral010_ProdutoCliente&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="23" /&gt;
+              &lt;Text&gt;{dsGeral010.ProdutoCliente}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/DatadsGeral010_ProdutoCliente&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;DataSourceName&gt;dsGeral010&lt;/DataSourceName&gt;
+          &lt;Filters isList="true" count="0" /&gt;
+          &lt;Name&gt;DatadsGeral010&lt;/Name&gt;
+          &lt;Page isRef="5" /&gt;
+          &lt;Parent isRef="5" /&gt;
+          &lt;Sort isList="true" count="0" /&gt;
+        &lt;/DatadsGeral010&gt;
+        &lt;GroupFooterBand3 Ref="27" type="GroupFooterBand" isKey="true"&gt;
+          &lt;Border&gt;Bottom;Black;1;Solid;False;4;Black&lt;/Border&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,9,19.59,0.2&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="0" /&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupFooterBand3&lt;/Name&gt;
+          &lt;Page isRef="5" /&gt;
+          &lt;Parent isRef="5" /&gt;
+        &lt;/GroupFooterBand3&gt;
+        &lt;GroupFooterBand2 Ref="28" type="GroupFooterBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+          &lt;ClientRectangle&gt;0,10,19.59,2.8&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="3"&gt;
+            &lt;Text4 Ref="29" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;17.6,0.2,1,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Guid&gt;7ebbf48056e5492c99e04c5de6e76513&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text4&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="28" /&gt;
+              &lt;Text&gt;{Sum(DatadsGeral010,dsGeral010.Quantidade)}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Totals&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text4&gt;
+            &lt;Text5 Ref="30" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;13.4,0.2,4,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Guid&gt;ad26ef72b757485ca79a5aac426c77a3&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text5&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="28" /&gt;
+              &lt;Text&gt;Total de peças por dia:&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text5&gt;
+            &lt;Text12 Ref="31" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;CanShrink&gt;True&lt;/CanShrink&gt;
+              &lt;ClientRectangle&gt;0.2,0.8,19.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;GrowToHeight&gt;True&lt;/GrowToHeight&gt;
+              &lt;Guid&gt;b2e49b931bbb4c0c964f6745e8422b29&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Width&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text12&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="28" /&gt;
+              &lt;Text&gt;{string.Empty != PPECASAVULSAS ? string.Format("Peças Avulças: {0}\r\n.", PPECASAVULSAS) : string.Empty}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text12&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupFooterBand2&lt;/Name&gt;
+          &lt;Page isRef="5" /&gt;
+          &lt;Parent isRef="5" /&gt;
+        &lt;/GroupFooterBand2&gt;
+        &lt;GroupFooterBand1 Ref="32" type="GroupFooterBand" isKey="true"&gt;
+          &lt;Brush&gt;Transparent&lt;/Brush&gt;
+          &lt;ClientRectangle&gt;0,13.6,19.59,1.2&lt;/ClientRectangle&gt;
+          &lt;Components isList="true" count="1"&gt;
+            &lt;Text6 Ref="33" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;0.2,0.4,13,0.6&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Guid&gt;2f6d0d035db649eaa56836a44707b24e&lt;/Guid&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text6&lt;/Name&gt;
+              &lt;Page isRef="5" /&gt;
+              &lt;Parent isRef="32" /&gt;
+              &lt;Text&gt;Responsável técnico:_____________________________________________________&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text6&gt;
+          &lt;/Components&gt;
+          &lt;Conditions isList="true" count="0" /&gt;
+          &lt;Name&gt;GroupFooterBand1&lt;/Name&gt;
+          &lt;Page isRef="5" /&gt;
+          &lt;Parent isRef="5" /&gt;
+        &lt;/GroupFooterBand1&gt;
+      &lt;/Components&gt;
+      &lt;Conditions isList="true" count="0" /&gt;
+      &lt;Guid&gt;2303515947064969a0b28a88ada5c395&lt;/Guid&gt;
+      &lt;Margins&gt;1,1,1,1&lt;/Margins&gt;
+      &lt;Name&gt;Page1&lt;/Name&gt;
+      &lt;PageHeight&gt;27.94&lt;/PageHeight&gt;
+      &lt;PageWidth&gt;21.59&lt;/PageWidth&gt;
+      &lt;PaperSize&gt;Letter&lt;/PaperSize&gt;
+      &lt;Report isRef="0" /&gt;
+      &lt;Watermark Ref="34" type="Stimulsoft.Report.Components.StiWatermark" isKey="true"&gt;
+        &lt;Font&gt;Arial,100&lt;/Font&gt;
+        &lt;TextBrush&gt;[50:0:0:0]&lt;/TextBrush&gt;
+      &lt;/Watermark&gt;
+    &lt;/Page1&gt;
+  &lt;/Pages&gt;
+  &lt;PrinterSettings Ref="35" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" /&gt;
+  &lt;ReferencedAssemblies isList="true" count="8"&gt;
+    &lt;value&gt;System.Dll&lt;/value&gt;
+    &lt;value&gt;System.Drawing.Dll&lt;/value&gt;
+    &lt;value&gt;System.Windows.Forms.Dll&lt;/value&gt;
+    &lt;value&gt;System.Data.Dll&lt;/value&gt;
+    &lt;value&gt;System.Xml.Dll&lt;/value&gt;
+    &lt;value&gt;Stimulsoft.Controls.Dll&lt;/value&gt;
+    &lt;value&gt;Stimulsoft.Base.Dll&lt;/value&gt;
+    &lt;value&gt;Stimulsoft.Report.Dll&lt;/value&gt;
+  &lt;/ReferencedAssemblies&gt;
+  &lt;ReportAlias&gt;RELACAODEPECASDODIA230519155411&lt;/ReportAlias&gt;
+  &lt;ReportCacheMode&gt;On&lt;/ReportCacheMode&gt;
+  &lt;ReportChanged&gt;5/23/2019 3:53:44 PM&lt;/ReportChanged&gt;
+  &lt;ReportCreated&gt;5/23/2019 11:56:59 AM&lt;/ReportCreated&gt;
+  &lt;ReportFile&gt;C:\Users\Kaichiro\AppData\Local\Temp\3\RELACAODEPECASDODIA230519155411&lt;/ReportFile&gt;
+  &lt;ReportGuid&gt;31d4461514114c65a37c425ac0f20434&lt;/ReportGuid&gt;
+  &lt;ReportName&gt;RELACAODEPECASDODIA230519155411&lt;/ReportName&gt;
+  &lt;ReportUnit&gt;Centimeters&lt;/ReportUnit&gt;
+  &lt;ReportVersion&gt;2012.3.1500&lt;/ReportVersion&gt;
+  &lt;Script&gt;using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class RELACAODEPECASDODIA230519115659 : Stimulsoft.Report.StiReport
+    {
+        public RELACAODEPECASDODIA230519115659()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+&lt;/Script&gt;
+  &lt;ScriptLanguage&gt;CSharp&lt;/ScriptLanguage&gt;
+  &lt;Styles isList="true" count="0" /&gt;
+&lt;/StiSerializer&gt;</Layout>
+    <Nome>RELACAO DE PECAS DO DIA</Nome>
+    <Tipo>DiretoComSQL</Tipo>
+    <UsoInterno>False</UsoInterno>
+  </Atributos>
+  <Relacionamentos>
+    <Parametros>
+      <Record Id="PDATA" Tipo="ParametroRelatorio">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>*Data</Etiqueta>
+          <NomeInterno>PDATA</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Data</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PTECNICO" Tipo="ParametroRelatorio">
+        <Atributos>
+          <Comando>AgenteVenda.allLoadedObjects-&gt;select( av | 
+  av.Ativo 
+  and 
+  (av.Area.Descricao = 'SUPORTE') 
+  and
+  av.Personalidade.Nome.sqlLikeCaseInsensitive('{0}%')
+)
+-&gt;orderBy( av | 
+  av.Ativo
+  , av.Personalidade.Nome
+)
+</Comando>
+          <Etiqueta>*Técnico</Etiqueta>
+          <NomeInterno>PTECNICO</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>AgenteVenda.allInstances-&gt;select( av | 
+  av.Ativo 
+  and 
+  (av.Area.Descricao = 'SUPORTE') 
+  and
+  av.Personalidade.Nome.sqlLikeCaseInsensitive('{0}%')
+)
+</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="Infos" Tipo="CampoParametroRelatorio">
+              <Atributos>
+                <Comando>let av = self-&gt;first in (
+  av.Personalidade.Nome
+)
+</Comando>
+                <NomeInterno>Infos</NomeInterno>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PPECASAVULSAS" Tipo="ParametroRelatorio">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Peças Avulsas</Etiqueta>
+          <NomeInterno>PPECASAVULSAS</NomeInterno>
+          <Ordem>30</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>TextoLongo</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+    </Parametros>
+    <Consultas>
+      <Record Id="" Tipo="Consulta">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <NomeInterno>
+          </NomeInterno>
+          <PreComando>
+          </PreComando>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+    </Consultas>
+  </Relacionamentos>
+</Classe>
