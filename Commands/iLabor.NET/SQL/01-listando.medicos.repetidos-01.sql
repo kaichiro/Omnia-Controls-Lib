@@ -53,5 +53,5 @@ with MedicosRepetidos as (
 	, x.MedicoID
 	, x.QuantidadeProtocolos
 	from infos020 x
-	where x.QuantidadeProtocolos between 2 and 5
+	where x.QuantidadeProtocolos between 1 and 15
 	order by x.Nome, x.QuantidadeProtocolos desc;

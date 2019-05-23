@@ -27,7 +27,7 @@ with MedicosRepetidos as (
 	, md.Nome
 	, md.Sigla_Conselho
 	, md.UF_Conselho
-	having COUNT(md.ECO_ID) = 2
+	having COUNT(md.ECO_ID) > 1
 )
 , infos010 as (
 	select
@@ -57,7 +57,7 @@ with MedicosRepetidos as (
 	from infos010 x
 )
 	insert into #MedicosTMP
-	select top 2
+	select 
 	x.QuantidadeRepetidos
 	, x.CRM
 	, x.Nome
@@ -66,7 +66,7 @@ with MedicosRepetidos as (
 	, x.MedicoID
 	, x.QuantidadeProtocolos
 	from infos020 x
-	where x.QuantidadeProtocolos between 2 and 5
+	where x.QuantidadeProtocolos between 1 and 15
 	order by x.Nome, x.QuantidadeProtocolos desc;
 
 --select x.* from #MedicosTMP x
@@ -104,12 +104,25 @@ BEGIN
 	declare @idDestino int = (select top 1 id from #IDsTMP);
 --	select 'destino', @idDestino;
 	
-	select Nome
-	, 'update Protocolo set Medico = ' + rtrim(ltrim(str(@idDestino))) + ' where Medico = ' + rtrim(ltrim(str(ECO_ID))) + ';'  Update_Protocolo
-	, 'update Protocolo_ProcedimentoProtocolo_ProcedimentosMedicoMedicos set Medicos = ' + rtrim(ltrim(str(@idDestino))) + ' where Medicos = ' + rtrim(ltrim(str(ECO_ID))) + ';' Update_PPM
-	, 'delete from Medico where ECO_ID = ' + rtrim(ltrim(str(ECO_ID))) + ';' Delete_Medico
-	from Medico where exists (select id from #IDsTMP where id <> @idDestino and id = ECO_ID);
-
+	declare @pNome varchar(64), @pUpdateProtocolo varchar(128), @pUpdateProtocoloProcedimentoMedico varchar(256), @pDeleteMedico varchar(64);
+	declare RegsCRS cursor for 
+		select Nome
+		, 'update Protocolo set Medico = ' + rtrim(ltrim(str(@idDestino))) + ' where Medico = ' + rtrim(ltrim(str(ECO_ID))) + ';'  Update_Protocolo
+		, 'update Protocolo_ProcedimentoProtocolo_ProcedimentosMedicoMedicos set Medicos = ' + rtrim(ltrim(str(@idDestino))) + ' where Medicos = ' + rtrim(ltrim(str(ECO_ID))) + ';' Update_PPM
+		, 'delete from Medico where ECO_ID = ' + rtrim(ltrim(str(ECO_ID))) + ';' Delete_Medico
+		from Medico where exists (select id from #IDsTMP where id <> @idDestino and id = ECO_ID);
+	open RegsCRS;
+	fetch next from RegsCRS into @pNome, @pUpdateProtocolo, @pUpdateProtocoloProcedimentoMedico, @pDeleteMedico;
+	while @@FETCH_STATUS = 0
+	begin
+		print '/*' + @pNome + '*/';
+		print @pUpdateProtocolo;
+		print @pUpdateProtocoloProcedimentoMedico;
+		print @pDeleteMedico;
+		fetch next from RegsCRS into @pNome, @pUpdateProtocolo, @pUpdateProtocoloProcedimentoMedico, @pDeleteMedico;
+	end
+	close RegsCRS;
+	deallocate RegsCRS;
 
 	truncate table #IDsTMP;
 	FETCH NEXT FROM MedicosCRS INTO @QuantidadeRepetidos, @CRM, @Nome, @Sigle_Conselho, @UF_Conselho, @MedicoID, @QuantidadeProtocolos;
