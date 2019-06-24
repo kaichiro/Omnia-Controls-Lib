@@ -1,0 +1,17 @@
+let timeBegin = DateTime.Now in (
+let cliente = 'Politec' in (
+let folder = 'D:\\primeWARE\\Export\\NF\\' in (
+let TMEs = ('TipoMovimentoEstoque.allInstances->select( tme | tme.MovimentosEstoque->exists( cme | (cme.DataEmissao >= #2018-09-30) and (cme.State = \'NFe Processada\') ))').EnsureObjects(TipoMovimentoEstoque)->select( tme | tme.Tributos->exists( t | t.CFOP.Trim.Length = 4 ) ) in (
+  TMEs->collect( tme |
+    let fileName = tme.Tributos.CFOP->asSet->orderBy( t | t )->asCommaList.Replace(',','').Trim.Replace(' ','-').concat(' - ', cliente).concat(' - ', tme.Descricao.RemoveAcentos).concat('.xml') in ( tme.ExportClass(folder.concat(fileName))
+  )
+);
+('
+  Inicial: '+timeBegin.asString+'
+  Final: '+DateTime.Now.asString+'
+  Duração: '+(DateTime.Now - timeBegin).asString+'
+  Quantidade: '+TMEs->size.asString+'
+').Msg
+);
+  folder.Exec
+)))
