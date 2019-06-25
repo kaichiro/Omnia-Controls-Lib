@@ -1,0 +1,6 @@
+if self->notEmpty then
+  self.Descricao.Replace(' ', '').Length = 0
+else
+  true
+endif
+

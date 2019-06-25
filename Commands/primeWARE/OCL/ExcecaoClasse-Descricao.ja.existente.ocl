@@ -1,0 +1,34 @@
+if self->first.oclIsTypeOf(Area) then
+  ('Area.allInstances->select( x | x.Descricao = \'' + self->first.Descricao + '\' )').EnsureObjects(Area)->difference(self->first.oclAsType(Area))->notEmpty
+else
+if self->first.oclIsTypeOf(Genero) then
+  ('Genero.allInstances->select( x | x.Descricao = \'' + self->first.Descricao + '\' )').EnsureObjects(Genero)->difference(self->first.oclAsType(Genero))->notEmpty
+else
+if self->first.oclIsTypeOf(Grupo) then
+  ('Grupo.allInstances->select( x | x.Descricao = \'' + self->first.Descricao + '\' )').EnsureObjects(Grupo)->difference(self->first.oclAsType(Grupo))->notEmpty
+else
+if self->first.oclIsTypeOf(Classe) then
+  ('Classe.allInstances->select( x | x.Descricao = \'' + self->first.Descricao + '\' )').EnsureObjects(Classe)->difference(self->first.oclAsType(Classe))->notEmpty
+else
+if self->first.oclIsTypeOf(Divisao) then
+  ('Divisao.allInstances->select( x | x.Descricao = \'' + self->first.Descricao + '\' )').EnsureObjects(Divisao)->difference(self->first.oclAsType(Divisao))->notEmpty
+else
+if self->first.oclIsTypeOf(Produto) then
+  ('Produto.allInstances->select( x | x.Descricao = \'' + self->first.Descricao + '\' )').EnsureObjects(Produto)->difference(self->first.oclAsType(Produto))->notEmpty
+else
+if self->first.oclIsTypeOf(Cor) then
+  ('Cor.allInstances->select( x | x.Descricao = \'' + self->first.Descricao + '\' )').EnsureObjects(Cor)->difference(self->first.oclAsType(Cor))->notEmpty
+else
+if self->first.oclIsTypeOf(Tamanho) then
+  ('Tamanho.allInstances->select( x | x.Descricao = \'' + self->first.Descricao + '\' )').EnsureObjects(Tamanho)->difference(self->first.oclAsType(Tamanho))->notEmpty
+else
+  false
+endif
+endif
+endif
+endif
+endif
+endif
+endif
+endif
+
