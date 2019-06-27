@@ -1,0 +1,22 @@
+let PPLACA = 'NK0-5036' in
+
+let tamanho = PPLACA.Replace(' ','').Length in (
+if tamanho = 8 then
+  not
+  let letras = 'A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z'.SPLit(',') in (
+  let numeros = '0,1,2,3,4,5,6,7,8,9'.SPlit(',') in (
+  let placa = PPLACA.Trim.ToUpper in (
+    placa.Substring(1,1)->intersection(letras)->notEmpty
+    and placa.Substring(2,2)->intersection(letras)->notEmpty
+    and placa.Substring(3,3)->intersection(letras)->notEmpty
+    and (placa.Substring(4,4) = '-')
+    and placa.Substring(5,5)->intersection(numeros)->notEmpty
+    and placa.Substring(6,6)->intersection(numeros.union(letras))->notEmpty
+    and placa.Substring(7,7)->intersection(numeros)->notEmpty
+    and placa.Substring(8,8)->intersection(numeros)->notEmpty
+  )))
+else
+  true
+endif
+)
+
