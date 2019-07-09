@@ -1,0 +1,31 @@
+('
+Protocolo_Procedimento.allInstances->select( pp |
+  (pp.Data_Recepcao >= \'2019-01-01\')
+  and
+  (pp.Data_Recepcao <= \'2019-07-30 23:59:59\')
+  and 
+  (pp.Status = \'Digitado\')
+  and
+  pp.Procedimento->exists( prc | 
+    (prc.Descricao = \'UREIA\')
+    or
+    (prc.Descricao = \'descrição completa aqui\')
+  )
+)
+').EnsureObjects(Protocolo_Procedimento)->collect( pp |
+  if pp.trStatusColetado? then
+    pp.trStatusColetado;
+    if pp.trStatusColetaPendente? then
+      pp.trStatusColetaPendente;
+      if pp.trStatusColetaAnulada? then
+        pp.trStatusColetaAnulada
+      else
+        false
+      endif
+    else
+      false
+    endif
+  else
+    false
+  endif
+)
