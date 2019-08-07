@@ -1,4 +1,4 @@
-#### Exceção para Matricula_Convenio em cadasatro de paciente
+#### Exceção para Matricula_Convenio em cadastro de paciente
 
 Comando OCL:
 
