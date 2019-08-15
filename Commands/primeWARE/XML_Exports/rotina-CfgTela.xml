@@ -1,0 +1,214 @@
+<?xml version="1.0"?>
+<Classe Tipo="Rotina">
+  <Atributos>
+    <Ativo>True</Ativo>
+    <Comentarios>
+    </Comentarios>
+    <Descricao>Cfg Telas</Descricao>
+    <MostrarProgresso>True</MostrarProgresso>
+    <ProgressoExecucao>
+    </ProgressoExecucao>
+  </Atributos>
+  <Relacionamentos>
+    <Parametros>
+      <Record Id="PPERSONALIDADE" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Personalidade.allLoadedObjects-&gt;select( p | (p.Login &lt;&gt; '') and (p.Password &lt;&gt; '') and p.Nome.sqlLikeCaseInsensitive('%{0}%') )-&gt;orderBy( p | p.Nome )</Comando>
+          <Etiqueta>Personalidade</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PPERSONALIDADE</NomeInterno>
+          <Ordem>40</Ordem>
+          <PreComando>Personalidade.allInstances-&gt;select( p | (p.Login &lt;&gt; '') and (p.Password &lt;&gt; '') and p.Nome.sqlLikeCaseInsensitive('%{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PTELA.Personalidade</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let p = self-&gt;first in (&#xD;&#xA;  p .asString&#xD;&#xA;  + ' - ' + &#xD;&#xA;  '(' + p.Perfil.Descricao + ')'&#xD;&#xA;)" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let p = self-&gt;first in (
+  p .asString
+  + ' - ' + 
+  '(' + p.Perfil.Descricao + ')'
+)</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PPERFIL" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Perfil.allLoadedObjects-&gt;select( p | p.Descricao.sqlLikeCaseInsensitive('%{0}%') )-&gt;orderBy( p | p.Descricao )</Comando>
+          <Etiqueta>Perfil</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PPERFIL</NomeInterno>
+          <Ordem>30</Ordem>
+          <PreComando>Perfil.allInstances-&gt;select( p | p.Descricao.sqlLikeCaseInsensitive('%{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PTELA.Perfil</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let p = self-&gt;first in (&#xD;&#xA;  p.Descricao&#xD;&#xA;  + ' - ' +&#xD;&#xA;  p.Usuarios-&gt;orderBy( u | u.Nome ).Nome-&gt;asCommaList&#xD;&#xA;)" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let p = self-&gt;first in (
+  p.Descricao
+  + ' - ' +
+  p.Usuarios-&gt;orderBy( u | u.Nome ).Nome-&gt;asCommaList
+)</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PEXCLUIR" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Excluir?</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PEXCLUIR</NomeInterno>
+          <Ordem>50</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>VerdadeFalso</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PTELA" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Tela.allLoadedObjects-&gt;select( tl |
+  tl.NomeInterno.sqlLikeCaseInsensitive('%{0}%')
+  or
+  tl.Personalidade.Nome.sqlLikeCaseInsensitive('%{0}%')
+  or
+  tl.Perfil.Descricao.sqlLikeCaseInsensitive('%{0}%')
+)
+-&gt;orderBy( tl | tl.NomeInterno )
+</Comando>
+          <Etiqueta>Tela</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>PTELA</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>Tela.allInstances-&gt;select( tl |
+  tl.NomeInterno.sqlLikeCaseInsensitive('%{0}%')
+  or
+  tl.Personalidade.Nome.sqlLikeCaseInsensitive('%{0}%')
+  or
+  tl.Perfil.Descricao.sqlLikeCaseInsensitive('%{0}%')
+)
+</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let tl = self-&gt;first in (&#xD;&#xA;  if tl.Ativo then 'Ativado' else 'Destivado' endif&#xD;&#xA;  + ' - ' + &#xD;&#xA;  tl.NomeInterno&#xD;&#xA;  + ' - ' + &#xD;&#xA;  tl.Perfil.Descricao&#xD;&#xA;  + ' - ' + &#xD;&#xA;  tl.Personalidade.Nome&#xD;&#xA;)&#xD;&#xA;" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let tl = self-&gt;first in (
+  if tl.Ativo then 'Ativado' else 'Destivado' endif
+  + ' - ' + 
+  tl.NomeInterno
+  + ' - ' + 
+  tl.Perfil.Descricao
+  + ' - ' + 
+  tl.Personalidade.Nome
+)
+</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PATIVO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Status (ativo)</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PATIVO</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>VerdadeFalso</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PTELA.Ativo</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+    </Parametros>
+    <Comandos>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PTELA.Ativo := PATIVO</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>10</Ordem>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>if PPERFIL-&gt;notEmpty then
+  PTELA.Perfil := PPERFIL
+else
+  PTELA.Perfil := Perfil.emptyList-&gt;first
+endif
+</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>20</Ordem>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>if PPERSONALIDADE-&gt;notEmpty then
+  PTELA.Personalidade := PPERSONALIDADE
+else
+  PTELA.Personalidade := Personalidade.emptyList-&gt;first
+endif
+</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>30</Ordem>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>if PEXCLUIR then PTELA.delete else false endif</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>40</Ordem>
+        </Atributos>
+      </Record>
+    </Comandos>
+  </Relacionamentos>
+</Classe>
