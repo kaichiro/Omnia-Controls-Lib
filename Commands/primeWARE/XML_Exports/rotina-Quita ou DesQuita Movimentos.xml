@@ -1,0 +1,197 @@
+<?xml version="1.0"?>
+<Classe Tipo="Rotina">
+  <Atributos>
+    <Ativo>True</Ativo>
+    <Comentarios>
+    </Comentarios>
+    <Descricao>Quita ou DesQuita Movimentos</Descricao>
+    <MostrarProgresso>True</MostrarProgresso>
+    <ProgressoExecucao>
+    </ProgressoExecucao>
+  </Atributos>
+  <Relacionamentos>
+    <Parametros>
+      <Record Id="PDATAFIM" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>*Data Final</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PDATAFIM</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>DataHora</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PTME" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>TipoMovimentoEstoque.allLoadedObjects-&gt;select( tme | tme.Abreviacao.sqlLikeCaseInsensitive('{0}') or tme.Descricao.sqlLikeCaseInsensitive('{0}%') )-&gt;orderBy(Descricao)</Comando>
+          <Etiqueta>*TME</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PTME</NomeInterno>
+          <Ordem>30</Ordem>
+          <PreComando>TipoMovimentoEstoque.allInstances-&gt;select( tme | tme.Abreviacao.sqlLikeCaseInsensitive('{0}') or tme.Descricao.sqlLikeCaseInsensitive('{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self.Descricao" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self.Descricao</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PDATAINICIAL" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>*Data Inicial</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PDATAINICIAL</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Data</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PCMES" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>CabecalhoMovimentoEstoque.allLoadedObjects-&gt;select( cme |
+  (cme.DataEmissao &gt;= PDATAINICIAL)
+  and
+  (cme.DataEmissao &lt;= PDATAFIM)
+  and
+  (cme.TipoMovimentoEstoque = PTME)
+)
+-&gt;orderBy( cme | cme.DataEmissao )
+</Comando>
+          <Etiqueta>*CMEs</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PCMES</NomeInterno>
+          <Ordem>40</Ordem>
+          <PreComando>PTME.MovimentosEstoque-&gt;select( cme |
+  (cme.DataEmissao &gt;= PDATAINICIAL)
+)</PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let cme  = self-&gt;first in (&#xD;&#xA;  cme.DataEmissao.asString&#xD;&#xA;  + ' - ' + &#xD;&#xA;  cme.NumeroPadrao.Numero&#xD;&#xA;  + ' - ' + &#xD;&#xA;  'Cancelado(' + if cme.Cancelado then 'S' else 'N' endif + ')'&#xD;&#xA;  + ' - ' + &#xD;&#xA;  'QQ-cab(' + if cme.QuantidadeQuitada then 'S' else 'N' endif + ')'&#xD;&#xA;)&#xD;&#xA;" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let cme  = self-&gt;first in (
+  cme.DataEmissao.asString
+  + ' - ' + 
+  cme.NumeroPadrao.Numero
+  + ' - ' + 
+  'Cancelado(' + if cme.Cancelado then 'S' else 'N' endif + ')'
+  + ' - ' + 
+  'QQ-cab(' + if cme.QuantidadeQuitada then 'S' else 'N' endif + ')'
+)
+</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PQUITA" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Quita?</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PQUITA</NomeInterno>
+          <Ordem>50</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>VerdadeFalso</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>false</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+    </Parametros>
+    <Comandos>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PCMES-&gt;collect( cme |
+  cme.QuantidadeQuitada := PQUITA;
+  cme.Itens-&gt;collect( ime | ime.QuantidadeQuitada := PQUITA )
+)
+</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>10</Ordem>
+        </Atributos>
+      </Record>
+    </Comandos>
+    <Validacoes>
+      <Record Id="Selecione pelo menos um Movimento!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PCMES-&gt;isEmpty</Comando>
+          <Descricao>Selecione pelo menos um Movimento!</Descricao>
+          <Mensagem>Selecione pelo menos um Movimento!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Informe um data inicial!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PDATAINICIAL-&gt;isNull</Comando>
+          <Descricao>Informe um data inicial!</Descricao>
+          <Mensagem>Informe um data inicial!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Pesquise/escolha um Tipo De Movimento!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PTME-&gt;isEmpty</Comando>
+          <Descricao>Pesquise/escolha um Tipo De Movimento!</Descricao>
+          <Mensagem>Pesquise/escolha um Tipo De Movimento!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Informe uma data final, com horas e minutos!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PDATAFIM-&gt;isNull</Comando>
+          <Descricao>Informe uma data final, com horas e minutos!</Descricao>
+          <Mensagem>Informe uma data final, com horas e minutos!</Mensagem>
+        </Atributos>
+      </Record>
+    </Validacoes>
+  </Relacionamentos>
+</Classe>
