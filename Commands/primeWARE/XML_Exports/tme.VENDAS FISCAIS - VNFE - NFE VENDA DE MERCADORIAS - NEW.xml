@@ -1,0 +1,2514 @@
+<?xml version="1.0"?>
+<Classe Tipo="TipoMovimentoEstoque">
+  <Atributos>
+    <Abreviacao>VNFE</Abreviacao>
+    <AgrupaItensMovCaixa>True</AgrupaItensMovCaixa>
+    <AgrupaParcelasMovCaixa>True</AgrupaParcelasMovCaixa>
+    <ApenasUmaInstancia>True</ApenasUmaInstancia>
+    <AtualizaContabil>False</AtualizaContabil>
+    <AtualizaCusto>False</AtualizaCusto>
+    <AtualizaFinanceiro>False</AtualizaFinanceiro>
+    <AtualizarQtdeOrigem>False</AtualizarQtdeOrigem>
+    <AtualizarQtdeOrigemApenasTipoAtuEstoquePadrao>False</AtualizarQtdeOrigemApenasTipoAtuEstoquePadrao>
+    <AtualizaSaldo>False</AtualizaSaldo>
+    <CalcularValoresAutomaticamente>True</CalcularValoresAutomaticamente>
+    <CanShowDlgParameters>False</CanShowDlgParameters>
+    <ChamarParametrosAoIncluir>True</ChamarParametrosAoIncluir>
+    <ComandoNrDocPadraoParcela>
+    </ComandoNrDocPadraoParcela>
+    <ComandoNrDocPadraoPersonalidade>
+    </ComandoNrDocPadraoPersonalidade>
+    <ComandoNrDocPadraoProduto>self.Cabecalho.Numeros-&gt;select( n | n.Numerador.Etiqueta = 'NotaFiscal')-&gt;First.Numero</ComandoNrDocPadraoProduto>
+    <Descricao>NFE VENDA DE MERCADORIAS - NEW</Descricao>
+    <DescricaoCFOP>VENDA DE MERCADORIAS</DescricaoCFOP>
+    <EmissorECFTEF>False</EmissorECFTEF>
+    <ExecutarComandosAoIncluir>True</ExecutarComandosAoIncluir>
+    <ExpressaoProdutoHabilDesconto>self.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida</ExpressaoProdutoHabilDesconto>
+    <ExpressaoRegistrosAtualizacaoQtde>
+    </ExpressaoRegistrosAtualizacaoQtde>
+    <ExpressaoRetornoNrDocumentoCheque>
+    </ExpressaoRetornoNrDocumentoCheque>
+    <FocoAposValidarProduto>NovoItem</FocoAposValidarProduto>
+    <NaturezaOperacao>VENDA DE MERCADORIAS</NaturezaOperacao>
+    <NovoItemAoEntrar>False</NovoItemAoEntrar>
+    <PadraoNovaPersonalidade>Cliente</PadraoNovaPersonalidade>
+    <PedeUnidadeDestino>False</PedeUnidadeDestino>
+    <ProcessandoOrigem>False</ProcessandoOrigem>
+    <SerieSubSerie>1</SerieSubSerie>
+    <SistemaContas>Receber</SistemaContas>
+    <Tela>iOmniaNET.DlgMovimentoEstoqueSimples</Tela>
+    <TelaLayout>
+    </TelaLayout>
+    <TipoAtuEstoquePadrao>Saida</TipoAtuEstoquePadrao>
+    <TipoEmissorDocFiscal>Nenhum</TipoEmissorDocFiscal>
+    <TipoPrecoUnitario>EditaPrecoVenda</TipoPrecoUnitario>
+    <TipoUnidadeMedida>Venda</TipoUnidadeMedida>
+    <UsoInterno>False</UsoInterno>
+  </Atributos>
+  <Relacionamentos>
+    <Unidades>
+      <Record Id="EXPOSIÇAO GYN" Tipo="Unidade" />
+      <Record Id="NASCIMENTO E MENDONÇA - NM" Tipo="Unidade" />
+      <Record Id="RB COMERCIO - RB" Tipo="Unidade" />
+      <Record Id="NASCIMENTO AFONSO - NA" Tipo="Unidade" />
+      <Record Id="ALVES FLEURY - AF" Tipo="Unidade" />
+      <Record Id="ELETRO RAROS - ER" Tipo="Unidade" />
+    </Unidades>
+    <TiposParcelamentos>
+      <Record Id="ELO CREDITO" Tipo="TipoDocParcelamento" />
+      <Record Id="DEP AYMORE ER" Tipo="TipoDocParcelamento" />
+      <Record Id="DINERS PARC" Tipo="TipoDocParcelamento" />
+      <Record Id="CHEQUE" Tipo="TipoDocParcelamento" />
+      <Record Id="CHEQUE PENDENTE" Tipo="TipoDocParcelamento" />
+      <Record Id="REDECARD CREDITO" Tipo="TipoDocParcelamento" />
+      <Record Id="VISA DEBITO" Tipo="TipoDocParcelamento" />
+      <Record Id="CARTAO CRE POS" Tipo="TipoDocParcelamento" />
+      <Record Id="DEP BB ER" Tipo="TipoDocParcelamento" />
+      <Record Id="CARTAO DEB POS" Tipo="TipoDocParcelamento" />
+      <Record Id="REDECARD DEBITO" Tipo="TipoDocParcelamento" />
+      <Record Id="DEP ITAU ER" Tipo="TipoDocParcelamento" />
+      <Record Id="DEP BB AF" Tipo="TipoDocParcelamento" />
+      <Record Id="CONSIGNADO" Tipo="TipoDocParcelamento" />
+      <Record Id="VISA PARC" Tipo="TipoDocParcelamento" />
+      <Record Id="VISA CREDITO" Tipo="TipoDocParcelamento" />
+      <Record Id="REDECARD PARC" Tipo="TipoDocParcelamento" />
+      <Record Id="ELO PARC" Tipo="TipoDocParcelamento" />
+      <Record Id="DINERS (CREDITO)" Tipo="TipoDocParcelamento" />
+      <Record Id="VALE FUNCIONARIO" Tipo="TipoDocParcelamento" />
+      <Record Id="DEP ITAU NM" Tipo="TipoDocParcelamento" />
+      <Record Id="DEP BB RB" Tipo="TipoDocParcelamento" />
+      <Record Id="ELO DEBITO" Tipo="TipoDocParcelamento" />
+      <Record Id="DEP BRAD. RB" Tipo="TipoDocParcelamento" />
+      <Record Id="DINHEIRO" Tipo="TipoDocParcelamento" />
+      <Record Id="DEP ITAU RB" Tipo="TipoDocParcelamento" />
+      <Record Id="AMEX CREDITO" Tipo="TipoDocParcelamento" />
+      <Record Id="DEP AYMORE RB" Tipo="TipoDocParcelamento" />
+      <Record Id="BOLETO" Tipo="TipoDocParcelamento" />
+      <Record Id="FROGPAY ELO CREDITO" Tipo="TipoDocParcelamento" />
+      <Record Id="DEP ITAU NA" Tipo="TipoDocParcelamento" />
+      <Record Id="DINERS CREDITO" Tipo="TipoDocParcelamento" />
+      <Record Id="FROGPAY VISA CREDITO" Tipo="TipoDocParcelamento" />
+      <Record Id="AMEX PARC" Tipo="TipoDocParcelamento" />
+      <Record Id="CREDITO DE TROCA" Tipo="TipoDocParcelamento" />
+      <Record Id="VISA PARC (RECEBER)" Tipo="TipoDocParcelamento" />
+      <Record Id="FROGPAY MASTERCARD CREDITO" Tipo="TipoDocParcelamento" />
+      <Record Id="HIPERCARD" Tipo="TipoDocParcelamento" />
+    </TiposParcelamentos>
+    <Parametros>
+      <Record Id="POBS" Tipo="ParametroTipoMovEstoque">
+        <Atributos>
+          <CampoDados>True</CampoDados>
+          <Comando>-&gt;orderBy(Descricao)</Comando>
+          <ComandoParaDados>self.ObsCabMovEstoques-&gt;select( obs | obs.TipoObservacao = TipoObservacao.objectFromExternalId('16222473-8a64-49b9-a9a0-ea6783d7d042!G!0149100f-71dd-4a5c-a263-69bb6f2d2b38') )-&gt;first.Texto</ComandoParaDados>
+          <Etiqueta>Observação</Etiqueta>
+          <NomeInterno>POBS</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Texto</TipoEditor>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PITENS" Tipo="ParametroTipoMovEstoque">
+        <Atributos>
+          <CampoDados>False</CampoDados>
+          <Comando>let lastNF = 
+  PMOVIMENTO.Personalidade.CabecalhosMovimentoEstoque
+  -&gt;select( cme | (not cme.Cancelado) and (cme.State = 'NFe Processada') )
+  -&gt;orderDescending( cme | cme.DataEmissao )
+in (
+  PMOVIMENTO.Itens-&gt;select( ime | 
+    ime.ProdutoFinal-&gt;notEmpty 
+    and 
+    ( not lastNF.Itens-&gt;exists( imeNF | imeNF.ProdutoFinal-&gt;notEmpty and (ime.ProdutoFinal = imeNF.ProdutoFinal) ) )
+  )
+)
+-&gt;orderBy( ime | ime.ProdutoFinal.Produto.Descricao )
+</Comando>
+          <ComandoParaDados>
+          </ComandoParaDados>
+          <Etiqueta>Itens</Etiqueta>
+          <NomeInterno>PITENS</NomeInterno>
+          <Ordem>15</Ordem>
+          <PreComando>PMOVIMENTO.Itens</PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Colunas>
+            <Record Id="Infos" Tipo="ColunaParamTipoMovEstoque">
+              <Atributos>
+                <Comando>let ime = self-&gt;first in (
+  let cab =
+    PMOVIMENTO.Personalidade.CabecalhosMovimentoEstoque
+    -&gt;select( cme |
+      (not cme.Cancelado)
+       and (cme.State = 'NFe Processada') 
+       and cme.Itens-&gt;exists( ime | ime.ProdutoFinal = self-&gt;first.ProdutoFinal )
+    )-&gt;orderDescending( cme | cme.DataEmissao )-&gt;first
+  in (
+    if cab-&gt;notEmpty then
+      '['.concat(cab.NumeroPadrao.Numero.concat(' - ', cab.DataEmissao.asString, ' - ').concat(cab.TipoMovimentoEstoque.Descricao, '] '))
+    else
+      ''
+    endif
+    +
+    ime.ProdutoFinal.Produto.Descricao.concat(' (', ime.ProdutoFinal.Produto.Referencia, ')')
+  )
+)
+</Comando>
+                <Etiqueta>Infos</Etiqueta>
+                <Formato>
+                </Formato>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Colunas>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PMOVIMENTO" Tipo="ParametroTipoMovEstoque">
+        <Atributos>
+          <CampoDados>False</CampoDados>
+          <Comando>CabecalhoMovimentoEstoque.allLoadedObjects-&gt;select( cme | 
+  (
+    cme.Personalidade.Nome.sqlLikeCaseInsensitive('{0}%') 
+    or
+    cme.NumeroPadrao.Numero.sqlLike('%{0}') 
+  )
+  and
+  (cme.TipoMovimentoEstoque.Abreviacao = 'PDV')
+  and
+  PUSER.AgentesVendas-&gt;exists( av |
+    av.Ativo
+    and
+    av.Unidades-&gt;exists( und | cme.Unidade = und )
+  )
+)
+-&gt;orderDescending( cme | cme.DataEmissao )
+</Comando>
+          <ComandoParaDados>
+          </ComandoParaDados>
+          <Etiqueta>Pedido/Cliente</Etiqueta>
+          <NomeInterno>PMOVIMENTO</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>TipoMovimentoEstoque.allInstances-&gt;select( tme | 
+  (tme.Abreviacao = 'PDV') 
+)
+.MovimentosEstoque-&gt;select( cme |
+  (
+    cme.Personalidade.Nome.sqlLikeCaseInsensitive('{0}%') 
+    or
+    cme.NumeroPadrao.Numero.sqlLike('%{0}') 
+  )
+  and
+  PUSER.AgentesVendas-&gt;exists( av |
+    av.Ativo
+    and
+    av.Unidades-&gt;exists( und | cme.Unidade = und )
+  )
+)</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Colunas>
+            <Record Id="Venda" Tipo="ColunaParamTipoMovEstoque">
+              <Atributos>
+                <Comando>self.Numeros-&gt;first.Numero.strToInt.asString + ' | ' + 
+self.DataEmissao-&gt;first.asString + 
+' | S: ' + self.Itens-&gt;select( i | i.TipoAtualizacaoEstoque = #Saida ).Quantidade-&gt;sum.asString.asString.PadLeft(4,'0'.Chars(0)) +
+'  E: ' + self.Itens-&gt;select( i | i.TipoAtualizacaoEstoque = #Entrada ).Quantidade-&gt;sum.asString + ' | ' +
+self.Personalidade-&gt;first.Nome + '  ' + self.Personalidade-&gt;first.asString</Comando>
+                <Etiqueta>Venda</Etiqueta>
+                <Formato>
+                </Formato>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Colunas>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PUNIDADE" Tipo="ParametroTipoMovEstoque">
+        <Atributos>
+          <CampoDados>True</CampoDados>
+          <Comando>PUSER.AgentesVendas.Unidades-&gt;select(u | 
+  u.Descricao.sqlLikeCaseInsensitive('{0}%')
+  and 
+  self.TipoMovimentoEstoque.NumeradorPadrao.NumerosSequenciais.Unidade-&gt;exists(UND |u=UND)
+)-&gt;orderBy(Descricao)</Comando>
+          <ComandoParaDados>self.Unidade</ComandoParaDados>
+          <Etiqueta>Unidade</Etiqueta>
+          <NomeInterno>PUNIDADE</NomeInterno>
+          <Ordem>1</Ordem>
+          <PreComando>Unidade.allinstances-&gt;select(u | u.Descricao.sqlLikeCaseInsensitive('{0}%'))</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PUNDTRAB</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Colunas>
+            <Record Id="Unidade" Tipo="ColunaParamTipoMovEstoque">
+              <Atributos>
+                <Comando>self.Descricao</Comando>
+                <Etiqueta>Unidade</Etiqueta>
+                <Formato>
+                </Formato>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Colunas>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PITENSEMNF" Tipo="ParametroTipoMovEstoque">
+        <Atributos>
+          <CampoDados>False</CampoDados>
+          <Comando>let lastNF = 
+  PMOVIMENTO.Personalidade.CabecalhosMovimentoEstoque
+  -&gt;select( cme | (not cme.Cancelado) and (cme.State = 'NFe Processada') )
+  -&gt;orderDescending( cme | cme.DataEmissao )
+in (
+  PMOVIMENTO.Itens-&gt;select( ime | 
+    ime.ProdutoFinal-&gt;notEmpty 
+    and 
+    lastNF.Itens-&gt;exists( imeNF | imeNF.ProdutoFinal-&gt;notEmpty and (ime.ProdutoFinal = imeNF.ProdutoFinal) ) 
+  )
+)
+-&gt;orderBy( ime | ime.ProdutoFinal.Produto.Descricao )</Comando>
+          <ComandoParaDados>
+          </ComandoParaDados>
+          <Etiqueta>Itens em NFe</Etiqueta>
+          <NomeInterno>PITENSEMNF</NomeInterno>
+          <Ordem>30</Ordem>
+          <PreComando>PMOVIMENTO.Itens</PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Colunas>
+            <Record Id="" Tipo="ColunaParamTipoMovEstoque">
+              <Atributos>
+                <Comando>let ime = self-&gt;first in (
+  let cab =
+    PMOVIMENTO.Personalidade.CabecalhosMovimentoEstoque
+    -&gt;select( cme | 
+      (not cme.Cancelado)
+      and (cme.State = 'NFe Processada') 
+      and cme.Itens-&gt;exists( ime | ime.ProdutoFinal = self-&gt;first.ProdutoFinal )
+    )-&gt;orderDescending( cme | cme.DataEmissao )-&gt;first
+  in (
+    if cab-&gt;notEmpty then
+      '['.concat(cab.NumeroPadrao.Numero.concat(' - ', cab.DataEmissao.asString, ' - ').concat(cab.TipoMovimentoEstoque.Descricao, '] '))
+    else
+      ''
+    endif
+    +
+    ime.ProdutoFinal.Produto.Descricao.concat(' (', ime.ProdutoFinal.Produto.Referencia, ')')
+  )
+)
+</Comando>
+                <Etiqueta>
+                </Etiqueta>
+                <Formato>
+                </Formato>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Colunas>
+        </Relacionamentos>
+      </Record>
+    </Parametros>
+    <Comandos>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>False</Ativo>
+          <Comando>self.Itens.CalculaValores</Comando>
+          <Ordem>290</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>let pv = self.Numeros-&gt;select( nrs | nrs.Numerador-&gt;exists( nrd | nrd.Etiqueta = 'PedidoVenda' ) )-&gt;first in
+(
+  pv.Numero :=  PMOVIMENTO.Numeros-&gt;select( nrs | nrs.Numerador-&gt;exists( nrd | nrd.Etiqueta = pv.Numerador-&gt;first.Etiqueta ) )-&gt;first.Numero
+)</Comando>
+          <Ordem>230</Ordem>
+          <QuandoExecutar>AposIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>False</Ativo>
+          <Comando>PMOVIMENTO.Itens-&gt;select( (Quantidade &gt; 0) and (ValorUnitario &gt; 0) )
+-&gt;forall( i | 
+  ( let o = ItemMovimentoEstoque.Create in ( 
+    o.Cabecalho := self; 
+    o.Quantidade := i.Quantidade - i.PegaQuantidadeEmitida(); 
+    o.ProdutoFinal := i.ProdutoFinal; 
+    o.ValorUnitario := i.ValorUnitario; 
+    o.CodigoBarras := i.ProdutoFinal.CodigoBarras 
+  ) 
+)-&gt;notEmpty )</Comando>
+          <Ordem>90</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.VerificaValores</Comando>
+          <Ordem>300</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.CalculaValores</Comando>
+          <Ordem>240</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>False</Ativo>
+          <Comando>self.Numeros-&gt;select( n | n.Numerador.Etiqueta = 'VendaNF' )-&gt;First.Numero := PMOVIMENTO-&gt;First.Numeros-&gt;select( n | (n.Numerador.Etiqueta = 'CaixaPendente') or (n.Numerador.Etiqueta = 'VendaNF') or (n.Numerador.Etiqueta = 'VendaDireta') ).Numero-&gt;First</Comando>
+          <Ordem>180</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Personalidade := PMOVIMENTO-&gt;First.Personalidade</Comando>
+          <Ordem>40</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PMOVIMENTO-&gt;First.Valores-&gt;select(v | (v.TipoMovEstoqueValor.Sigla = 'PercD'))-&gt;collect ( p | (let o = self.Valores-&gt;select(v | (v.TipoMovEstoqueValor.Sigla = 'PercD'))-&gt;First in ( o.Movimento := self;  o.Valor := p.Valor ))-&gt;notEmpty)</Comando>
+          <Ordem>130</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>let itensNF = 
+  PMOVIMENTO.Personalidade.CabecalhosMovimentoEstoque-&gt;select( cme | 
+    (not cme.Cancelado)
+    and (cme.State = 'NFe Processada')
+  )-&gt;orderDescending( cme | cme.DataEmissao )-&gt;first
+  .Itens-&gt;exists( ime | PITENS-&gt;exists( i | i.ProdutoFinal = ime.ProdutoFinal ) )
+in (
+  if PMOVIMENTO-&gt;notEmpty then
+    PITENS
+    -&gt;collect( ime | 
+      let newIME = ItemMovimentoEstoque.Create in ( 
+        newIME.Cabecalho := self
+        ; newIME.Quantidade := ime.Quantidade
+        ; newIME.ProdutoFinal := ime.ProdutoFinal
+        ; newIME.ValorUnitario := ime.ValorUnitario
+        ; newIME.CodigoBarras := ime.ProdutoFinal-&gt;first.CodigoBarras
+        ; newIME.CalculaValores
+      ) 
+    ) 
+  else
+    false 
+  endif
+)
+</Comando>
+          <Ordem>91</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.AgenteVendaParticipante := PMOVIMENTO-&gt;First.AgenteVendaParticipante</Comando>
+          <Ordem>70</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.DataDigitacao := DateTime.Now; self.DataEmissao := DateTime.Now; self.DataSaida := DateTime.Now</Comando>
+          <Ordem>210</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PMOVIMENTO.Parcelas-&gt;select( Valor &gt; 0 )-&gt;collect ( p | 
+  let o = ParcelaMovimentoEstoque.Create in ( 
+    o.Cabecalho := self; 
+    o.CodigoBarras := p.CodigoBarras; 
+    o.DataVencimento := p.DataVencimento; 
+    o.NrDocumento :=  p.NrDocumento; 
+    o.TEFDataHora := p.TEFDataHora; 
+    o.TEFNSU := p.TEFNSU; 
+    o.TEFRede := p.TEFRede; 
+    o.TEFValor := p.TEFValor; 
+    o.Valor := p.Valor; 
+    o.TipoDocParcelamento := p.TipoDocParcelamento; 
+    o.CalculaValores 
+  )
+)
+</Comando>
+          <Ordem>110</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PMOVIMENTO-&gt;First.Valores-&gt;select(v | (v.TipoMovEstoqueValor.Sigla = 'PercDPerc'))-&gt;collect ( p | (let o = self.Valores-&gt;select(v | (v.TipoMovEstoqueValor.Sigla = 'PercDPerc'))-&gt;First in ( o.Movimento := self;  o.Aliquota := p.Aliquota ))-&gt;notEmpty)</Comando>
+          <Ordem>140</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Itens-&gt;collect(QuantidadeQuitada := false)</Comando>
+          <Ordem>200</Ordem>
+          <QuandoExecutar>AposIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Parcelas.Delete</Comando>
+          <Ordem>100</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Valores-&gt;select(v | (v.TipoMovEstoqueValor.Sigla = 'PercD'))-&gt;First.Valor := PMOVIMENTO.Valores-&gt;select(v | (v.TipoMovEstoqueValor.Sigla = 'PercD') or (v.TipoMovEstoqueValor.Sigla = 'PercDPerc')).Valor-&gt;Sum</Comando>
+          <Ordem>120</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.ObsCabMovEstoques-&gt;select( obs | 
+obs.TipoObservacao = 
+TipoObservacao.objectFromExternalId('16222473-8a64-49b9-a9a0-ea6783d7d042!G!0149100f-71dd-4a5c-a263-69bb6f2d2b38')
+)-&gt;First.Texto := POBS.concat(self-&gt;first.Unidade-&gt;ListaCampos-&gt;select( x | x.Configuracao.Descricao = 'InfosProcon' )-&gt;first.Texto).trim
+</Comando>
+          <Ordem>160</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.CalculaValores</Comando>
+          <Ordem>310</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>if PMOVIMENTO-&gt;notEmpty then
+ self.TabelaPreco := PMOVIMENTO-&gt;First.TabelaPreco
+else
+  if PUNDTRAB.Descricao = 'COZINAIR GYN' then
+   self.TabelaPreco := 'TabelaPreco.allinstances-&gt;select(Descricao = \'TABELA DE PREÇOS GYN\')'.EnsureObjects(TabelaPreco)-&gt;First
+  else
+    if (PUNDTRAB.Descricao = 'COZINAIR BSB') or (PUNDTRAB.Descricao = 'BAIXO GIRO BSB') then
+        self.TabelaPreco := 'TabelaPreco.allinstances-&gt;select(Descricao = \'TABELA DE PREÇOS BSB\')'.EnsureObjects(TabelaPreco)-&gt;First
+    else
+        self.TabelaPreco 
+    endif
+  endif
+endif</Comando>
+          <Ordem>50</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.QuantidadeQuitada := false</Comando>
+          <Ordem>190</Ordem>
+          <QuandoExecutar>AposIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Parcelas.CalculaValores</Comando>
+          <Ordem>220</Ordem>
+          <QuandoExecutar>AposIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.FormaParcelamento := PMOVIMENTO-&gt;First.FormaParcelamento</Comando>
+          <Ordem>80</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.ProcessaQuitacaoQuantidade</Comando>
+          <Ordem>150</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.Unidade := PUNIDADE
+</Comando>
+          <Ordem>10</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>self.AgenteVenda := PMOVIMENTO-&gt;First.AgenteVenda</Comando>
+          <Ordem>60</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+      <Record Id="" Tipo="ComandoTipoMovEstoque">
+        <Atributos>
+          <Ativo>False</Ativo>
+          <Comando>PMOVIMENTO-&gt;First.Transportador-&gt;collect (p | 
+  ( let o = CabMovEstoqueTransportador.Create in 
+    ( 
+      o.CabecalhoMovimentoEstoque := self; 
+      o.Personalidade := PMOVIMENTO.Transportador.Personalidade-&gt;first; 
+      o.ANTT := p.ANTT; 
+      o.BaseICMS := p.BaseICMS; 
+      o.CFOP := p.CFOP; 
+      o.DataEmissao := p.DataEmissao; 
+      o.Especie := p.Especie; 
+      o.Marca := p.Marca; 
+      o.NumeracaoVolumes := p.NumeracaoVolumes; 
+      o.NumeroCT := p.NumeroCT; 
+      o.PesoBruto := p.PesoBruto; 
+      o.PesoLiquido := p.PesoLiquido; 
+      o.Placa := p.Placa; 
+      o.Serie := p.Serie; 
+      o.SituacaoDocFiscal := p.SituacaoDocFiscal; 
+      o.TipoTransporte := p.TipoTransporte; 
+      o.UFPlaca := p.UFPlaca; 
+      o.ValorICMS := p.ValorICMS; 
+      o.ValorIsento := p.ValorIsento; 
+      o.ValorOutros := p.ValorOutros; 
+      o.Volume := p.Volume; 
+      o.ModalidadeFrete := p.ModalidadeFrete; 
+      o.ValorTotal := p.ValorTotal; 
+      o.ModeloDocFiscal := p.ModeloDocFiscal;
+      o.ModalidadeFrete := enumNFeModalidadeFrete::SemFrete
+    ) 
+  )
+)</Comando>
+          <Ordem>170</Ordem>
+          <QuandoExecutar>AntesIncluir</QuandoExecutar>
+        </Atributos>
+      </Record>
+    </Comandos>
+    <Excecoes>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Sem Vendedor</Aviso>
+          <Expressao>self.AgenteVenda-&gt;isempty</Expressao>
+          <ExpressaoRetornoSalvo>'Sem Vendedor!'</ExpressaoRetornoSalvo>
+          <Ordem>10</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Produto sem Quantidade e/ou Valor Unitário!</Aviso>
+          <Expressao>self-&gt;exists( (Quantidade &lt;= 0) or (ValorUnitario &lt;= 0) )</Expressao>
+          <ExpressaoRetornoSalvo>'Produto ['+ self.ProdutoFinal.Produto.Descricao +'] sem Quantidade e/ou Valor Unitário!'</ExpressaoRetornoSalvo>
+          <Ordem>20</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Item</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Sem Produto/Itens!</Aviso>
+          <Expressao>self.Itens-&gt;isEmpty</Expressao>
+          <ExpressaoRetornoSalvo>'Sem Produto/Itens!'</ExpressaoRetornoSalvo>
+          <Ordem>30</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Não Foi Escolhido Forma de Pagamento!</Aviso>
+          <Expressao>self.FormaParcelamento-&gt;isEmpty</Expressao>
+          <ExpressaoRetornoSalvo>'Não Foi Escolhido Forma de Pagamento!'</ExpressaoRetornoSalvo>
+          <Ordem>40</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Sem endereço para esta movimentação!</Aviso>
+          <Expressao>self.EnderecoEntrega-&gt;isEmpty</Expressao>
+          <ExpressaoRetornoSalvo>'Sem endereço para esta movimentação!'</ExpressaoRetornoSalvo>
+          <Ordem>50</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Não há unidade de medidas!</Aviso>
+          <Expressao>self.ProdutoFinal-&gt;exists( pf | (pf.Produto.UnCompra.isNullOrEmpty) or (pf.Produto.UnFiscal.isNullOrEmpty) or (pf.Produto.UnVenda.isNullOrEmpty) or (pf.Produto.UnEstoque.isNullOrEmpty) )</Expressao>
+          <ExpressaoRetornoSalvo>'Não há unidade de medidas para este produto ['+ self.ProdutoFinal.Produto.Descricao +']!'</ExpressaoRetornoSalvo>
+          <Ordem>60</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Item</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Sem Cliente</Aviso>
+          <Expressao>self.Personalidade-&gt;isempty</Expressao>
+          <ExpressaoRetornoSalvo>'Sem cliente!'</ExpressaoRetornoSalvo>
+          <Ordem>70</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Informe uma Personalidade (cliente) antes!</Aviso>
+          <Expressao>self.Personalidade-&gt;isEmpty</Expressao>
+          <ExpressaoRetornoSalvo>'Informe uma Personalidade (cliente) antes!'</ExpressaoRetornoSalvo>
+          <Ordem>80</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>CabecalhoAoEntrar</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Personalidade sem Endereço!</Aviso>
+          <Expressao>self.Personalidade.Enderecos-&gt;isEmpty</Expressao>
+          <ExpressaoRetornoSalvo>'Personalidade ['+ self.Personalidade.Codigo.Concat('-', self.Personalidade.Nome)  +'] sem Endereço!'</ExpressaoRetornoSalvo>
+          <Ordem>90</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Valor Total das Parcelas não Batem com o Valor Total dos Produtos!</Aviso>
+          <Expressao>self.TipoValorTotalNF.Valor.Round(2) &lt;&gt; self.TotalParcelas.Round(2)</Expressao>
+          <ExpressaoRetornoSalvo>'Total NFe: R$ ' + self.TipoValorTotalNF.Valor.asString + '  Total Parcelado: R$ ' + self.TotalParcelas.asString + '    NÃO BATEM!'</ExpressaoRetornoSalvo>
+          <Ordem>100</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>NaoConcluir</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>Produto sem NCM!</Aviso>
+          <Expressao>self.ProdutoFinal.Produto.GrupoNCM-&gt;isEmpty</Expressao>
+          <ExpressaoRetornoSalvo>'Produto ['+ self.ProdutoFinal.Produto.Descricao +'] sem NCM!'</ExpressaoRetornoSalvo>
+          <Ordem>110</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Item</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>ApenasAvisar</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>NotaFiscal já emitida para este Pedido de Venda!</Aviso>
+          <Expressao>CabecalhoMovimentoEstoque.allLoadedObjects
+-&gt;select( cme | ( not cme.Cancelado ) and 
+  cme.TipoMovimentoEstoque-&gt;exists( tme | tme.Abreviacao = 'VNFE')
+  and
+  (cme.Personalidade = vPedido.Personalidade)
+  and
+  cme.Numeros-&gt;exists( nrs |
+    nrs.Numerador-&gt;exists( nrd | nrd.Etiqueta = 'PedidoVenda' )
+    and
+    ( nrs.Numero = vPedido.Numeros-&gt;select( nrs1 | nrs1.Numerador-&gt;exists( nrd1 | nrd1.Etiqueta = 'PedidoVenda' ) )-&gt;first.Numero )
+  )
+)
+-&gt;excluding(self)-&gt;size &gt; 0</Expressao>
+          <ExpressaoRetornoSalvo>let txt =
+CabecalhoMovimentoEstoque.allLoadedObjects
+-&gt;select( cme |
+  cme.TipoMovimentoEstoque-&gt;exists( tme | tme.Abreviacao = 'VNFE')
+  and
+  (cme.Personalidade = vPedido.Personalidade)
+  and
+  cme.Numeros-&gt;exists( nrs |
+    nrs.Numerador-&gt;exists( nrd | nrd.Etiqueta = 'PedidoVenda' )
+    and
+    ( nrs.Numero = vPedido.Numeros-&gt;select( nrs1 | nrs1.Numerador-&gt;exists( nrd1 | nrd1.Etiqueta = 'PedidoVenda' ) )-&gt;first.Numero )
+  )
+)
+-&gt;excluding(self)
+-&gt;collect( cme |
+  cme.NumeroPadrao-&gt;first.Numero
+  + ' | ' +
+  cme.DataEmissao.asString
+)-&gt;asCommaList
+in (
+  txt.Msg;
+  txt
+)</ExpressaoRetornoSalvo>
+          <Ordem>120</Ordem>
+          <PreExpressao>CabecalhoMovimentoEstoque.allInstances
+-&gt;select( cme |
+  cme.TipoMovimentoEstoque-&gt;exists( tme | tme.Abreviacao = 'VNFE')
+  and
+  (cme.Personalidade = vPedido.Personalidade)
+)</PreExpressao>
+          <TipoRegistro>CabecalhoAoEntrar</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="" Tipo="TipoMovEstoqueExcecao">
+        <Atributos>
+          <Acao>ApenasAvisar</Acao>
+          <Ativo>True</Ativo>
+          <Aviso>RECALCULA VALORES</Aviso>
+          <Expressao>self.VerificaValores;self.CalculaValores;false</Expressao>
+          <ExpressaoRetornoSalvo>''</ExpressaoRetornoSalvo>
+          <Ordem>130</Ordem>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+    </Excecoes>
+    <Numeradores>
+      <Record Id="NFeLote" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeLote</Etiqueta>
+          <FormatoNumero>pNumerador.UltimoNumero.asString.PadLeft(8,'0'.Chars(0))</FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos>
+          <NumerosSequenciais>
+            <Record Id="NrLote" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NrLote</Descricao>
+                <DisparaGatilho>c3db39ee-dba3-448d-8b5b-a61a6d6c39bf</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="COZINAIR GYN" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+          </NumerosSequenciais>
+        </Relacionamentos>
+      </Record>
+      <Record Id="NotaFiscal" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NotaFiscal</Etiqueta>
+          <FormatoNumero>pNumerador.UltimoNumero.asString.PadLeft(8,'0'.Chars(0))</FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos>
+          <NumerosSequenciais>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>2e4155b9-f8b9-4611-ac0d-32168a8180db</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="NASCIMENTO E MENDONÇA - NM" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+          </NumerosSequenciais>
+        </Relacionamentos>
+      </Record>
+      <Record Id="NFeGerada" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeGerada</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="NFeReferencia" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeReferencia</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="NFeRecibo" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeRecibo</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="NFeReferencia" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeReferencia</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="NFeIESubstTrib" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeIESubstTrib</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="NFeProtocolo" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeProtocolo</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="NFeGerada" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeGerada</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PedidoVenda" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>PedidoVenda</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>False</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="NFeProtocolo" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeProtocolo</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="NFeLote" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeLote</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="NFeIESubstTrib" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeIESubstTrib</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="NotaFiscal" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NotaFiscal</Etiqueta>
+          <FormatoNumero>pNumerador.UltimoNumero.asString.PadLeft(8,'0'.Chars(0))</FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos>
+          <NumerosSequenciais>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="BSB Externo 01" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>61bac616-a308-4773-ade0-9f6721ed4a33</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="NASCIMENTO AFONSO - NA" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="EXPOSIÇAO GYN" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>2e4155b9-f8b9-4611-ac0d-32168a8180db</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="NASCIMENTO E MENDONÇA - NM" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="DESPESA PARTICULAR" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="BAIXO GIRO GYN" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>666</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>ad0779ac-8921-47d7-8e13-3248ffa37459</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="ELETRO RAROS - ER" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>-</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="BAIXO GIRO BSB" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="EXPOSIÇAO BSB" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>a7934f1c-5ace-4289-b205-a727c17af1d5</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="ALVES FLEURY - AF" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>-</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="COZINAIR GYN" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="PEÇAS" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>0ddc639d-d6b6-4ee1-a1fd-99144514ad4e</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="RB COMERCIO - RB" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="DESPESA FIXA BSB" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>-</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="COZINAIR BSB" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+          </NumerosSequenciais>
+        </Relacionamentos>
+      </Record>
+      <Record Id="NFeRecibo" Tipo="TipoMovEstoqueNumerador">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Etiqueta>NFeRecibo</Etiqueta>
+          <FormatoNumero>
+          </FormatoNumero>
+          <PorUnidade>True</PorUnidade>
+          <TipoSequencia>Manual</TipoSequencia>
+          <UsoInterno>True</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+    </Numeradores>
+    <Valores>
+      <Record Id="ttBCIPI" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Total Base IPI</Descricao>
+          <Formula>self.Itens.TipoValorIPI.Base-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>190</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttBCIPI</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="vCOFINS" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Valor COFINS</Descricao>
+          <Formula>if 
+(self.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida) and (self.AliquotaCOFINS &gt; 0)
+ then 
+self.Quantidade * self.ValorUnitario 
+else 
+0.00
+endif</Formula>
+          <FormulaAliquotaPadrao>self.AliquotaCOFINS</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>330</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>vCOFINS</Sigla>
+          <TipoRegistro>Item</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttBCCOFINS" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total Base COFINS</Descricao>
+          <Formula>self.Itens.TipoValorCOFINS.Base-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>320</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttBCCOFINS</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="vIPI" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Valor IPI</Descricao>
+          <Formula>self.Valores-&gt;select(Operacao = #Soma).Valor-&gt;sum - self.Valores-&gt;select(Operacao = #Subtracao).Valor-&gt;sum - self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'IPI')-&gt;First.Valor</Formula>
+          <FormulaAliquotaPadrao>self.AliquotaIPI</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Soma</Operacao>
+          <Ordem>220</Ordem>
+          <PermiteAlterarAliquota>True</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>vIPI</Sigla>
+          <TipoRegistro>Item</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttItem" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total Item</Descricao>
+          <Formula>( self.Valores-&gt;select(Operacao = enumOperacao::Soma).Valor-&gt;sum - self.Valores-&gt;select(Operacao = enumOperacao::Subtracao).Valor-&gt;sum ) - self.DescontosRateados</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>130</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttItem</Sigla>
+          <TipoMovCaixaPartida>Debito</TipoMovCaixaPartida>
+          <TipoRegistro>Item</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttBCICMS" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total Base ICMS</Descricao>
+          <Formula>self.Itens.TipoValorICMS.Base-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>200</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttBCICMS</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttPro" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total dos Produtos</Descricao>
+          <Formula>self.Itens.Valores-&gt;select( v | (v.TipoMovEstoqueValor.Sigla = 'ttLiq')).Valor-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Soma</Operacao>
+          <Ordem>70</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttPro</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttPIS" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total PIS</Descricao>
+          <Formula>self.Itens.TipoValorPIS.Valor-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>280</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttPIS</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttGer" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total NFe</Descricao>
+          <Formula>self.Valores-&gt;select(Operacao = enumOperacao::Soma).Valor.Round(2)-&gt;sum - self.Valores-&gt;select(Operacao = enumOperacao::Subtracao).Valor.Round(2)-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>140</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttGer</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="PercDPerc" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>% Descontos Geral</Descricao>
+          <Formula>self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttPro')-&gt;First.Valor</Formula>
+          <FormulaAliquotaPadrao>0.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Subtracao</Operacao>
+          <Ordem>90</Ordem>
+          <PermiteAlterarAliquota>True</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>PercDPerc</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="PID" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>% ICMS Destino</Descricao>
+          <Formula>100.00</Formula>
+          <FormulaAliquotaPadrao>if (self.EnderecoEntrega.Bairro.Cidade.UF = 'RJ') then
+  20.00
+else
+  if (self.EnderecoEntrega.Bairro.Cidade.UF = 'RO') then
+    17.50
+  else
+    if (self.EnderecoEntrega.Bairro.Cidade.UF = 'GO') then
+      0.00
+    else
+      if ('AC,ES,MT,MS,PA,RR,SC'.Split(',')-&gt;exists( x | x.sqlLikeCaseInsensitive(self-&gt;first.EnderecoEntrega.Bairro.Cidade.UF))) then
+        17.00
+      else
+        18.00
+      endif
+    endif
+  endif
+endif
+</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>250</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>PID</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="vICMS" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Valor ICMS</Descricao>
+          <Formula>if (self.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida) and (self.AliquotaICMS &gt; 0)  then 
+ ( self.Quantidade * self.ValorUnitario  ) - self.DescontosRateados
+else 
+0.00 
+endif</Formula>
+          <FormulaAliquotaPadrao>self.AliquotaICMS</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>170</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>vICMS</Sigla>
+          <TipoRegistro>Item</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttNf" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>NFe</Descricao>
+          <Formula>self.TipoValorTotalNF.Valor.Round(2)</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>160</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttNf</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttCOFINS" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total COFINS</Descricao>
+          <Formula>self.Itens.TipoValorCOFINS.Valor-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>310</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttCOFINS</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="Arred" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Arredondamento</Descricao>
+          <Formula>if self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttPag')-&gt;First.Valor &gt; 0 then
+  self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttCDe')-&gt;First.Valor - self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttPag')-&gt;First.Valor
+else
+  0
+endif</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Subtracao</Operacao>
+          <Ordem>120</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>Arred</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="Desc" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Desconto Item</Descricao>
+          <Formula>self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttLiq')-&gt;First.Valor</Formula>
+          <FormulaAliquotaPadrao>0.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>100</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>True</PermiteAlterarValor>
+          <Sigla>Desc</Sigla>
+          <TipoRegistro>Item</TipoRegistro>
+          <TipoValor>Informado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttICMS" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total ICMS</Descricao>
+          <Formula>self.Itens.TipoValorICMS.Valor-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>180</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttICMS</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="PIIPO" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Quota ICMS Origem</Descricao>
+          <Formula>100.00</Formula>
+          <FormulaAliquotaPadrao>0.00
+</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>240</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>PIIPO</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="vlPar" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Valor Parcela</Descricao>
+          <Formula>self.Valor.Round(2)</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Soma</Operacao>
+          <Ordem>50</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>vlPar</Sigla>
+          <TipoRegistro>Parcela</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="PFCP" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>% FCP</Descricao>
+          <Formula>100.00</Formula>
+          <FormulaAliquotaPadrao>2.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>270</Ordem>
+          <PermiteAlterarAliquota>True</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>PFCP</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttBCPIS" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total Base PIS</Descricao>
+          <Formula>self.Itens.TipoValorPIS.Base-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>290</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttBCPIS</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="pDes" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>% Total de Descontos</Descricao>
+          <Formula>((self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttPro')-&gt;First.Valor - ( self.Valores-&gt;select(Operacao = enumOperacao::Soma).Valor-&gt;sum - self.Valores-&gt;select(Operacao = enumOperacao::Subtracao).Valor-&gt;sum ) ) * 100 ) / self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttPro')-&gt;First.Valor</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>80</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>pDes</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>False</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="PercD" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>R$ Descontos Geral</Descricao>
+          <Formula>self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttPro')-&gt;First.Valor</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Subtracao</Operacao>
+          <Ordem>40</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>True</PermiteAlterarValor>
+          <Sigla>PercD</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Informado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttIPI" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>100</AliquotaPadrao>
+          <Ativo>False</Ativo>
+          <Descricao>Total IPI</Descricao>
+          <Formula>self.Itens.TipoValorIPI.Valor-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Soma</Operacao>
+          <Ordem>210</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttIPI</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttCDe" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total Liquido</Descricao>
+          <Formula>self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'ttPro')-&gt;First.Valor - self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'PercD')-&gt;First.Valor</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>30</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttCDe</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttLiq" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total liquido do produto</Descricao>
+          <Formula>if 
+(self.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida)
+ then 
+((self.Quantidade * self.ValorUnitario) -  self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'Desc')-&gt;First.Valor)
+else 
+((self.Quantidade * self.ValorUnitario * 1) -  self.Valores-&gt;select( v | v.TipoMovEstoqueValor.Sigla = 'Desc')-&gt;First.Valor)
+endif</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Soma</Operacao>
+          <Ordem>60</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttLiq</Sigla>
+          <TipoRegistro>Item</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="vFrete" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total Frete</Descricao>
+          <Formula>if (self.Transportador-&gt;notEmpty) then
+  self.Transportador.ValorTotal
+else
+  0.00
+endif</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Soma</Operacao>
+          <Ordem>110</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>vFrete</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="PIIP" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Quota ICMS Destino</Descricao>
+          <Formula>100.00</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>260</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>PIIP</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="vlRat" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Valor Rateio</Descricao>
+          <Formula>((((self.Quantidade * self.ValorUnitario) * 100) / self.Cabecalho.Itens-&gt;select(TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida)-&gt;collect(Quantidade*ValorUnitario)-&gt;Sum) * (self.Cabecalho.Valores-&gt;select(Operacao = enumOperacao::Subtracao).Valor-&gt;sum))/100</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Soma</Operacao>
+          <Ordem>10</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>vlRat</Sigla>
+          <TipoMovCaixaPartida>Debito</TipoMovCaixaPartida>
+          <TipoRegistro>Item</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="PII" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>% ICMS Origem</Descricao>
+          <Formula>100.00</Formula>
+          <FormulaAliquotaPadrao>if (self.EnderecoEntrega.Bairro.Cidade.UF = 'GO') then
+  0.00
+else
+  12.00
+endif
+</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>230</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>PII</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttParc" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total Parcelas</Descricao>
+          <Formula>self.TotalParcelas</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>150</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttParc</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="ttRat" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Total Rateio</Descricao>
+          <Formula>self.Valores-&gt;select(Operacao = enumOperacao::Subtracao).Valor-&gt;sum</Formula>
+          <FormulaAliquotaPadrao>100.00</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>20</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>ttRat</Sigla>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+      <Record Id="vPIS" Tipo="TipoMovEstoqueValor">
+        <Atributos>
+          <AliquotaPadrao>0</AliquotaPadrao>
+          <Ativo>True</Ativo>
+          <Descricao>Valor PIS</Descricao>
+          <Formula>if 
+(self.TipoAtualizacaoEstoque = enumTipoAtualizacaoEstoque::Saida) and (self.AliquotaPIS &gt; 0)
+ then 
+self.Quantidade * self.ValorUnitario 
+else 
+0.00
+endif</Formula>
+          <FormulaAliquotaPadrao>self.AliquotaPIS</FormulaAliquotaPadrao>
+          <FormulaValorPadrao>( ( self.Base * self.Aliquota ) / 100 ).Round(2)</FormulaValorPadrao>
+          <Operacao>Nenhuma</Operacao>
+          <Ordem>300</Ordem>
+          <PermiteAlterarAliquota>False</PermiteAlterarAliquota>
+          <PermiteAlterarBase>False</PermiteAlterarBase>
+          <PermiteAlterarValor>False</PermiteAlterarValor>
+          <Sigla>vPIS</Sigla>
+          <TipoRegistro>Item</TipoRegistro>
+          <TipoValor>Calculado</TipoValor>
+          <UsoInterno>False</UsoInterno>
+          <Visivel>True</Visivel>
+        </Atributos>
+      </Record>
+    </Valores>
+    <Tributos>
+      <Record Id="EstadualRevenda" Tipo="Tributo">
+        <Atributos>
+          <AliquotaCOFINS>0</AliquotaCOFINS>
+          <AliquotaICMS>18</AliquotaICMS>
+          <AliquotaIPI>0</AliquotaIPI>
+          <AliquotaPIS>0</AliquotaPIS>
+          <CFOP>5102</CFOP>
+          <FinalidadeEmissao>Normal</FinalidadeEmissao>
+          <FormatoImpressao>Retrato</FormatoImpressao>
+          <IESubstitutoTributario>
+          </IESubstitutoTributario>
+          <InformacaoAdicional>
+          </InformacaoAdicional>
+          <ModalidadeBaseICMS>ValorOperacao</ModalidadeBaseICMS>
+          <ModalidadeBaseICMSST>MargemValorAgregado</ModalidadeBaseICMSST>
+          <ModeloDocFiscal>55</ModeloDocFiscal>
+          <OrigemMercadoria>Nacional</OrigemMercadoria>
+          <PercMargemAdicICMSST>0</PercMargemAdicICMSST>
+          <ReducaoBCICMS>0</ReducaoBCICMS>
+          <ReducaoBCICMSST>0</ReducaoBCICMSST>
+          <RegimeTributario>SimplesNacional</RegimeTributario>
+          <SitTributariaCOFINS>TributAliquota0</SitTributariaCOFINS>
+          <SitTributariaICMS>SimplesNacNAOPermiteCredito</SitTributariaICMS>
+          <SitTributariaIPI>OutrasSaidas</SitTributariaIPI>
+          <SitTributariaPIS>TributAliquota0</SitTributariaPIS>
+          <TipoEmissao>Normal</TipoEmissao>
+          <TipoOperacao>Saida</TipoOperacao>
+          <UF>Estadual</UF>
+        </Atributos>
+        <Relacionamentos>
+          <TipoTributacao>
+            <Record Id="Revenda" Tipo="TipoTributacao">
+              <Atributos>
+                <Descricao>Revenda</Descricao>
+                <UsoInterno>True</UsoInterno>
+              </Atributos>
+            </Record>
+          </TipoTributacao>
+          <BaseTotalICMS>
+            <Record Id="ttBCICMS" Tipo="TipoMovEstoqueValor" />
+          </BaseTotalICMS>
+          <BaseTotalIPI>
+            <Record Id="ttBCIPI" Tipo="TipoMovEstoqueValor" />
+          </BaseTotalIPI>
+          <ValorProdutoICMSPadrao>
+            <Record Id="vICMS" Tipo="TipoMovEstoqueValor" />
+          </ValorProdutoICMSPadrao>
+          <ValorProdutoTotalPadrao>
+            <Record Id="ttItem" Tipo="TipoMovEstoqueValor" />
+          </ValorProdutoTotalPadrao>
+          <ValorTotalDescontos>
+            <Record Id="ttRat" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalDescontos>
+          <ValorTotalGeral>
+            <Record Id="ttGer" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalGeral>
+          <ValorTotalICMS>
+            <Record Id="ttICMS" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalICMS>
+          <ValorTotalProdutos>
+            <Record Id="ttPro" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalProdutos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="EstadualConsumidor Final" Tipo="Tributo">
+        <Atributos>
+          <AliquotaCOFINS>0</AliquotaCOFINS>
+          <AliquotaICMS>18</AliquotaICMS>
+          <AliquotaIPI>0</AliquotaIPI>
+          <AliquotaPIS>0</AliquotaPIS>
+          <CFOP>5102</CFOP>
+          <FinalidadeEmissao>Normal</FinalidadeEmissao>
+          <FormatoImpressao>Retrato</FormatoImpressao>
+          <IESubstitutoTributario>
+          </IESubstitutoTributario>
+          <InformacaoAdicional>
+          </InformacaoAdicional>
+          <ModalidadeBaseICMS>ValorOperacao</ModalidadeBaseICMS>
+          <ModalidadeBaseICMSST>MargemValorAgregado</ModalidadeBaseICMSST>
+          <ModeloDocFiscal>55</ModeloDocFiscal>
+          <OrigemMercadoria>Nacional</OrigemMercadoria>
+          <PercMargemAdicICMSST>0</PercMargemAdicICMSST>
+          <ReducaoBCICMS>0</ReducaoBCICMS>
+          <ReducaoBCICMSST>0</ReducaoBCICMSST>
+          <RegimeTributario>SimplesNacional</RegimeTributario>
+          <SitTributariaCOFINS>TributAliquota0</SitTributariaCOFINS>
+          <SitTributariaICMS>SimplesNacNAOPermiteCredito</SitTributariaICMS>
+          <SitTributariaIPI>OutrasSaidas</SitTributariaIPI>
+          <SitTributariaPIS>TributAliquota0</SitTributariaPIS>
+          <TipoEmissao>Normal</TipoEmissao>
+          <TipoOperacao>Saida</TipoOperacao>
+          <UF>Estadual</UF>
+        </Atributos>
+        <Relacionamentos>
+          <TipoTributacao>
+            <Record Id="Consumidor Final" Tipo="TipoTributacao">
+              <Atributos>
+                <Descricao>Consumidor Final</Descricao>
+                <UsoInterno>True</UsoInterno>
+              </Atributos>
+            </Record>
+          </TipoTributacao>
+          <BaseTotalICMS>
+            <Record Id="ttBCICMS" Tipo="TipoMovEstoqueValor" />
+          </BaseTotalICMS>
+          <BaseTotalIPI>
+            <Record Id="ttBCIPI" Tipo="TipoMovEstoqueValor" />
+          </BaseTotalIPI>
+          <ValorProdutoTotalPadrao>
+            <Record Id="ttItem" Tipo="TipoMovEstoqueValor" />
+          </ValorProdutoTotalPadrao>
+          <ValorTotalDescontos>
+            <Record Id="ttRat" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalDescontos>
+          <ValorTotalFrete>
+            <Record Id="vFrete" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalFrete>
+          <ValorTotalGeral>
+            <Record Id="ttGer" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalGeral>
+          <ValorTotalICMS>
+            <Record Id="ttICMS" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalICMS>
+          <ValorTotalIPI>
+            <Record Id="ttIPI" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalIPI>
+          <ValorTotalProdutos>
+            <Record Id="ttPro" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalProdutos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="InterestadualConsumidor Final" Tipo="Tributo">
+        <Atributos>
+          <AliquotaCOFINS>0</AliquotaCOFINS>
+          <AliquotaICMS>0</AliquotaICMS>
+          <AliquotaIPI>0</AliquotaIPI>
+          <AliquotaPIS>0</AliquotaPIS>
+          <CFOP>6102</CFOP>
+          <FinalidadeEmissao>Normal</FinalidadeEmissao>
+          <FormatoImpressao>Retrato</FormatoImpressao>
+          <IESubstitutoTributario>
+          </IESubstitutoTributario>
+          <InformacaoAdicional>
+          </InformacaoAdicional>
+          <ModalidadeBaseICMS>ValorOperacao</ModalidadeBaseICMS>
+          <ModalidadeBaseICMSST>MargemValorAgregado</ModalidadeBaseICMSST>
+          <ModeloDocFiscal>55</ModeloDocFiscal>
+          <OrigemMercadoria>Nacional</OrigemMercadoria>
+          <PercMargemAdicICMSST>0</PercMargemAdicICMSST>
+          <ReducaoBCICMS>0</ReducaoBCICMS>
+          <ReducaoBCICMSST>0</ReducaoBCICMSST>
+          <RegimeTributario>SimplesNacional</RegimeTributario>
+          <SitTributariaCOFINS>Outras</SitTributariaCOFINS>
+          <SitTributariaICMS>SimplesNacNAOPermiteCredito</SitTributariaICMS>
+          <SitTributariaIPI>OutrasSaidas</SitTributariaIPI>
+          <SitTributariaPIS>Outras</SitTributariaPIS>
+          <TipoEmissao>Normal</TipoEmissao>
+          <TipoOperacao>Saida</TipoOperacao>
+          <UF>Interestadual</UF>
+        </Atributos>
+        <Relacionamentos>
+          <TipoTributacao>
+            <Record Id="Consumidor Final" Tipo="TipoTributacao">
+              <Atributos>
+                <Descricao>Consumidor Final</Descricao>
+                <UsoInterno>True</UsoInterno>
+              </Atributos>
+            </Record>
+          </TipoTributacao>
+          <BaseTotalCOFINS>
+            <Record Id="ttBCCOFINS" Tipo="TipoMovEstoqueValor" />
+          </BaseTotalCOFINS>
+          <BaseTotalPIS>
+            <Record Id="ttBCPIS" Tipo="TipoMovEstoqueValor" />
+          </BaseTotalPIS>
+          <ValorProdutoCOFINSPadrao>
+            <Record Id="vCOFINS" Tipo="TipoMovEstoqueValor" />
+          </ValorProdutoCOFINSPadrao>
+          <ValorProdutoICMSPadrao>
+            <Record Id="vICMS" Tipo="TipoMovEstoqueValor" />
+          </ValorProdutoICMSPadrao>
+          <ValorProdutoPISPadrao>
+            <Record Id="vPIS" Tipo="TipoMovEstoqueValor" />
+          </ValorProdutoPISPadrao>
+          <ValorProdutoTotalPadrao>
+            <Record Id="ttItem" Tipo="TipoMovEstoqueValor" />
+          </ValorProdutoTotalPadrao>
+          <ValorTotalCOFINS>
+            <Record Id="ttCOFINS" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalCOFINS>
+          <ValorTotalDescontos>
+            <Record Id="ttRat" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalDescontos>
+          <ValorTotalFrete>
+            <Record Id="vFrete" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalFrete>
+          <ValorTotalGeral>
+            <Record Id="ttGer" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalGeral>
+          <ValorTotalPIS>
+            <Record Id="ttPIS" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalPIS>
+          <ValorTotalProdutos>
+            <Record Id="ttPro" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalProdutos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="InterestadualRevenda" Tipo="Tributo">
+        <Atributos>
+          <AliquotaCOFINS>0</AliquotaCOFINS>
+          <AliquotaICMS>18</AliquotaICMS>
+          <AliquotaIPI>0</AliquotaIPI>
+          <AliquotaPIS>0</AliquotaPIS>
+          <CFOP>6102</CFOP>
+          <FinalidadeEmissao>Normal</FinalidadeEmissao>
+          <FormatoImpressao>Retrato</FormatoImpressao>
+          <IESubstitutoTributario>
+          </IESubstitutoTributario>
+          <InformacaoAdicional>
+          </InformacaoAdicional>
+          <ModalidadeBaseICMS>ValorOperacao</ModalidadeBaseICMS>
+          <ModalidadeBaseICMSST>MargemValorAgregado</ModalidadeBaseICMSST>
+          <ModeloDocFiscal>55</ModeloDocFiscal>
+          <OrigemMercadoria>Nacional</OrigemMercadoria>
+          <PercMargemAdicICMSST>0</PercMargemAdicICMSST>
+          <ReducaoBCICMS>0</ReducaoBCICMS>
+          <ReducaoBCICMSST>0</ReducaoBCICMSST>
+          <RegimeTributario>SimplesNacional</RegimeTributario>
+          <SitTributariaCOFINS>Isenta</SitTributariaCOFINS>
+          <SitTributariaICMS>SimplesNacNAOPermiteCredito</SitTributariaICMS>
+          <SitTributariaIPI>OutrasSaidas</SitTributariaIPI>
+          <SitTributariaPIS>Isenta</SitTributariaPIS>
+          <TipoEmissao>Normal</TipoEmissao>
+          <TipoOperacao>Saida</TipoOperacao>
+          <UF>Interestadual</UF>
+        </Atributos>
+        <Relacionamentos>
+          <TipoTributacao>
+            <Record Id="Revenda" Tipo="TipoTributacao">
+              <Atributos>
+                <Descricao>Revenda</Descricao>
+                <UsoInterno>True</UsoInterno>
+              </Atributos>
+            </Record>
+          </TipoTributacao>
+          <BaseTotalICMS>
+            <Record Id="ttBCICMS" Tipo="TipoMovEstoqueValor" />
+          </BaseTotalICMS>
+          <ValorProdutoICMSPadrao>
+            <Record Id="vICMS" Tipo="TipoMovEstoqueValor" />
+          </ValorProdutoICMSPadrao>
+          <ValorProdutoTotalPadrao>
+            <Record Id="ttItem" Tipo="TipoMovEstoqueValor" />
+          </ValorProdutoTotalPadrao>
+          <ValorTotalDescontos>
+            <Record Id="ttRat" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalDescontos>
+          <ValorTotalFrete>
+            <Record Id="vFrete" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalFrete>
+          <ValorTotalGeral>
+            <Record Id="ttGer" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalGeral>
+          <ValorTotalICMS>
+            <Record Id="ttICMS" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalICMS>
+          <ValorTotalProdutos>
+            <Record Id="ttPro" Tipo="TipoMovEstoqueValor" />
+          </ValorTotalProdutos>
+        </Relacionamentos>
+      </Record>
+    </Tributos>
+    <Variaveis>
+      <Record Id="vPedido" Tipo="TipoMovEstoqueVariavel">
+        <Atributos>
+          <Expressao>PMOVIMENTO</Expressao>
+          <Nome>vPedido</Nome>
+          <PreExpressao>
+          </PreExpressao>
+          <TipoRegistro>Cabecalho</TipoRegistro>
+        </Atributos>
+      </Record>
+    </Variaveis>
+    <NumeradorPadrao>
+      <Record Id="NotaFiscal" Tipo="TipoMovEstoqueNumerador">
+        <Relacionamentos>
+          <NumerosSequenciais>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="BSB Externo 01" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>61bac616-a308-4773-ade0-9f6721ed4a33</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="NASCIMENTO AFONSO - NA" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="EXPOSIÇAO GYN" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>2e4155b9-f8b9-4611-ac0d-32168a8180db</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="NASCIMENTO E MENDONÇA - NM" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="DESPESA PARTICULAR" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="BAIXO GIRO GYN" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>666</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>ad0779ac-8921-47d7-8e13-3248ffa37459</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="ELETRO RAROS - ER" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>-</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="BAIXO GIRO BSB" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="EXPOSIÇAO BSB" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>a7934f1c-5ace-4289-b205-a727c17af1d5</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="ALVES FLEURY - AF" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>-</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="COZINAIR GYN" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="PEÇAS" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>0ddc639d-d6b6-4ee1-a1fd-99144514ad4e</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="RB COMERCIO - RB" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>
+                </DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="DESPESA FIXA BSB" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+            <Record Id="NFeNumero" Tipo="NumeroSequencial">
+              <Atributos>
+                <AvisarFaltando>0</AvisarFaltando>
+                <Descricao>NFeNumero</Descricao>
+                <DisparaGatilho>-</DisparaGatilho>
+                <FinalSequencia>0</FinalSequencia>
+              </Atributos>
+              <Relacionamentos>
+                <Unidade>
+                  <Record Id="COZINAIR BSB" Tipo="Unidade" />
+                </Unidade>
+              </Relacionamentos>
+            </Record>
+          </NumerosSequenciais>
+        </Relacionamentos>
+      </Record>
+    </NumeradorPadrao>
+    <ValorTotalDescontosRateio>
+      <Record Id="ttRat" Tipo="TipoMovEstoqueValor" />
+    </ValorTotalDescontosRateio>
+    <ValorDescontoRateado>
+      <Record Id="vlRat" Tipo="TipoMovEstoqueValor" />
+    </ValorDescontoRateado>
+    <GrupoTipoMovEstoque>
+      <Record Id="VENDAS FISCAIS" Tipo="GrupoTipoMovEstoque">
+        <Atributos>
+          <Descricao>VENDAS FISCAIS</Descricao>
+        </Atributos>
+      </Record>
+    </GrupoTipoMovEstoque>
+  </Relacionamentos>
+</Classe>

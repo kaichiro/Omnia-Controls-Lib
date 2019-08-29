@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<Classe Tipo="Rotina">
+  <Atributos>
+    <Ativo>True</Ativo>
+    <Comentarios>
+    </Comentarios>
+    <Descricao>Inclui obs em orçamento de venda pendente</Descricao>
+    <MostrarProgresso>True</MostrarProgresso>
+    <ProgressoExecucao>
+    </ProgressoExecucao>
+  </Atributos>
+  <Relacionamentos>
+    <Parametros>
+      <Record Id="POBS" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>*Observação</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>False</LimparAposExecucao>
+          <NomeInterno>POBS</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Texto</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="POV" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>CabecalhoMovimentoEstoque.allLoadedObjects-&gt;select( cme | 
+  (cme.TipoMovimentoEstoque.Abreviacao = 'OV')
+  and
+  cme.Itens-&gt;exists( ime | ime.QuantidadeQuitada )
+  and
+  PUSER.AgentesVendas-&gt;exists( av | 
+    (
+      (av = cme.AgenteVenda)
+      or
+      av.Personalidade.Perfil.SysAdmin
+    )
+    and
+    av.Ativo 
+    and
+    av.Unidades-&gt;exists( und | cme.Unidade = und )
+  )
+)
+-&gt;orderBy( cme | cme.DataEmissao )
+</Comando>
+          <Etiqueta>*O.V.</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>POV</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>TipoMovimentoEstoque.allInstances-&gt;select( tme | tme.Abreviacao = 'OV' )
+.MovimentosEstoque-&gt;select( cme |
+  cme.Itens-&gt;exists( ime | ime.QuantidadeQuitada )
+  and
+  PUSER.AgentesVendas-&gt;exists( av | 
+    (
+      (av = cme.AgenteVenda)
+      or
+      av.Personalidade.Perfil.SysAdmin
+    )
+    and
+    av.Ativo 
+    and
+    av.Unidades-&gt;exists( und | cme.Unidade = und )
+  )
+)
+</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let cme = self-&gt;first in (&#xD;&#xA;  cme.DataEmissao.asString&#xD;&#xA;  + ' - ' + &#xD;&#xA;  cme.NumeroPadrao.Numero&#xD;&#xA;  +&#xD;&#xA;  ', Und('+cme.Unidade.Descricao+')'&#xD;&#xA;  +&#xD;&#xA;  ', Vend.('+cme.AgenteVenda.Personalidade.Nome+')'&#xD;&#xA;  +&#xD;&#xA;  ', Cliente('+cme.Personalidade.Nome+')'&#xD;&#xA;)&#xD;&#xA;" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let cme = self-&gt;first in (
+  cme.DataEmissao.asString
+  + ' - ' + 
+  cme.NumeroPadrao.Numero
+  +
+  ', Und('+cme.Unidade.Descricao+')'
+  +
+  ', Vend.('+cme.AgenteVenda.Personalidade.Nome+')'
+  +
+  ', Cliente('+cme.Personalidade.Nome+')'
+)
+</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+    </Parametros>
+    <Comandos>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>let tpObsDescricao = 'Observação em O.V.' in (
+let tpObs =
+  let findTpObs =  ('TipoObservacao.allInstances-&gt;select( tpObs | tpObs.Descricao = \''+tpObsDescricao+'\' )').EnsureObjects(TipoObservacao)-&gt;first in (
+    if findTpObs-&gt;notEmpty then
+      findTpObs
+    else
+      let newTpObs = TipoObservacao.Create in ( newTpObs.Descricao := tpObsDescricao; newTpObs )
+    endif
+  )
+in (
+  let newCabObs = ObsCabMovEstoque.Create in (
+    newCabObs.CabecalhoMovimentoEstoque := POV
+    ; newCabObs.Texto := POBS
+    ; newCabObs.Usuario := PUSER
+    ; newCabObs.TipoObservacao := tpObs
+  )
+)
+)
+</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>10</Ordem>
+        </Atributos>
+      </Record>
+    </Comandos>
+    <Validacoes>
+      <Record Id="Informe um texto para justificativa acima de dez caracteres!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>POBS.Trim.Length &lt; 10</Comando>
+          <Descricao>Informe um texto para justificativa acima de dez caracteres!</Descricao>
+          <Mensagem>Informe um texto para justificativa acima de dez caracteres!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Pesquise/escolha um Orçamento de Venda!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>POV-&gt;isEmpty</Comando>
+          <Descricao>Pesquise/escolha um Orçamento de Venda!</Descricao>
+          <Mensagem>Pesquise/escolha um Orçamento de Venda!</Mensagem>
+        </Atributos>
+      </Record>
+    </Validacoes>
+  </Relacionamentos>
+</Classe>
