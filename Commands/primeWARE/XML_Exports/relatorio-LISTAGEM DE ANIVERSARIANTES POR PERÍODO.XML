@@ -4,7 +4,7 @@
     <Layout>&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?&gt;
 &lt;StiSerializer version="1.02" type="Net" application="StiReport"&gt;
   &lt;BeginRenderEvent&gt;varDTIni = new DateTime(PDTINI.Year, PDTINI.Month, PDTINI.Day);
-varDTFim = new DateTime(PDTFIM.Year, PDTFIM.Month, PDTFIM.Day, 23, 59, 59);
+varDTFim = new DateTime(PDTFIM.Year, PDTFIM.Month, PDTFIM.Day, 23, 59, 59).AddDays(-1);
 
 dsGeral010.Connect();
 
@@ -16,6 +16,9 @@ dsRelatorio.Connect();
 
 
 dsLogo.Connect();
+
+
+dsUser.Connect();
 &lt;/BeginRenderEvent&gt;
   &lt;Dictionary Ref="1" type="Dictionary" isKey="true"&gt;
     &lt;BusinessObjects isList="true" count="0" /&gt;
@@ -26,7 +29,7 @@ dsLogo.Connect();
         &lt;Name&gt;primeWARE&lt;/Name&gt;
       &lt;/primeWARE&gt;
     &lt;/Databases&gt;
-    &lt;DataSources isList="true" count="3"&gt;
+    &lt;DataSources isList="true" count="4"&gt;
       &lt;dsGeral010 Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
         &lt;Alias&gt;dsGeral010&lt;/Alias&gt;
         &lt;Columns isList="true" count="11"&gt;
@@ -60,7 +63,9 @@ with datas as (
 PessoaFisicaTMP as (
   select dt.mes, dt.dia, pf.ECO_ID PessoFisicaID 
   from datas dt
-  inner join PessoaFisica pf on dt.mes = DATEPART(MONTH, pf.DataNascimento) and dt.dia = DATEPART(DAY, pf.DataNascimento)
+  inner join PessoaFisica pf 
+    on dt.mes = DATEPART(MONTH, pf.DataNascimento) 
+    and dt.dia = DATEPART(DAY, pf.DataNascimento)
 )
   select 
   1 flag
@@ -107,16 +112,16 @@ PessoaFisicaTMP as (
   )
   , '     ', ', ') Cidade_Estado
   ,
-  case datepart(month, pf.DataNascimento)
-    when 1 then 'Janeiro'
-    when 2 then 'Fevereiro'
-    when 3 then 'Março'
-    when 4 then 'Abril'
-    when 5 then 'Maio'
-    when 6 then 'Junho'
-    when 7 then 'Julho'
-    when 8 then 'Agosto'
-    when 9 then 'Setembro'
+  case pfTMP.mes
+    when 01 then 'Janeiro'
+    when 02 then 'Fevereiro'
+    when 03 then 'Março'
+    when 04 then 'Abril'
+    when 05 then 'Maio'
+    when 06 then 'Junho'
+    when 07 then 'Julho'
+    when 08 then 'Agosto'
+    when 09 then 'Setembro'
     when 10 then 'Outubro'
     when 11 then 'Novembro'
     when 12 then 'Dezembro'
@@ -141,7 +146,9 @@ PessoaFisicaTMP as (
         &lt;Name&gt;dsRelatorio&lt;/Name&gt;
         &lt;NameInSource&gt;primeWARE&lt;/NameInSource&gt;
         &lt;Parameters isList="true" count="0" /&gt;
-        &lt;SqlCommand&gt;select Nome from Relatorio where replace(Nome, ' ', '') = '{vGlobalReportName}'&lt;/SqlCommand&gt;
+        &lt;SqlCommand&gt;select Nome 
+from Relatorio 
+where replace(Nome, ' ', '') = '{vGlobalReportName}'&lt;/SqlCommand&gt;
       &lt;/dsRelatorio&gt;
       &lt;dsLogo Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
         &lt;Alias&gt;dsLogo&lt;/Alias&gt;
@@ -154,14 +161,34 @@ PessoaFisicaTMP as (
         &lt;Name&gt;dsLogo&lt;/Name&gt;
         &lt;NameInSource&gt;primeWARE&lt;/NameInSource&gt;
         &lt;Parameters isList="true" count="0" /&gt;
-        &lt;SqlCommand&gt;SELECT prd.Foto FROM Produto prd WHERE prd.CodigoFabricante = 'LOGO'&lt;/SqlCommand&gt;
+        &lt;SqlCommand&gt;SELECT prd.Foto 
+FROM Produto prd
+WHERE prd.CodigoFabricante = 'LOGO'&lt;/SqlCommand&gt;
       &lt;/dsLogo&gt;
+      &lt;dsUser Ref="6" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
+        &lt;Alias&gt;dsUser&lt;/Alias&gt;
+        &lt;Columns isList="true" count="2"&gt;
+          &lt;value&gt;Login,System.String&lt;/value&gt;
+          &lt;value&gt;Nome,System.String&lt;/value&gt;
+        &lt;/Columns&gt;
+        &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;ConnectOnStart&gt;False&lt;/ConnectOnStart&gt;
+        &lt;Dictionary isRef="1" /&gt;
+        &lt;Name&gt;dsUser&lt;/Name&gt;
+        &lt;NameInSource&gt;primeWARE&lt;/NameInSource&gt;
+        &lt;Parameters isList="true" count="0" /&gt;
+        &lt;SqlCommand&gt;select
+pers.Login
+, pers.Nome
+from Personalidade pers
+where pers.ECO_ID = '{PUSER}'&lt;/SqlCommand&gt;
+      &lt;/dsUser&gt;
     &lt;/DataSources&gt;
     &lt;Relations isList="true" count="0" /&gt;
     &lt;Report isRef="0" /&gt;
     &lt;Variables isList="true" count="7"&gt;
-      &lt;value&gt;primeWARE,PDTFIM,PDTFIM,System.DateTime,_x0038__x002F_27_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PDTINI,PDTINI,System.DateTime,_x0031__x002F_1_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTFIM,PDTFIM,System.DateTime,_x0031_0_x002F_9_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTINI,PDTINI,System.DateTime,_x0038__x002F_1_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
       &lt;value&gt;primeWARE,PUSER,PUSER,System.String,_x0030_de63e9a-29a0-417a-8e55-82672d70dc41,True,False&lt;/value&gt;
       &lt;value&gt;primeWARE,PUNDTRAB,PUNDTRAB,System.String,_x0037_d86c88d-04bc-44b7-a0c6-732e44f68467,True,False&lt;/value&gt;
       &lt;value&gt;,varDTIni,varDTIni,System.DateTime,_x0038__x002F_27_x002F_2019_x0020_3:46:33_x0020_PM,False,False&lt;/value&gt;
@@ -173,16 +200,16 @@ PessoaFisicaTMP as (
   &lt;GlobalizationStrings isList="true" count="0" /&gt;
   &lt;MetaTags isList="true" count="0" /&gt;
   &lt;Pages isList="true" count="1"&gt;
-    &lt;Page1 Ref="6" type="Page" isKey="true"&gt;
+    &lt;Page1 Ref="7" type="Page" isKey="true"&gt;
       &lt;Border&gt;None;Black;2;Solid;False;4;Black&lt;/Border&gt;
       &lt;Brush&gt;Transparent&lt;/Brush&gt;
       &lt;Components isList="true" count="7"&gt;
-        &lt;PageHeaderBand1 Ref="7" type="PageHeaderBand" isKey="true"&gt;
+        &lt;PageHeaderBand1 Ref="8" type="PageHeaderBand" isKey="true"&gt;
           &lt;Border&gt;Bottom;Black;1;Double;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;ClientRectangle&gt;0,0.4,19,2.4&lt;/ClientRectangle&gt;
-          &lt;Components isList="true" count="4"&gt;
-            &lt;Text34 Ref="8" type="Text" isKey="true"&gt;
+          &lt;Components isList="true" count="5"&gt;
+            &lt;Text34 Ref="9" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;3,0,13,1.4&lt;/ClientRectangle&gt;
@@ -192,15 +219,15 @@ PessoaFisicaTMP as (
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text34&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="7" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="8" /&gt;
               &lt;Text&gt;{dsRelatorio.Nome}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text34&gt;
-            &lt;Text36 Ref="9" type="Text" isKey="true"&gt;
+            &lt;Text36 Ref="10" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;3.2,1.8,15.8,0.4&lt;/ClientRectangle&gt;
@@ -210,14 +237,14 @@ PessoaFisicaTMP as (
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text36&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="7" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="8" /&gt;
               &lt;Text&gt;{string.Format("Hoje: {0:dddd, d' de 'MMMM' de 'yyyy', 'HH:mm:ss.}", Time)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text36&gt;
-            &lt;Image1 Ref="10" type="Image" isKey="true"&gt;
+            &lt;Image1 Ref="11" type="Image" isKey="true"&gt;
               &lt;AspectRatio&gt;True&lt;/AspectRatio&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;ClientRectangle&gt;0,0,3,2.2&lt;/ClientRectangle&gt;
@@ -226,12 +253,12 @@ PessoaFisicaTMP as (
               &lt;Guid&gt;e735a4bc1309496daf2132e32fb98f23&lt;/Guid&gt;
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Name&gt;Image1&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="7" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="8" /&gt;
               &lt;Stretch&gt;True&lt;/Stretch&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Image1&gt;
-            &lt;Text38 Ref="11" type="Text" isKey="true"&gt;
+            &lt;Text38 Ref="12" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;17.6,0,1.4,0.4&lt;/ClientRectangle&gt;
@@ -241,26 +268,43 @@ PessoaFisicaTMP as (
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text38&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="7" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="8" /&gt;
               &lt;Text&gt;{PageNumber}/{TotalPageCount}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text38&gt;
+            &lt;Text9 Ref="13" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;3.2,1.4,15.8,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;Guid&gt;6043c59d6b7b41b6b527710304d7cc1b&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text9&lt;/Name&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="8" /&gt;
+              &lt;Text&gt;Requisitante: {dsUser.Nome}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text9&gt;
           &lt;/Components&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Name&gt;PageHeaderBand1&lt;/Name&gt;
-          &lt;Page isRef="6" /&gt;
-          &lt;Parent isRef="6" /&gt;
+          &lt;Page isRef="7" /&gt;
+          &lt;Parent isRef="7" /&gt;
         &lt;/PageHeaderBand1&gt;
-        &lt;PageFooterBand1 Ref="12" type="PageFooterBand" isKey="true"&gt;
+        &lt;PageFooterBand1 Ref="14" type="PageFooterBand" isKey="true"&gt;
           &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,26.9,19,0.8&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="1"&gt;
-            &lt;Text6 Ref="13" type="Text" isKey="true"&gt;
+            &lt;Text6 Ref="15" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;0,0,19,0.4&lt;/ClientRectangle&gt;
@@ -270,8 +314,8 @@ PessoaFisicaTMP as (
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text6&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="12" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="14" /&gt;
               &lt;Text&gt;{string.Format("{0:yyyy} © Copyright primeWARE - E.R.P.   Fone: 62 | 3093 7826", Today)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
@@ -279,15 +323,15 @@ PessoaFisicaTMP as (
           &lt;/Components&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Name&gt;PageFooterBand1&lt;/Name&gt;
-          &lt;Page isRef="6" /&gt;
-          &lt;Parent isRef="6" /&gt;
+          &lt;Page isRef="7" /&gt;
+          &lt;Parent isRef="7" /&gt;
         &lt;/PageFooterBand1&gt;
-        &lt;GroupHeaderBand1 Ref="14" type="GroupHeaderBand" isKey="true"&gt;
+        &lt;GroupHeaderBand1 Ref="16" type="GroupHeaderBand" isKey="true"&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,3.6,19,0.6&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="4"&gt;
-            &lt;Text1 Ref="15" type="Text" isKey="true"&gt;
+            &lt;Text1 Ref="17" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;0,0.2,2,0.4&lt;/ClientRectangle&gt;
@@ -297,14 +341,14 @@ PessoaFisicaTMP as (
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text1&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="14" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="16" /&gt;
               &lt;Text&gt;Nascimento&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text1&gt;
-            &lt;Text2 Ref="16" type="Text" isKey="true"&gt;
+            &lt;Text2 Ref="18" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;2.2,0.2,5.4,0.4&lt;/ClientRectangle&gt;
@@ -313,13 +357,13 @@ PessoaFisicaTMP as (
               &lt;Guid&gt;d8e3469dff1f4a5981e95acb23a67e5b&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text2&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="14" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="16" /&gt;
               &lt;Text&gt;Nome&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text2&gt;
-            &lt;Text4 Ref="17" type="Text" isKey="true"&gt;
+            &lt;Text4 Ref="19" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;7.8,0.2,4.8,0.4&lt;/ClientRectangle&gt;
@@ -328,13 +372,13 @@ PessoaFisicaTMP as (
               &lt;Guid&gt;4257f1a08db548228c37caa7cfdcb166&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text4&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="14" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="16" /&gt;
               &lt;Text&gt;Telefones&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text4&gt;
-            &lt;Text5 Ref="18" type="Text" isKey="true"&gt;
+            &lt;Text5 Ref="20" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;12.8,0.2,6.2,0.4&lt;/ClientRectangle&gt;
@@ -343,8 +387,8 @@ PessoaFisicaTMP as (
               &lt;Guid&gt;5584f2fd1fff4fb6b1a97da9b992e8a9&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text5&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="14" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="16" /&gt;
               &lt;Text&gt;Cidade/Estado  - EMail&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
@@ -353,15 +397,15 @@ PessoaFisicaTMP as (
           &lt;Condition&gt;{dsGeral010.flag}&lt;/Condition&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Name&gt;GroupHeaderBand1&lt;/Name&gt;
-          &lt;Page isRef="6" /&gt;
-          &lt;Parent isRef="6" /&gt;
+          &lt;Page isRef="7" /&gt;
+          &lt;Parent isRef="7" /&gt;
           &lt;PrintOnAllPages&gt;True&lt;/PrintOnAllPages&gt;
         &lt;/GroupHeaderBand1&gt;
-        &lt;GroupHeaderBand2 Ref="19" type="GroupHeaderBand" isKey="true"&gt;
+        &lt;GroupHeaderBand2 Ref="21" type="GroupHeaderBand" isKey="true"&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;ClientRectangle&gt;0,5,19,1&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="1"&gt;
-            &lt;Text3 Ref="20" type="Text" isKey="true"&gt;
+            &lt;Text3 Ref="22" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;0.2,0.4,18.6,0.6&lt;/ClientRectangle&gt;
@@ -371,8 +415,8 @@ PessoaFisicaTMP as (
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text3&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="19" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="21" /&gt;
               &lt;Text&gt;{dsGeral010.MesDescricao}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
@@ -382,73 +426,86 @@ PessoaFisicaTMP as (
           &lt;Condition&gt;{dsGeral010.mes}&lt;/Condition&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Name&gt;GroupHeaderBand2&lt;/Name&gt;
-          &lt;Page isRef="6" /&gt;
-          &lt;Parent isRef="6" /&gt;
+          &lt;Page isRef="7" /&gt;
+          &lt;Parent isRef="7" /&gt;
           &lt;PrintOnAllPages&gt;True&lt;/PrintOnAllPages&gt;
         &lt;/GroupHeaderBand2&gt;
-        &lt;DatadsGeral010 Ref="21" type="DataBand" isKey="true"&gt;
+        &lt;DatadsGeral010 Ref="23" type="DataBand" isKey="true"&gt;
+          &lt;Border&gt;Top, Bottom;Black;1;Dot;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;BusinessObjectGuid isNull="true" /&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,6.8,19,0.8&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="4"&gt;
-            &lt;DatadsGeral010_DataNascimento Ref="22" type="Text" isKey="true"&gt;
+            &lt;DatadsGeral010_DataNascimento Ref="24" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;CanShrink&gt;True&lt;/CanShrink&gt;
               &lt;ClientRectangle&gt;0,0,2,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
               &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;GrowToHeight&gt;True&lt;/GrowToHeight&gt;
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;DatadsGeral010_DataNascimento&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="21" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="23" /&gt;
               &lt;Text&gt;{dsGeral010.DataNascimento}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-              &lt;TextFormat Ref="23" type="DateFormat" isKey="true" /&gt;
+              &lt;TextFormat Ref="25" type="DateFormat" isKey="true" /&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/DatadsGeral010_DataNascimento&gt;
-            &lt;DatadsGeral010_Nome Ref="24" type="Text" isKey="true"&gt;
+            &lt;DatadsGeral010_Nome Ref="26" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;CanShrink&gt;True&lt;/CanShrink&gt;
               &lt;ClientRectangle&gt;2.2,0,5.4,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
               &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;GrowToHeight&gt;True&lt;/GrowToHeight&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;DatadsGeral010_Nome&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="21" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="23" /&gt;
               &lt;Text&gt;{dsGeral010.Nome}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/DatadsGeral010_Nome&gt;
-            &lt;DatadsGeral010_Telefones Ref="25" type="Text" isKey="true"&gt;
+            &lt;DatadsGeral010_Telefones Ref="27" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;CanShrink&gt;True&lt;/CanShrink&gt;
               &lt;ClientRectangle&gt;7.8,0,4.8,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
               &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;GrowToHeight&gt;True&lt;/GrowToHeight&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;DatadsGeral010_Telefones&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="21" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="23" /&gt;
               &lt;Text&gt;{dsGeral010.Telefones}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/DatadsGeral010_Telefones&gt;
-            &lt;DatadsGeral010_Cidade_Estado Ref="26" type="Text" isKey="true"&gt;
+            &lt;DatadsGeral010_Cidade_Estado Ref="28" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;CanShrink&gt;True&lt;/CanShrink&gt;
               &lt;ClientRectangle&gt;12.8,0,6.2,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
               &lt;Font&gt;Courier New,8&lt;/Font&gt;
+              &lt;GrowToHeight&gt;True&lt;/GrowToHeight&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;DatadsGeral010_Cidade_Estado&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="21" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="23" /&gt;
               &lt;Text&gt;{dsGeral010.Cidade_Estado}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/DatadsGeral010_Cidade_Estado&gt;
           &lt;/Components&gt;
@@ -457,8 +514,8 @@ PessoaFisicaTMP as (
           &lt;DataSourceName&gt;dsGeral010&lt;/DataSourceName&gt;
           &lt;Filters isList="true" count="0" /&gt;
           &lt;Name&gt;DatadsGeral010&lt;/Name&gt;
-          &lt;Page isRef="6" /&gt;
-          &lt;Parent isRef="6" /&gt;
+          &lt;Page isRef="7" /&gt;
+          &lt;Parent isRef="7" /&gt;
           &lt;Sort isList="true" count="6"&gt;
             &lt;value&gt;ASC&lt;/value&gt;
             &lt;value&gt;mes&lt;/value&gt;
@@ -468,11 +525,11 @@ PessoaFisicaTMP as (
             &lt;value&gt;Nome&lt;/value&gt;
           &lt;/Sort&gt;
         &lt;/DatadsGeral010&gt;
-        &lt;GroupFooterBand1 Ref="27" type="GroupFooterBand" isKey="true"&gt;
+        &lt;GroupFooterBand1 Ref="29" type="GroupFooterBand" isKey="true"&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;ClientRectangle&gt;0,8.4,19,0.8&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="1"&gt;
-            &lt;Text7 Ref="28" type="Text" isKey="true"&gt;
+            &lt;Text7 Ref="30" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;0.2,0,18.6,0.6&lt;/ClientRectangle&gt;
@@ -482,8 +539,8 @@ PessoaFisicaTMP as (
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text7&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="27" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="29" /&gt;
               &lt;Text&gt;{Count(DatadsGeral010)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Totals&lt;/Type&gt;
@@ -491,15 +548,15 @@ PessoaFisicaTMP as (
           &lt;/Components&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Name&gt;GroupFooterBand1&lt;/Name&gt;
-          &lt;Page isRef="6" /&gt;
-          &lt;Parent isRef="6" /&gt;
+          &lt;Page isRef="7" /&gt;
+          &lt;Parent isRef="7" /&gt;
         &lt;/GroupFooterBand1&gt;
-        &lt;GroupHeaderBand3 Ref="29" type="GroupHeaderBand" isKey="true"&gt;
+        &lt;GroupHeaderBand3 Ref="31" type="GroupHeaderBand" isKey="true"&gt;
           &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;ClientRectangle&gt;0,10,19,0.8&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="1"&gt;
-            &lt;Text8 Ref="30" type="Text" isKey="true"&gt;
+            &lt;Text8 Ref="32" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;0.2,0,18.6,0.6&lt;/ClientRectangle&gt;
@@ -509,8 +566,8 @@ PessoaFisicaTMP as (
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text8&lt;/Name&gt;
-              &lt;Page isRef="6" /&gt;
-              &lt;Parent isRef="29" /&gt;
+              &lt;Page isRef="7" /&gt;
+              &lt;Parent isRef="31" /&gt;
               &lt;Text&gt;{Count(DatadsGeral010)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Totals&lt;/Type&gt;
@@ -518,8 +575,8 @@ PessoaFisicaTMP as (
           &lt;/Components&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Name&gt;GroupHeaderBand3&lt;/Name&gt;
-          &lt;Page isRef="6" /&gt;
-          &lt;Parent isRef="6" /&gt;
+          &lt;Page isRef="7" /&gt;
+          &lt;Parent isRef="7" /&gt;
         &lt;/GroupHeaderBand3&gt;
       &lt;/Components&gt;
       &lt;Conditions isList="true" count="0" /&gt;
@@ -529,13 +586,13 @@ PessoaFisicaTMP as (
       &lt;PageHeight&gt;29.7&lt;/PageHeight&gt;
       &lt;PageWidth&gt;21&lt;/PageWidth&gt;
       &lt;Report isRef="0" /&gt;
-      &lt;Watermark Ref="31" type="Stimulsoft.Report.Components.StiWatermark" isKey="true"&gt;
+      &lt;Watermark Ref="33" type="Stimulsoft.Report.Components.StiWatermark" isKey="true"&gt;
         &lt;Font&gt;Arial,100&lt;/Font&gt;
         &lt;TextBrush&gt;[50:0:0:0]&lt;/TextBrush&gt;
       &lt;/Watermark&gt;
     &lt;/Page1&gt;
   &lt;/Pages&gt;
-  &lt;PrinterSettings Ref="32" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" /&gt;
+  &lt;PrinterSettings Ref="34" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" /&gt;
   &lt;ReferencedAssemblies isList="true" count="8"&gt;
     &lt;value&gt;System.Dll&lt;/value&gt;
     &lt;value&gt;System.Drawing.Dll&lt;/value&gt;
@@ -546,13 +603,13 @@ PessoaFisicaTMP as (
     &lt;value&gt;Stimulsoft.Base.Dll&lt;/value&gt;
     &lt;value&gt;Stimulsoft.Report.Dll&lt;/value&gt;
   &lt;/ReferencedAssemblies&gt;
-  &lt;ReportAlias&gt;LISTAGEMDEANIVERSARIANTESPORPERÍODO270819164623&lt;/ReportAlias&gt;
+  &lt;ReportAlias&gt;LISTAGEMDEANIVERSARIANTESPORPERÍODO300819152708&lt;/ReportAlias&gt;
   &lt;ReportCacheMode&gt;On&lt;/ReportCacheMode&gt;
-  &lt;ReportChanged&gt;8/27/2019 4:45:52 PM&lt;/ReportChanged&gt;
+  &lt;ReportChanged&gt;8/30/2019 3:26:12 PM&lt;/ReportChanged&gt;
   &lt;ReportCreated&gt;8/27/2019 3:42:05 PM&lt;/ReportCreated&gt;
-  &lt;ReportFile&gt;C:\Users\Kaichiro\AppData\Local\Temp\2\LISTAGEMDEANIVERSARIANTESPORPERÍODO270819164623&lt;/ReportFile&gt;
-  &lt;ReportGuid&gt;f5a86d4808024cecba7dedcce20865ac&lt;/ReportGuid&gt;
-  &lt;ReportName&gt;LISTAGEMDEANIVERSARIANTESPORPERÍODO270819164623&lt;/ReportName&gt;
+  &lt;ReportFile&gt;C:\Users\Kaichiro\AppData\Local\Temp\2\LISTAGEMDEANIVERSARIANTESPORPERÍODO300819152708&lt;/ReportFile&gt;
+  &lt;ReportGuid&gt;72957792f92e41a3bab425b3046a67df&lt;/ReportGuid&gt;
+  &lt;ReportName&gt;LISTAGEMDEANIVERSARIANTESPORPERÍODO300819152708&lt;/ReportName&gt;
   &lt;ReportUnit&gt;Centimeters&lt;/ReportUnit&gt;
   &lt;ReportVersion&gt;2012.3.1500&lt;/ReportVersion&gt;
   &lt;Script&gt;using System;
