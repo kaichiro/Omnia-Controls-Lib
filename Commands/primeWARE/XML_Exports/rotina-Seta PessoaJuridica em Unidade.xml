@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<Classe Tipo="Rotina">
+  <Atributos>
+    <Ativo>True</Ativo>
+    <Comentarios>
+    </Comentarios>
+    <Descricao>Seta PessoaJuridica em Unidade</Descricao>
+    <MostrarProgresso>True</MostrarProgresso>
+    <ProgressoExecucao>
+    </ProgressoExecucao>
+  </Atributos>
+  <Relacionamentos>
+    <Parametros>
+      <Record Id="PPJ" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>PessoaJuridica.allLoadedObjects-&gt;select( pj |
+  pj.Nome.sqlLikeCaseInsensitive('{0}%')
+  or
+  pj.NomeFantasia.sqlLikeCaseInsensitive('{0}%')
+)
+-&gt;orderBy( pj | pj.Nome, pj.NomeFantasia )</Comando>
+          <Etiqueta>*Pessoa Jurídica</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PPJ</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>PessoaJuridica.allInstances-&gt;select( pj |
+  pj.Nome.sqlLikeCaseInsensitive('{0}%')
+  or
+  pj.NomeFantasia.sqlLikeCaseInsensitive('{0}%')
+)</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PUNIDADE.PessoaJuridica</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self.asString" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self.asString</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PUNIDADE" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Unidade.allLoadedObjects-&gt;select( und | und.Descricao.sqlLikeCaseInsensitive('{0}%') )-&gt;orderBy( und | und.Descricao )</Comando>
+          <Etiqueta>*Unidade</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PUNIDADE</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>Unidade.allInstances-&gt;select( und | und.Descricao.sqlLikeCaseInsensitive('{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>PUNDTRAB</ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let und = self-&gt;first in ( und.Descricao.concat(' - ', und.PessoaJuridica.asString) )" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let und = self-&gt;first in ( und.Descricao.concat(' - ', und.PessoaJuridica.asString) )</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+    </Parametros>
+    <Comandos>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PUNIDADE.PessoaJuridica := if PPJ-&gt;notEmpty then PPJ else nil endif</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>10</Ordem>
+        </Atributos>
+      </Record>
+    </Comandos>
+    <Validacoes>
+      <Record Id="Informe uma Pessoa Jurídica!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PPJ-&gt;isEmpty</Comando>
+          <Descricao>Informe uma Pessoa Jurídica!</Descricao>
+          <Mensagem>Informe uma Pessoa Jurídica!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Pessoa Jurídica sem endereço principal!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PPJ.EnderecoMail-&gt;isEmpty</Comando>
+          <Descricao>Pessoa Jurídica sem endereço principal!</Descricao>
+          <Mensagem>Pessoa Jurídica sem endereço principal!</Mensagem>
+        </Atributos>
+      </Record>
+      <Record Id="Informe uma Unidade!" Tipo="RotinaValidacao">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>PUNIDADE-&gt;isEmpty</Comando>
+          <Descricao>Informe uma Unidade!</Descricao>
+          <Mensagem>Informe uma Unidade!</Mensagem>
+        </Atributos>
+      </Record>
+    </Validacoes>
+  </Relacionamentos>
+</Classe>
