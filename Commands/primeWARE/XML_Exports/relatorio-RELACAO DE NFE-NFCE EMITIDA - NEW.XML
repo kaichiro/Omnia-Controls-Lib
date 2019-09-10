@@ -3,7 +3,12 @@
   <Atributos>
     <Layout>&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?&gt;
 &lt;StiSerializer version="1.02" type="Net" application="StiReport"&gt;
-  &lt;BeginRenderEvent&gt;//dsCab.Disconnect();
+  &lt;BeginRenderEvent&gt;varDtIniProcess = Time;
+
+//dsCab.Disconnect();
+
+
+varCanShowItens = PSHOWDETALHES ? " 1 = 1 " : " 1 = 0 " ;
 
 varTMEs = PTMES != string.Empty ? string.Format(" and cme.TipoMovimentoEstoque in ({0}) ", PTMES) : string.Empty ;
 
@@ -27,6 +32,9 @@ ghCab.Enabled = pnlContainerMain.Enabled;
 gfCab.Enabled = pnlContainerMain.Enabled;
 
 //dsCab.Connect();
+dsLogo.Connect();
+dsRelatorio.Connect();
+dsUsuario.Connect();
 &lt;/BeginRenderEvent&gt;
   &lt;Dictionary Ref="1" type="Dictionary" isKey="true"&gt;
     &lt;BusinessObjects isList="true" count="0" /&gt;
@@ -40,7 +48,7 @@ gfCab.Enabled = pnlContainerMain.Enabled;
     &lt;DataSources isList="true" count="5"&gt;
       &lt;dsCab Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
         &lt;Alias&gt;dsCab&lt;/Alias&gt;
-        &lt;Columns isList="true" count="20"&gt;
+        &lt;Columns isList="true" count="19"&gt;
           &lt;value&gt;flag,System.Int32&lt;/value&gt;
           &lt;value&gt;DataEmissao,System.DateTime&lt;/value&gt;
           &lt;value&gt;idMov,System.Guid&lt;/value&gt;
@@ -51,7 +59,6 @@ gfCab.Enabled = pnlContainerMain.Enabled;
           &lt;value&gt;Personalidade,System.String&lt;/value&gt;
           &lt;value&gt;NrNFe,System.String&lt;/value&gt;
           &lt;value&gt;NrPV,System.String&lt;/value&gt;
-          &lt;value&gt;idPV,System.Guid&lt;/value&gt;
           &lt;value&gt;TMEVenda,System.String&lt;/value&gt;
           &lt;value&gt;UndVenda,System.String&lt;/value&gt;
           &lt;value&gt;TotalNF,System.Double&lt;/value&gt;
@@ -70,7 +77,71 @@ gfCab.Enabled = pnlContainerMain.Enabled;
           &lt;value&gt;_x0040_pDTIni,varDTIni,4,0&lt;/value&gt;
           &lt;value&gt;_x0040_pDTFim,varDTFim,4,0&lt;/value&gt;
         &lt;/Parameters&gt;
-        &lt;SqlCommand&gt;with cab as (
+        &lt;SqlCommand&gt;set dateformat ymd;
+
+with IDs as (
+  select
+  cme.ECO_ID CabecalhoMovimentoEstoqueID
+  , cme.Unidade UnidadeID
+  , cme.TipoMovimentoEstoque TipoMovimentoEstoqueID
+  , cme.Personalidade PersonalidadeID
+  , cme.NumeroPadrao NumeroPadraoID
+  , cme.TipoValorTotalNF TipoValorTotalNF_ID
+  from CabecalhoMovimentoEstoque cme
+  inner join Unidade und on cme.Unidade  = und.ECO_ID
+  inner join TipoMovimentoEstoque tme on cme.TipoMovimentoEstoque = tme.ECO_ID
+  where cme.DataEmissao between @pDTIni and @pDTFim
+  and cme.State = 'NFe Processada'
+  {varUnidades}
+  {varTMEs}
+  {varIsCancelado}
+), QtdesItens as (
+  select 
+  x.CabecalhoMovimentoEstoqueID
+  , sum(ime.Quantidade) Quantidade
+  , ime.TipoAtualizacaoEstoque
+  from IDs x
+  inner join ItemMovimentoEstoque ime on x.CabecalhoMovimentoEstoqueID = ime.Cabecalho and ime.ProdutoFinal is not null
+  group by 
+  x.CabecalhoMovimentoEstoqueID
+  , ime.TipoAtualizacaoEstoque
+)
+select
+  1 flag
+  , x.CabecalhoMovimentoEstoqueID idMov
+  , cme.DataEmissao
+  , cme.Cancelado
+  , cme.State
+  , tme.NaturezaOperacao
+  , tme.DescricaoCFOP
+  , und.Descricao Unidade
+  , pers.Nome Personalidade
+  , cmen.Numero NrNFe
+  , cmevNF.Valor TotalNF
+  , case when cme.Cancelado = 0 then cmevNF.Valor else 0.0 end TotalNFRegular
+  , coalesce((select SUM(qtdeIN.Quantidade) from QtdesItens qtdeIN where x.CabecalhoMovimentoEstoqueID = qtdeIN.CabecalhoMovimentoEstoqueID and qtdeIN.TipoAtualizacaoEstoque = 'Entrada'), 0.0) qtdeItensEntrando
+  , coalesce((select SUM(qtdeOUT.Quantidade) from QtdesItens qtdeOUT where x.CabecalhoMovimentoEstoqueID = qtdeOUT.CabecalhoMovimentoEstoqueID and qtdeOUT.TipoAtualizacaoEstoque = 'Saida'), 0.0) qtdeItensSaindo
+  ,
+  coalesce((
+    select top 1 vc.Valor from ObjetoValorClasse ovc 
+    left outer join ValorClasse vc on vc.Objeto = ovc.ECO_ID 
+    left outer join CfgValorClasse cfgVC on vc.Configuracao = cfgVC.ECO_ID
+    where ovc.Id like '%' + Cast(tme.ECO_ID as varCHAR(100)) 
+    and cfgVC.Descricao = 'Índice de multiplicação')
+    ,0
+  ) IndiceMultiplicador
+  from IDs x 
+  inner join CabecalhoMovimentoEstoque cme on x.CabecalhoMovimentoEstoqueID = cme.ECO_ID
+  inner join TipoMovimentoEstoque tme on x.TipoMovimentoEstoqueID = tme.ECO_ID
+  inner join Unidade und on x.UnidadeID = und.ECO_ID
+  inner join Personalidade pers on x.PersonalidadeID = pers.ECO_ID
+  inner join CabMovEstoqueNumero cmen on x.NumeroPadraoID = cmen.ECO_ID
+  inner join CabMovEstoqueValor cmevNF on x.TipoValorTotalNF_ID = cmevNF.ECO_ID
+ 
+
+
+/*
+with cab as (
   select 
   1 flag
   , cme.DataEmissao
@@ -153,7 +224,7 @@ gfCab.Enabled = pnlContainerMain.Enabled;
   left join CabMovEstoqueNumero cmenPV on cmePV.NumeroPadrao = cmenPV.ECO_ID
   left join TipoMovimentoEstoque tmePV on cmePV.TipoMovimentoEstoque = tmePV.ECO_ID
   left join Unidade undPV on cmePV.Unidade = undPV.ECO_ID
-&lt;/SqlCommand&gt;
+*/&lt;/SqlCommand&gt;
       &lt;/dsCab&gt;
       &lt;dsItens Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
         &lt;Alias&gt;dsItens&lt;/Alias&gt;
@@ -174,7 +245,7 @@ gfCab.Enabled = pnlContainerMain.Enabled;
           &lt;value&gt;idPF,System.Guid&lt;/value&gt;
           &lt;value&gt;Referencia,System.String&lt;/value&gt;
           &lt;value&gt;Produto,System.String&lt;/value&gt;
-          &lt;value&gt;Marca,System.String&lt;/value&gt;
+          &lt;value&gt;Marca1,System.String&lt;/value&gt;
           &lt;value&gt;vlrIPI,System.Double&lt;/value&gt;
           &lt;value&gt;vlrICMS,System.Double&lt;/value&gt;
           &lt;value&gt;TipoAtualizacaoEstoque_Abreviacao,System.String&lt;/value&gt;
@@ -187,7 +258,101 @@ gfCab.Enabled = pnlContainerMain.Enabled;
           &lt;value&gt;_x0040_pDTIni,varDTIni,4,0&lt;/value&gt;
           &lt;value&gt;_x0040_pDTFim,varDTFim,4,0&lt;/value&gt;
         &lt;/Parameters&gt;
-        &lt;SqlCommand&gt;with infos010 as (
+        &lt;SqlCommand&gt;set dateformat ymd;
+
+with IDsMain as (
+  select
+  cme.ECO_ID CabecalhoMovimentoEstoqueID
+  , ime.ECO_ID ItemMovimentoEstoqueID
+  , ime.TipoValorTotal imevTotalID
+  , ime.TipoValorIPI imevIPI_ID
+  , ime.TipoValorICMS imevICMS_ID
+  , pf.ECO_ID ProdutoFinalID
+  , pf.Produto ProdutoID
+  from CabecalhoMovimentoEstoque cme
+  inner join Unidade und on cme.Unidade  = und.ECO_ID
+  inner join TipoMovimentoEstoque tme on cme.TipoMovimentoEstoque = tme.ECO_ID
+  inner join ItemMovimentoEstoque ime on cme.ECO_ID = ime.Cabecalho
+  inner join ProdutoFinal pf on ime.ProdutoFinal = pf.ECO_ID
+  where {varCanShowItens}
+  and cme.DataEmissao between @pDTIni and @pDTFim
+  and cme.State = 'NFe Processada'
+  {varUnidades}
+  {varTMEs}
+  {varIsCancelado}
+), infos010 as (
+  select
+  1 flag
+  , x.CabecalhoMovimentoEstoqueID idMov
+  , coalesce(ime.AliquotaICMS,0.0) AliquotaICMS
+  , coalesce(ime.AliquotaIPI,0.0) AliquotaIPI
+  , coalesce(ime.DescontosRateados,0.0) DescontosRateados
+  , coalesce(ime.FreteRateado,0.0) FreteRateado
+  , ime.CFOP
+  , ime.SitTributariaICMS
+  , ime.TipoAtualizacaoEstoque
+  , substring(ime.TipoAtualizacaoEstoque,1,1) TipoAtualizacaoEstoque_Abreviacao
+  , coalesce(ime.Quantidade,0.0) Quantidade
+  , coalesce(ime.ValorUnitario,0.0) ValorUnitario
+  , coalesce((ime.Quantidade * ime.ValorUnitario),0.0)  vlrUnit_Qtde
+  , coalesce(imevTotalProd.Valor,0.0) ValorTotalItem
+  , x.ProdutoFinalID idPF
+  , prd.Referencia
+  , prd.Descricao Produto
+  , coalesce(imevIPI.Valor,0.0) vlrIPI
+  , coalesce(imevICMS.Valor,0.0) vlrICMS
+  from IDsMain x
+  inner join ItemMovimentoEstoque ime on x.CabecalhoMovimentoEstoqueID = ime.Cabecalho
+  inner join Produto prd on x.ProdutoID = prd.ECO_ID
+  left join ItemMovEstoqueValor imevTotalProd on x.imevTotalID = imevTotalProd.ECO_ID
+  left join ItemMovEstoqueValor imevIPI on x.imevIPI_ID = imevIPI.ECO_ID
+  left join ItemMovEstoqueValor imevICMS on x.imevICMS_ID = imevICMS.ECO_ID
+)
+  select
+  x.flag
+  , x.idMov
+  , x.AliquotaICMS
+  , x.AliquotaIPI
+  , sum(x.DescontosRateados) DescontosRateados
+  , sum(x.FreteRateado) FreteRateado
+  , x.CFOP
+  , x.SitTributariaICMS
+  , x.TipoAtualizacaoEstoque
+  , x.TipoAtualizacaoEstoque_Abreviacao
+  , sum(x.Quantidade) Quantidade
+  , sum(x.ValorUnitario) ValorUnitario
+  , sum(x.vlrUnit_Qtde) vlrUnit_Qtde
+  , sum(x.ValorTotalItem) ValorTotalItem
+  , x.idPF
+  , x.Referencia
+  , x.Produto
+  , sum(x.vlrIPI) vlrIPI
+  , sum(x.vlrICMS) vlrICMS
+  from infos010 x
+  group by 
+  x.flag
+  , x.idMov
+  , x.AliquotaICMS
+  , x.AliquotaIPI
+  --, sum(x.DescontosRateados) DescontosRateados
+  --, sum(x.FreteRateado) FreteRateado
+  , x.CFOP
+  , x.SitTributariaICMS
+  , x.TipoAtualizacaoEstoque
+  , x.TipoAtualizacaoEstoque_Abreviacao
+  --, sum(x.Quantidade) Quantidade
+  --, sum(x.ValorUnitario) ValorUnitario
+  --, sum(x.vlrUnit_Qtde) vlrUnit_Qtde
+  --, sum(x.ValorTotalItem) ValorTotalItem
+  , x.idPF
+  , x.Referencia
+  , x.Produto
+  --, sum(x.vlrIPI) vlrIPI
+  --, sum(x.vlrICMS) vlrICMS
+
+
+/*
+with infos010 as (
 	select 
 	1 flag
 	, cme.ECO_ID idMov
@@ -269,7 +434,7 @@ x.flag
 , x.Marca
 --, sum(x.vlrIPI) vlrIPI
 --, sum(x.vlrICMS) vlrICMS
-&lt;/SqlCommand&gt;
+*/&lt;/SqlCommand&gt;
       &lt;/dsItens&gt;
       &lt;dsLogo Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
         &lt;Alias&gt;dsLogo&lt;/Alias&gt;
@@ -277,6 +442,7 @@ x.flag
           &lt;value&gt;Foto,System.Byte[]&lt;/value&gt;
         &lt;/Columns&gt;
         &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;ConnectOnStart&gt;False&lt;/ConnectOnStart&gt;
         &lt;Dictionary isRef="1" /&gt;
         &lt;Name&gt;dsLogo&lt;/Name&gt;
         &lt;NameInSource&gt;primeWARE&lt;/NameInSource&gt;
@@ -289,6 +455,7 @@ x.flag
           &lt;value&gt;Nome,System.String&lt;/value&gt;
         &lt;/Columns&gt;
         &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;ConnectOnStart&gt;False&lt;/ConnectOnStart&gt;
         &lt;Dictionary isRef="1" /&gt;
         &lt;Name&gt;dsRelatorio&lt;/Name&gt;
         &lt;NameInSource&gt;primeWARE&lt;/NameInSource&gt;
@@ -301,6 +468,7 @@ x.flag
           &lt;value&gt;Nome,System.String&lt;/value&gt;
         &lt;/Columns&gt;
         &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
+        &lt;ConnectOnStart&gt;False&lt;/ConnectOnStart&gt;
         &lt;Dictionary isRef="1" /&gt;
         &lt;Name&gt;dsUsuario&lt;/Name&gt;
         &lt;NameInSource&gt;primeWARE&lt;/NameInSource&gt;
@@ -325,21 +493,23 @@ x.flag
       &lt;/nItens&gt;
     &lt;/Relations&gt;
     &lt;Report isRef="0" /&gt;
-    &lt;Variables isList="true" count="14"&gt;
+    &lt;Variables isList="true" count="16"&gt;
       &lt;value&gt;primeWARE,PTMES,PTMES,System.String,,True,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PUNIDADES,PUNIDADES,System.String,_x0027_7d86c88d-04bc-44b7-a0c6-732e44f68467_x0027_,True,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PDTFIM,PDTFIM,System.DateTime,_x0038__x002F_26_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PDTINI,PDTINI,System.DateTime,_x0038__x002F_1_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PUNIDADES,PUNIDADES,System.String,,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTFIM,PDTFIM,System.DateTime,_x0039__x002F_10_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTINI,PDTINI,System.DateTime,_x0031__x002F_1_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
       &lt;value&gt;primeWARE,PUSER,PUSER,System.String,_x0030_de63e9a-29a0-417a-8e55-82672d70dc41,True,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PUNDTRAB,PUNDTRAB,System.String,_x0036_38a0b8e-2674-4c6b-935e-e872d97af50b,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PUNDTRAB,PUNDTRAB,System.String,_x0037_d86c88d-04bc-44b7-a0c6-732e44f68467,True,False&lt;/value&gt;
       &lt;value&gt;,varIsCancelado,varIsCancelado,System.String,,False,False&lt;/value&gt;
       &lt;value&gt;,varDTIni,varDTIni,System.DateTime,_x0039__x002F_26_x002F_2016_x0020_3:50:44_x0020_PM,False,False&lt;/value&gt;
       &lt;value&gt;,varDTFim,varDTFim,System.DateTime,_x0039__x002F_26_x002F_2016_x0020_3:50:53_x0020_PM,False,False&lt;/value&gt;
       &lt;value&gt;,varTMEs,varTMEs,System.String,,False,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PCANCELADO,PCANCELADO,System.String,Regular,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PCANCELADO,PCANCELADO,System.String,,True,False&lt;/value&gt;
       &lt;value&gt;primeWARE,PSHOWDETALHES,PSHOWDETALHES,System.Boolean,false,True,False&lt;/value&gt;
       &lt;value&gt;,varUnidades,varUnidades,System.String,,False,False&lt;/value&gt;
       &lt;value&gt;,vGlobalReportName,vGlobalReportName,System.String,,False,False&lt;/value&gt;
+      &lt;value&gt;,varCanShowItens,varCanShowItens,System.String,,False,False&lt;/value&gt;
+      &lt;value&gt;,varDtIniProcess,varDtIniProcess,System.DateTime,_x0039__x002F_10_x002F_2019_x0020_4:38:41_x0020_PM,False,False&lt;/value&gt;
     &lt;/Variables&gt;
   &lt;/Dictionary&gt;
   &lt;EngineVersion&gt;EngineV2&lt;/EngineVersion&gt;
@@ -367,7 +537,7 @@ x.flag
               &lt;Name&gt;Text34&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
               &lt;Parent isRef="10" /&gt;
-              &lt;Text&gt;{dsRelatorio.Nome}..&lt;/Text&gt;
+              &lt;Text&gt;{dsRelatorio.Nome}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
@@ -486,13 +656,13 @@ string.Empty
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,26.9,19,0.8&lt;/ClientRectangle&gt;
-          &lt;Components isList="true" count="1"&gt;
+          &lt;Components isList="true" count="2"&gt;
             &lt;Text40 Ref="19" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
-              &lt;ClientRectangle&gt;0,0,19,0.4&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;1,0,17,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
-              &lt;Font&gt;Courier New,6&lt;/Font&gt;
+              &lt;Font&gt;Courier New,7&lt;/Font&gt;
               &lt;Guid&gt;dd11f74daced4f438115327e831fb878&lt;/Guid&gt;
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
@@ -504,6 +674,23 @@ string.Empty
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text40&gt;
+            &lt;Text72 Ref="20" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;14.8,0.1,4.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,5&lt;/Font&gt;
+              &lt;Guid&gt;066455d2ec254126a71ad1dca39e7491&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text72&lt;/Name&gt;
+              &lt;Page isRef="9" /&gt;
+              &lt;Parent isRef="18" /&gt;
+              &lt;Text&gt;{Time - varDtIniProcess}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text72&gt;
           &lt;/Components&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Guid&gt;a0863c32193142bb95859fc7c0185a6b&lt;/Guid&gt;
@@ -511,13 +698,13 @@ string.Empty
           &lt;Page isRef="9" /&gt;
           &lt;Parent isRef="9" /&gt;
         &lt;/PageFooterBand1&gt;
-        &lt;ghUnidade Ref="20" type="GroupHeaderBand" isKey="true"&gt;
+        &lt;ghUnidade Ref="21" type="GroupHeaderBand" isKey="true"&gt;
           &lt;Border&gt;Top;Black;1;Double;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,3.6,19,1.2&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="1"&gt;
-            &lt;Text7 Ref="21" type="Text" isKey="true"&gt;
+            &lt;Text7 Ref="22" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;ClientRectangle&gt;0,0.4,16.6,0.6&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
@@ -526,7 +713,7 @@ string.Empty
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text7&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
-              &lt;Parent isRef="20" /&gt;
+              &lt;Parent isRef="21" /&gt;
               &lt;Text&gt;Unidade/Loja: {dsCab.Unidade}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;DataColumn&lt;/Type&gt;
@@ -540,13 +727,13 @@ string.Empty
           &lt;Parent isRef="9" /&gt;
           &lt;PrintOnAllPages&gt;True&lt;/PrintOnAllPages&gt;
         &lt;/ghUnidade&gt;
-        &lt;ghNatOp Ref="22" type="GroupHeaderBand" isKey="true"&gt;
+        &lt;ghNatOp Ref="23" type="GroupHeaderBand" isKey="true"&gt;
           &lt;Border&gt;Top;Black;1;Dash;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,5.6,19,1.2&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="1"&gt;
-            &lt;Text6 Ref="23" type="Text" isKey="true"&gt;
+            &lt;Text6 Ref="24" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;ClientRectangle&gt;0.2,0.6,16.8,0.6&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
@@ -555,7 +742,7 @@ string.Empty
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text6&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
-              &lt;Parent isRef="22" /&gt;
+              &lt;Parent isRef="23" /&gt;
               &lt;Text&gt;Natureza de Operação: {dsCab.NaturezaOperacao}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;DataColumn&lt;/Type&gt;
@@ -569,7 +756,7 @@ string.Empty
           &lt;Parent isRef="9" /&gt;
           &lt;PrintOnAllPages&gt;True&lt;/PrintOnAllPages&gt;
         &lt;/ghNatOp&gt;
-        &lt;ghCab Ref="24" type="GroupHeaderBand" isKey="true"&gt;
+        &lt;ghCab Ref="25" type="GroupHeaderBand" isKey="true"&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;ClientRectangle&gt;0,7.6,19,0.4&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="0" /&gt;
@@ -579,14 +766,14 @@ string.Empty
           &lt;Page isRef="9" /&gt;
           &lt;Parent isRef="9" /&gt;
         &lt;/ghCab&gt;
-        &lt;dtCab Ref="25" type="DataBand" isKey="true"&gt;
+        &lt;dtCab Ref="26" type="DataBand" isKey="true"&gt;
           &lt;Border&gt;Top;Black;1;Dot;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;BusinessObjectGuid isNull="true" /&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,8.8,19,4.8&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="6"&gt;
-            &lt;Text1 Ref="26" type="Text" isKey="true"&gt;
+            &lt;Text1 Ref="27" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;ClientRectangle&gt;0.8,0,2,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
@@ -595,12 +782,12 @@ string.Empty
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text1&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
-              &lt;Parent isRef="25" /&gt;
+              &lt;Parent isRef="26" /&gt;
               &lt;Text&gt;{dsCab.NrNFe}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text1&gt;
-            &lt;Text2 Ref="27" type="Text" isKey="true"&gt;
+            &lt;Text2 Ref="28" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;ClientRectangle&gt;3.2,0,3.6,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
@@ -608,15 +795,15 @@ string.Empty
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text2&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
-              &lt;Parent isRef="25" /&gt;
+              &lt;Parent isRef="26" /&gt;
               &lt;Text&gt;{dsCab.DataEmissao}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-              &lt;TextFormat Ref="28" type="CustomFormat" isKey="true"&gt;
+              &lt;TextFormat Ref="29" type="CustomFormat" isKey="true"&gt;
                 &lt;StringFormat&gt;dd/MM/yy HH:mm&lt;/StringFormat&gt;
               &lt;/TextFormat&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text2&gt;
-            &lt;Text3 Ref="29" type="Text" isKey="true"&gt;
+            &lt;Text3 Ref="30" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;ClientRectangle&gt;7.2,0,9.4,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
@@ -625,13 +812,13 @@ string.Empty
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text3&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
-              &lt;Parent isRef="25" /&gt;
+              &lt;Parent isRef="26" /&gt;
               &lt;Text&gt;{dsCab.Personalidade}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text3&gt;
-            &lt;CheckBox1 Ref="30" type="CheckBox" isKey="true"&gt;
+            &lt;CheckBox1 Ref="31" type="CheckBox" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;Checked&gt;{dsCab.Cancelado}&lt;/Checked&gt;
               &lt;ClientRectangle&gt;0,0,0.4,0.4&lt;/ClientRectangle&gt;
@@ -639,21 +826,21 @@ string.Empty
               &lt;ContourColor&gt;Black&lt;/ContourColor&gt;
               &lt;Name&gt;CheckBox1&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
-              &lt;Parent isRef="25" /&gt;
+              &lt;Parent isRef="26" /&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
             &lt;/CheckBox1&gt;
-            &lt;pnlContainerMain Ref="31" type="Stimulsoft.Report.Components.StiPanel" isKey="true"&gt;
+            &lt;pnlContainerMain Ref="32" type="Stimulsoft.Report.Components.StiPanel" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;CanShrink&gt;True&lt;/CanShrink&gt;
               &lt;ClientRectangle&gt;0,0.4,19,4&lt;/ClientRectangle&gt;
               &lt;Components isList="true" count="3"&gt;
-                &lt;ghItens Ref="32" type="GroupHeaderBand" isKey="true"&gt;
+                &lt;ghItens Ref="33" type="GroupHeaderBand" isKey="true"&gt;
                   &lt;Brush&gt;Transparent&lt;/Brush&gt;
                   &lt;CanShrink&gt;True&lt;/CanShrink&gt;
                   &lt;ClientRectangle&gt;0,0.4,19,0.8&lt;/ClientRectangle&gt;
                   &lt;Components isList="true" count="14"&gt;
-                    &lt;Text18 Ref="33" type="Text" isKey="true"&gt;
+                    &lt;Text18 Ref="34" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;0,0.4,2,0.4&lt;/ClientRectangle&gt;
@@ -663,13 +850,13 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text18&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;Referência&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text18&gt;
-                    &lt;Text19 Ref="34" type="Text" isKey="true"&gt;
+                    &lt;Text19 Ref="35" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;2,0.4,7.2,0.4&lt;/ClientRectangle&gt;
@@ -679,13 +866,13 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text19&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;Produto&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text19&gt;
-                    &lt;Text20 Ref="35" type="Text" isKey="true"&gt;
+                    &lt;Text20 Ref="36" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;17.4,0.4,1.6,0.4&lt;/ClientRectangle&gt;
@@ -696,10 +883,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text20&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;Total&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="36" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="37" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -707,7 +894,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text20&gt;
-                    &lt;Text21 Ref="37" type="Text" isKey="true"&gt;
+                    &lt;Text21 Ref="38" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;16,0.4,1.4,0.4&lt;/ClientRectangle&gt;
@@ -718,10 +905,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text21&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;Valor&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="38" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="39" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -729,7 +916,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text21&gt;
-                    &lt;Text22 Ref="39" type="Text" isKey="true"&gt;
+                    &lt;Text22 Ref="40" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;15.6,0.4,0.4,0.4&lt;/ClientRectangle&gt;
@@ -740,13 +927,13 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text22&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;Q&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text22&gt;
-                    &lt;Text23 Ref="40" type="Text" isKey="true"&gt;
+                    &lt;Text23 Ref="41" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;14.4,0.4,1.2,0.4&lt;/ClientRectangle&gt;
@@ -757,10 +944,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text23&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;R$&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="41" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="42" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -768,7 +955,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text23&gt;
-                    &lt;Text24 Ref="42" type="Text" isKey="true"&gt;
+                    &lt;Text24 Ref="43" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;13.4,0.4,1,0.4&lt;/ClientRectangle&gt;
@@ -779,10 +966,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text24&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;%&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="43" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="44" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -790,7 +977,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text24&gt;
-                    &lt;Text25 Ref="44" type="Text" isKey="true"&gt;
+                    &lt;Text25 Ref="45" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;12.2,0.4,1.2,0.4&lt;/ClientRectangle&gt;
@@ -801,10 +988,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text25&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;R$&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="45" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="46" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -812,7 +999,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text25&gt;
-                    &lt;Text26 Ref="46" type="Text" isKey="true"&gt;
+                    &lt;Text26 Ref="47" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;11.2,0.4,1,0.4&lt;/ClientRectangle&gt;
@@ -823,10 +1010,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text26&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;%&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="47" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="48" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -834,7 +1021,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text26&gt;
-                    &lt;Text27 Ref="48" type="Text" isKey="true"&gt;
+                    &lt;Text27 Ref="49" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;9.6,0.4,0.8,0.4&lt;/ClientRectangle&gt;
@@ -845,13 +1032,13 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text27&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;CFOP&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text27&gt;
-                    &lt;Text28 Ref="49" type="Text" isKey="true"&gt;
+                    &lt;Text28 Ref="50" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;10.4,0.4,0.8,0.4&lt;/ClientRectangle&gt;
@@ -862,13 +1049,13 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text28&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;CST&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text28&gt;
-                    &lt;Text31 Ref="50" type="Text" isKey="true"&gt;
+                    &lt;Text31 Ref="51" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;9.2,0.4,0.4,0.4&lt;/ClientRectangle&gt;
@@ -879,13 +1066,13 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text31&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;T&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text31&gt;
-                    &lt;Text29 Ref="51" type="Text" isKey="true"&gt;
+                    &lt;Text29 Ref="52" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;13.4,0,2.2,0.4&lt;/ClientRectangle&gt;
@@ -896,10 +1083,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text29&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;ICMS&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="52" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="53" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -907,7 +1094,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text29&gt;
-                    &lt;Text30 Ref="53" type="Text" isKey="true"&gt;
+                    &lt;Text30 Ref="54" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;11.2,0,2.2,0.4&lt;/ClientRectangle&gt;
@@ -918,10 +1105,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text30&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="32" /&gt;
+                      &lt;Parent isRef="33" /&gt;
                       &lt;Text&gt;IPI&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="54" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="55" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -934,15 +1121,15 @@ string.Empty
                   &lt;Conditions isList="true" count="0" /&gt;
                   &lt;Name&gt;ghItens&lt;/Name&gt;
                   &lt;Page isRef="9" /&gt;
-                  &lt;Parent isRef="31" /&gt;
+                  &lt;Parent isRef="32" /&gt;
                 &lt;/ghItens&gt;
-                &lt;DataBand1 Ref="55" type="DataBand" isKey="true"&gt;
+                &lt;DataBand1 Ref="56" type="DataBand" isKey="true"&gt;
                   &lt;Brush&gt;Transparent&lt;/Brush&gt;
                   &lt;BusinessObjectGuid isNull="true" /&gt;
                   &lt;CanShrink&gt;True&lt;/CanShrink&gt;
                   &lt;ClientRectangle&gt;0,2,19,0.8&lt;/ClientRectangle&gt;
                   &lt;Components isList="true" count="12"&gt;
-                    &lt;Text5 Ref="56" type="Text" isKey="true"&gt;
+                    &lt;Text5 Ref="57" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;0,0,2,0.4&lt;/ClientRectangle&gt;
@@ -952,13 +1139,13 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text5&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.Referencia}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text5&gt;
-                    &lt;Text8 Ref="57" type="Text" isKey="true"&gt;
+                    &lt;Text8 Ref="58" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;2,0,7.2,0.4&lt;/ClientRectangle&gt;
@@ -968,13 +1155,13 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text8&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.Produto}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text8&gt;
-                    &lt;Text9 Ref="58" type="Text" isKey="true"&gt;
+                    &lt;Text9 Ref="59" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;17.4,0,1.6,0.4&lt;/ClientRectangle&gt;
@@ -985,10 +1172,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text9&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.ValorTotalItem}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="59" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="60" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -996,7 +1183,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text9&gt;
-                    &lt;Text10 Ref="60" type="Text" isKey="true"&gt;
+                    &lt;Text10 Ref="61" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;16,0,1.4,0.4&lt;/ClientRectangle&gt;
@@ -1007,10 +1194,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text10&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.ValorUnitario}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="61" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="62" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -1018,7 +1205,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text10&gt;
-                    &lt;Text11 Ref="62" type="Text" isKey="true"&gt;
+                    &lt;Text11 Ref="63" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;15.6,0,0.4,0.4&lt;/ClientRectangle&gt;
@@ -1029,13 +1216,13 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text11&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.Quantidade}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text11&gt;
-                    &lt;Text12 Ref="63" type="Text" isKey="true"&gt;
+                    &lt;Text12 Ref="64" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;14.4,0,1.2,0.4&lt;/ClientRectangle&gt;
@@ -1046,10 +1233,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text12&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.vlrICMS}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="64" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="65" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -1057,7 +1244,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text12&gt;
-                    &lt;Text13 Ref="65" type="Text" isKey="true"&gt;
+                    &lt;Text13 Ref="66" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;13.4,0,1,0.4&lt;/ClientRectangle&gt;
@@ -1068,10 +1255,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text13&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.AliquotaICMS}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="66" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="67" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -1079,7 +1266,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text13&gt;
-                    &lt;Text14 Ref="67" type="Text" isKey="true"&gt;
+                    &lt;Text14 Ref="68" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;12.2,0,1.2,0.4&lt;/ClientRectangle&gt;
@@ -1090,10 +1277,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text14&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.vlrIPI}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="68" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="69" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -1101,7 +1288,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text14&gt;
-                    &lt;Text15 Ref="69" type="Text" isKey="true"&gt;
+                    &lt;Text15 Ref="70" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;11.2,0,1,0.4&lt;/ClientRectangle&gt;
@@ -1112,10 +1299,10 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text15&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.AliquotaIPI}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-                      &lt;TextFormat Ref="70" type="NumberFormat" isKey="true"&gt;
+                      &lt;TextFormat Ref="71" type="NumberFormat" isKey="true"&gt;
                         &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                         &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                         &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -1123,7 +1310,7 @@ string.Empty
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text15&gt;
-                    &lt;Text16 Ref="71" type="Text" isKey="true"&gt;
+                    &lt;Text16 Ref="72" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;9.6,0,0.8,0.4&lt;/ClientRectangle&gt;
@@ -1134,13 +1321,13 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text16&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.CFOP}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text16&gt;
-                    &lt;Text17 Ref="72" type="Text" isKey="true"&gt;
+                    &lt;Text17 Ref="73" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;10.4,0,0.8,0.4&lt;/ClientRectangle&gt;
@@ -1151,13 +1338,13 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text17&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.SitTributariaICMS}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
                       &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
                     &lt;/Text17&gt;
-                    &lt;Text32 Ref="73" type="Text" isKey="true"&gt;
+                    &lt;Text32 Ref="74" type="Text" isKey="true"&gt;
                       &lt;Border&gt;All;Black;1;Solid;False;4;Black&lt;/Border&gt;
                       &lt;Brush&gt;Transparent&lt;/Brush&gt;
                       &lt;ClientRectangle&gt;9.2,0,0.4,0.4&lt;/ClientRectangle&gt;
@@ -1168,7 +1355,7 @@ string.Empty
                       &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
                       &lt;Name&gt;Text32&lt;/Name&gt;
                       &lt;Page isRef="9" /&gt;
-                      &lt;Parent isRef="55" /&gt;
+                      &lt;Parent isRef="56" /&gt;
                       &lt;Text&gt;{dsItens.TipoAtualizacaoEstoque_Abreviacao}&lt;/Text&gt;
                       &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
                       &lt;Type&gt;DataColumn&lt;/Type&gt;
@@ -1179,10 +1366,10 @@ string.Empty
                   &lt;DataRelationName&gt;rItens&lt;/DataRelationName&gt;
                   &lt;DataSourceName&gt;dsItens&lt;/DataSourceName&gt;
                   &lt;Filters isList="true" count="0" /&gt;
-                  &lt;MasterComponent isRef="25" /&gt;
+                  &lt;MasterComponent isRef="26" /&gt;
                   &lt;Name&gt;DataBand1&lt;/Name&gt;
                   &lt;Page isRef="9" /&gt;
-                  &lt;Parent isRef="31" /&gt;
+                  &lt;Parent isRef="32" /&gt;
                   &lt;Sort isList="true" count="4"&gt;
                     &lt;value&gt;ASC&lt;/value&gt;
                     &lt;value&gt;Produto&lt;/value&gt;
@@ -1190,7 +1377,7 @@ string.Empty
                     &lt;value&gt;Referencia&lt;/value&gt;
                   &lt;/Sort&gt;
                 &lt;/DataBand1&gt;
-                &lt;gfItens Ref="74" type="GroupFooterBand" isKey="true"&gt;
+                &lt;gfItens Ref="75" type="GroupFooterBand" isKey="true"&gt;
                   &lt;Brush&gt;Transparent&lt;/Brush&gt;
                   &lt;CanShrink&gt;True&lt;/CanShrink&gt;
                   &lt;ClientRectangle&gt;0,3.6,19,0&lt;/ClientRectangle&gt;
@@ -1198,15 +1385,15 @@ string.Empty
                   &lt;Conditions isList="true" count="0" /&gt;
                   &lt;Name&gt;gfItens&lt;/Name&gt;
                   &lt;Page isRef="9" /&gt;
-                  &lt;Parent isRef="31" /&gt;
+                  &lt;Parent isRef="32" /&gt;
                 &lt;/gfItens&gt;
               &lt;/Components&gt;
               &lt;Conditions isList="true" count="0" /&gt;
               &lt;Name&gt;pnlContainerMain&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
-              &lt;Parent isRef="25" /&gt;
+              &lt;Parent isRef="26" /&gt;
             &lt;/pnlContainerMain&gt;
-            &lt;Text33 Ref="75" type="Text" isKey="true"&gt;
+            &lt;Text33 Ref="76" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;ClientRectangle&gt;17,0,2,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
@@ -1216,10 +1403,10 @@ string.Empty
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text33&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
-              &lt;Parent isRef="25" /&gt;
+              &lt;Parent isRef="26" /&gt;
               &lt;Text&gt;{dsCab.TotalNF}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-              &lt;TextFormat Ref="76" type="NumberFormat" isKey="true"&gt;
+              &lt;TextFormat Ref="77" type="NumberFormat" isKey="true"&gt;
                 &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                 &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                 &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -1242,7 +1429,7 @@ string.Empty
             &lt;value&gt;DataEmissao&lt;/value&gt;
           &lt;/Sort&gt;
         &lt;/dtCab&gt;
-        &lt;gfCab Ref="77" type="GroupFooterBand" isKey="true"&gt;
+        &lt;gfCab Ref="78" type="GroupFooterBand" isKey="true"&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,14.4,19,0.8&lt;/ClientRectangle&gt;
@@ -1252,12 +1439,12 @@ string.Empty
           &lt;Page isRef="9" /&gt;
           &lt;Parent isRef="9" /&gt;
         &lt;/gfCab&gt;
-        &lt;gfNatOp Ref="78" type="GroupFooterBand" isKey="true"&gt;
+        &lt;gfNatOp Ref="79" type="GroupFooterBand" isKey="true"&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,16,19,0.8&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="3"&gt;
-            &lt;Text69 Ref="79" type="Text" isKey="true"&gt;
+            &lt;Text69 Ref="80" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;ClientRectangle&gt;16,0,3,0.6&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
@@ -1267,10 +1454,10 @@ string.Empty
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text69&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
-              &lt;Parent isRef="78" /&gt;
+              &lt;Parent isRef="79" /&gt;
               &lt;Text&gt;{Sum(dtCab, dsCab.Cancelado ? 0.0 : dsCab.TotalNF)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-              &lt;TextFormat Ref="80" type="NumberFormat" isKey="true"&gt;
+              &lt;TextFormat Ref="81" type="NumberFormat" isKey="true"&gt;
                 &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                 &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                 &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -1278,7 +1465,7 @@ string.Empty
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text69&gt;
-            &lt;Text70 Ref="81" type="Text" isKey="true"&gt;
+            &lt;Text70 Ref="82" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;ClientRectangle&gt;9,0,2,0.6&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
@@ -1287,10 +1474,10 @@ string.Empty
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text70&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
-              &lt;Parent isRef="78" /&gt;
+              &lt;Parent isRef="79" /&gt;
               &lt;Text&gt;S: {Sum(dtCab,dsCab.Cancelado ? 0.0 : dsCab.qtdeItensSaindo)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-              &lt;TextFormat Ref="82" type="NumberFormat" isKey="true"&gt;
+              &lt;TextFormat Ref="83" type="NumberFormat" isKey="true"&gt;
                 &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                 &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                 &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -1298,7 +1485,7 @@ string.Empty
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text70&gt;
-            &lt;Text71 Ref="83" type="Text" isKey="true"&gt;
+            &lt;Text71 Ref="84" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;ClientRectangle&gt;11.2,0,2,0.6&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
@@ -1307,10 +1494,10 @@ string.Empty
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text71&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
-              &lt;Parent isRef="78" /&gt;
+              &lt;Parent isRef="79" /&gt;
               &lt;Text&gt;E: {Sum(dtCab, dsCab.Cancelado ? 0.0 : dsCab.qtdeItensEntrando)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-              &lt;TextFormat Ref="84" type="NumberFormat" isKey="true"&gt;
+              &lt;TextFormat Ref="85" type="NumberFormat" isKey="true"&gt;
                 &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                 &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                 &lt;NegativePattern&gt;1&lt;/NegativePattern&gt;
@@ -1332,21 +1519,21 @@ string.Empty
       &lt;PageHeight&gt;29.7&lt;/PageHeight&gt;
       &lt;PageWidth&gt;21&lt;/PageWidth&gt;
       &lt;Report isRef="0" /&gt;
-      &lt;Watermark Ref="85" type="Stimulsoft.Report.Components.StiWatermark" isKey="true"&gt;
+      &lt;Watermark Ref="86" type="Stimulsoft.Report.Components.StiWatermark" isKey="true"&gt;
         &lt;Font&gt;Arial,100&lt;/Font&gt;
         &lt;TextBrush&gt;[50:0:0:0]&lt;/TextBrush&gt;
       &lt;/Watermark&gt;
     &lt;/pgMain&gt;
-    &lt;Page1 Ref="86" type="Page" isKey="true"&gt;
+    &lt;Page1 Ref="87" type="Page" isKey="true"&gt;
       &lt;Border&gt;None;Black;2;Solid;False;4;Black&lt;/Border&gt;
       &lt;Brush&gt;Transparent&lt;/Brush&gt;
       &lt;Components isList="true" count="8"&gt;
-        &lt;PageHeaderBand2 Ref="87" type="PageHeaderBand" isKey="true"&gt;
+        &lt;PageHeaderBand2 Ref="88" type="PageHeaderBand" isKey="true"&gt;
           &lt;Border&gt;Bottom;Black;1;Double;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;ClientRectangle&gt;0,0.4,19,2.4&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="8"&gt;
-            &lt;Text41 Ref="88" type="Text" isKey="true"&gt;
+            &lt;Text41 Ref="89" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;3.2,0,12.6,1&lt;/ClientRectangle&gt;
@@ -1356,15 +1543,15 @@ string.Empty
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text41&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="87" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="88" /&gt;
               &lt;Text&gt;{dsRelatorio.Nome}..&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Bottom&lt;/VertAlignment&gt;
             &lt;/Text41&gt;
-            &lt;Text42 Ref="89" type="Text" isKey="true"&gt;
+            &lt;Text42 Ref="90" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;3.2,1.4,8.8,0.4&lt;/ClientRectangle&gt;
@@ -1373,14 +1560,14 @@ string.Empty
               &lt;Guid&gt;ca325cff74574c8d9537ed4ceaff966c&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text42&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="87" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="88" /&gt;
               &lt;Text&gt;{string.Format("Período de Emissão: {0:dd/MM/yyyy} até {1:dd/MM/yyyy}.", PDTINI, PDTFIM)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text42&gt;
-            &lt;Text43 Ref="90" type="Text" isKey="true"&gt;
+            &lt;Text43 Ref="91" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;10,1.8,9,0.4&lt;/ClientRectangle&gt;
@@ -1390,14 +1577,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text43&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="87" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="88" /&gt;
               &lt;Text&gt;{string.Format("Hoje: {0:dddd, d' de 'MMMM' de 'yyyy', 'HH:mm:ss.}", Time)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text43&gt;
-            &lt;Image2 Ref="91" type="Image" isKey="true"&gt;
+            &lt;Image2 Ref="92" type="Image" isKey="true"&gt;
               &lt;AspectRatio&gt;True&lt;/AspectRatio&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;ClientRectangle&gt;0,0,3,2.2&lt;/ClientRectangle&gt;
@@ -1406,12 +1593,12 @@ string.Empty
               &lt;Guid&gt;22e1310b2e9743ac826ae8165bd60cf4&lt;/Guid&gt;
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Name&gt;Image2&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="87" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="88" /&gt;
               &lt;Stretch&gt;True&lt;/Stretch&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Image2&gt;
-            &lt;Text44 Ref="92" type="Text" isKey="true"&gt;
+            &lt;Text44 Ref="93" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;12.8,1.4,6.2,0.4&lt;/ClientRectangle&gt;
@@ -1421,14 +1608,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text44&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="87" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="88" /&gt;
               &lt;Text&gt;Operador(a): {dsUsuario.Nome}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text44&gt;
-            &lt;Text45 Ref="93" type="Text" isKey="true"&gt;
+            &lt;Text45 Ref="94" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;17.8,0,1.2,0.4&lt;/ClientRectangle&gt;
@@ -1438,14 +1625,14 @@ string.Empty
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text45&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="87" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="88" /&gt;
               &lt;Text&gt;{PageNumber}/{TotalPageCount}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text45&gt;
-            &lt;Text46 Ref="94" type="Text" isKey="true"&gt;
+            &lt;Text46 Ref="95" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;3.2,1.8,6.6,0.4&lt;/ClientRectangle&gt;
@@ -1454,8 +1641,8 @@ string.Empty
               &lt;Guid&gt;fdc19ca9c0a542b0bee4bec8423624ec&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text46&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="87" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="88" /&gt;
               &lt;Text&gt;{
 PCANCELADO == "Cancelado" ? "Apenas NFe Canceladas" : 
 PCANCELADO == "Regular" ? "Apenas NFe Regulares" : 
@@ -1465,7 +1652,7 @@ string.Empty
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text46&gt;
-            &lt;Text4 Ref="95" type="Text" isKey="true"&gt;
+            &lt;Text4 Ref="96" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;3.2,1,12.6,0.4&lt;/ClientRectangle&gt;
@@ -1475,8 +1662,8 @@ string.Empty
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text4&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="87" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="88" /&gt;
               &lt;Text&gt;"Resumo"&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
@@ -1486,46 +1673,63 @@ string.Empty
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Guid&gt;7dd146cd0bd64d4d99f0c385ea12c774&lt;/Guid&gt;
           &lt;Name&gt;PageHeaderBand2&lt;/Name&gt;
-          &lt;Page isRef="86" /&gt;
-          &lt;Parent isRef="86" /&gt;
+          &lt;Page isRef="87" /&gt;
+          &lt;Parent isRef="87" /&gt;
         &lt;/PageHeaderBand2&gt;
-        &lt;PageFooterBand2 Ref="96" type="PageFooterBand" isKey="true"&gt;
+        &lt;PageFooterBand2 Ref="97" type="PageFooterBand" isKey="true"&gt;
           &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,26.9,19,0.8&lt;/ClientRectangle&gt;
-          &lt;Components isList="true" count="1"&gt;
-            &lt;Text47 Ref="97" type="Text" isKey="true"&gt;
+          &lt;Components isList="true" count="2"&gt;
+            &lt;Text47 Ref="98" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
-              &lt;ClientRectangle&gt;0,0,19,0.4&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;0.8,0.1,17,0.4&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
-              &lt;Font&gt;Courier New,6&lt;/Font&gt;
-              &lt;Guid&gt;dd11f74daced4f438115327e831fb878&lt;/Guid&gt;
+              &lt;Font&gt;Courier New,7&lt;/Font&gt;
+              &lt;Guid&gt;3851971ac72347cf8bd66a6e8d598ece&lt;/Guid&gt;
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text47&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="96" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="97" /&gt;
               &lt;Text&gt;{string.Format("{0:yyyy} © Copyright primeWARE - E.R.P.   Fone: 62 | 3093 7826", Today)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text47&gt;
+            &lt;Text73 Ref="99" type="Text" isKey="true"&gt;
+              &lt;Brush&gt;Transparent&lt;/Brush&gt;
+              &lt;CanGrow&gt;True&lt;/CanGrow&gt;
+              &lt;ClientRectangle&gt;14.6,0.1,4.2,0.4&lt;/ClientRectangle&gt;
+              &lt;Conditions isList="true" count="0" /&gt;
+              &lt;Font&gt;Courier New,5&lt;/Font&gt;
+              &lt;Guid&gt;10e48f5f6433477cb0efa5eb6c3b513e&lt;/Guid&gt;
+              &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
+              &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
+              &lt;Name&gt;Text73&lt;/Name&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="97" /&gt;
+              &lt;Text&gt;{Time - varDtIniProcess}&lt;/Text&gt;
+              &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
+              &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
+            &lt;/Text73&gt;
           &lt;/Components&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Guid&gt;a0863c32193142bb95859fc7c0185a6b&lt;/Guid&gt;
           &lt;Name&gt;PageFooterBand2&lt;/Name&gt;
-          &lt;Page isRef="86" /&gt;
-          &lt;Parent isRef="86" /&gt;
+          &lt;Page isRef="87" /&gt;
+          &lt;Parent isRef="87" /&gt;
         &lt;/PageFooterBand2&gt;
-        &lt;ghUndRes Ref="98" type="GroupHeaderBand" isKey="true"&gt;
+        &lt;ghUndRes Ref="100" type="GroupHeaderBand" isKey="true"&gt;
           &lt;Border&gt;Top;Black;1;Double;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,3.6,19,1.6&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="8"&gt;
-            &lt;Text48 Ref="99" type="Text" isKey="true"&gt;
+            &lt;Text48 Ref="101" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;0,0.2,12,0.6&lt;/ClientRectangle&gt;
@@ -1534,14 +1738,14 @@ string.Empty
               &lt;Guid&gt;5e06a65516a24ba3a7415e879ba7feff&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text48&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="98" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="100" /&gt;
               &lt;Text&gt;{dsCab.Unidade}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;DataColumn&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text48&gt;
-            &lt;Text54 Ref="100" type="Text" isKey="true"&gt;
+            &lt;Text54 Ref="102" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;3,0.8,9,0.4&lt;/ClientRectangle&gt;
@@ -1550,14 +1754,14 @@ string.Empty
               &lt;Guid&gt;7a8a7b2ea45d450da08c86056b882e0c&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text54&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="98" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="100" /&gt;
               &lt;Text&gt;Natureza de Operação&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text54&gt;
-            &lt;Text55 Ref="101" type="Text" isKey="true"&gt;
+            &lt;Text55 Ref="103" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;12.2,0.8,1,0.4&lt;/ClientRectangle&gt;
@@ -1567,14 +1771,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text55&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="98" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="100" /&gt;
               &lt;Text&gt;Qtde&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Totals&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text55&gt;
-            &lt;Text56 Ref="102" type="Text" isKey="true"&gt;
+            &lt;Text56 Ref="104" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;13.4,0.8,2.8,0.4&lt;/ClientRectangle&gt;
@@ -1584,14 +1788,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text56&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="98" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="100" /&gt;
               &lt;Text&gt;Total&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Totals&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text56&gt;
-            &lt;Text57 Ref="103" type="Text" isKey="true"&gt;
+            &lt;Text57 Ref="105" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;16.4,0.8,1.2,0.4&lt;/ClientRectangle&gt;
@@ -1601,14 +1805,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text57&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="98" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="100" /&gt;
               &lt;Text&gt;Saí.&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Totals&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text57&gt;
-            &lt;Text58 Ref="104" type="Text" isKey="true"&gt;
+            &lt;Text58 Ref="106" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;17.8,0.8,1.2,0.4&lt;/ClientRectangle&gt;
@@ -1618,14 +1822,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text58&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="98" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="100" /&gt;
               &lt;Text&gt;Ent.&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Totals&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text58&gt;
-            &lt;Text59 Ref="105" type="Text" isKey="true"&gt;
+            &lt;Text59 Ref="107" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;16.4,0.4,2.6,0.4&lt;/ClientRectangle&gt;
@@ -1635,14 +1839,14 @@ string.Empty
               &lt;HorAlignment&gt;Center&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text59&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="98" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="100" /&gt;
               &lt;Text&gt;Quantidades&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Totals&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text59&gt;
-            &lt;Text60 Ref="106" type="Text" isKey="true"&gt;
+            &lt;Text60 Ref="108" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;0.4,0.8,2.4,0.4&lt;/ClientRectangle&gt;
@@ -1651,8 +1855,8 @@ string.Empty
               &lt;Guid&gt;dcf3086e2f6441389d15e164c85753c1&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text60&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="98" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="100" /&gt;
               &lt;Text&gt;Situação&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
@@ -1662,10 +1866,10 @@ string.Empty
           &lt;Condition&gt;{dsCab.Unidade}&lt;/Condition&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Name&gt;ghUndRes&lt;/Name&gt;
-          &lt;Page isRef="86" /&gt;
-          &lt;Parent isRef="86" /&gt;
+          &lt;Page isRef="87" /&gt;
+          &lt;Parent isRef="87" /&gt;
         &lt;/ghUndRes&gt;
-        &lt;ghTMERes Ref="107" type="GroupHeaderBand" isKey="true"&gt;
+        &lt;ghTMERes Ref="109" type="GroupHeaderBand" isKey="true"&gt;
           &lt;Border&gt;None;Black;1;Dash;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
@@ -1674,10 +1878,10 @@ string.Empty
           &lt;Condition&gt;{string.Format("{0}{1}", dsCab.NaturezaOperacao, dsCab.Cancelado)}&lt;/Condition&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Name&gt;ghTMERes&lt;/Name&gt;
-          &lt;Page isRef="86" /&gt;
-          &lt;Parent isRef="86" /&gt;
+          &lt;Page isRef="87" /&gt;
+          &lt;Parent isRef="87" /&gt;
         &lt;/ghTMERes&gt;
-        &lt;dtCabRes Ref="108" type="DataBand" isKey="true"&gt;
+        &lt;dtCabRes Ref="110" type="DataBand" isKey="true"&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;BusinessObjectGuid isNull="true" /&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
@@ -1688,17 +1892,17 @@ string.Empty
           &lt;DataSourceName&gt;dsCab&lt;/DataSourceName&gt;
           &lt;Filters isList="true" count="0" /&gt;
           &lt;Name&gt;dtCabRes&lt;/Name&gt;
-          &lt;Page isRef="86" /&gt;
-          &lt;Parent isRef="86" /&gt;
+          &lt;Page isRef="87" /&gt;
+          &lt;Parent isRef="87" /&gt;
           &lt;Sort isList="true" count="0" /&gt;
         &lt;/dtCabRes&gt;
-        &lt;gfTMERes Ref="109" type="GroupFooterBand" isKey="true"&gt;
+        &lt;gfTMERes Ref="111" type="GroupFooterBand" isKey="true"&gt;
           &lt;Border&gt;Top;Black;1;Dash;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,8.8,19,0.6&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="5"&gt;
-            &lt;Text49 Ref="110" type="Text" isKey="true"&gt;
+            &lt;Text49 Ref="112" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;0.4,0,11.6,0.4&lt;/ClientRectangle&gt;
@@ -1707,14 +1911,14 @@ string.Empty
               &lt;Guid&gt;77e6ffedc412402286556c0c9dbdcdab&lt;/Guid&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text49&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="109" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="111" /&gt;
               &lt;Text&gt;{dsCab.Cancelado ? "Canceladas..: " : "Regulares...: "}{dsCab.NaturezaOperacao} {dsCab.IndiceMultiplicador}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text49&gt;
-            &lt;Text50 Ref="111" type="Text" isKey="true"&gt;
+            &lt;Text50 Ref="113" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;12.2,0,1,0.4&lt;/ClientRectangle&gt;
@@ -1724,14 +1928,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text50&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="109" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="111" /&gt;
               &lt;Text&gt;{Sum(dtCabRes,dsCab.flag)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Totals&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text50&gt;
-            &lt;Text51 Ref="112" type="Text" isKey="true"&gt;
+            &lt;Text51 Ref="114" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;13.4,0,2.8,0.4&lt;/ClientRectangle&gt;
@@ -1741,11 +1945,11 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text51&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="109" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="111" /&gt;
               &lt;Text&gt;{Sum(dtCabRes,dsCab.TotalNF)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-              &lt;TextFormat Ref="113" type="CurrencyFormat" isKey="true"&gt;
+              &lt;TextFormat Ref="115" type="CurrencyFormat" isKey="true"&gt;
                 &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                 &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                 &lt;NegativePattern&gt;9&lt;/NegativePattern&gt;
@@ -1755,7 +1959,7 @@ string.Empty
               &lt;Type&gt;Totals&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text51&gt;
-            &lt;Text52 Ref="114" type="Text" isKey="true"&gt;
+            &lt;Text52 Ref="116" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;16.4,0,1.2,0.4&lt;/ClientRectangle&gt;
@@ -1765,14 +1969,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text52&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="109" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="111" /&gt;
               &lt;Text&gt;{Sum(dtCabRes,dsCab.qtdeItensSaindo)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Totals&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text52&gt;
-            &lt;Text53 Ref="115" type="Text" isKey="true"&gt;
+            &lt;Text53 Ref="117" type="Text" isKey="true"&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
               &lt;ClientRectangle&gt;17.8,0,1.2,0.4&lt;/ClientRectangle&gt;
@@ -1782,8 +1986,8 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text53&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="109" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="111" /&gt;
               &lt;Text&gt;{Sum(dtCabRes,dsCab.qtdeItensEntrando)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Totals&lt;/Type&gt;
@@ -1794,15 +1998,15 @@ string.Empty
             &lt;value&gt;_x007B_dsCab.Cancelado_x007D_,Red,Transparent,Arial_x002C_8,True,False,,_x0023__x0023_Bad_x0023__x0023_,None&lt;/value&gt;
           &lt;/Conditions&gt;
           &lt;Name&gt;gfTMERes&lt;/Name&gt;
-          &lt;Page isRef="86" /&gt;
-          &lt;Parent isRef="86" /&gt;
+          &lt;Page isRef="87" /&gt;
+          &lt;Parent isRef="87" /&gt;
         &lt;/gfTMERes&gt;
-        &lt;gfUndRes Ref="116" type="GroupFooterBand" isKey="true"&gt;
+        &lt;gfUndRes Ref="118" type="GroupFooterBand" isKey="true"&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,10.2,19,0.6&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="4"&gt;
-            &lt;Text61 Ref="117" type="Text" isKey="true"&gt;
+            &lt;Text61 Ref="119" type="Text" isKey="true"&gt;
               &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
@@ -1813,14 +2017,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text61&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="116" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="118" /&gt;
               &lt;Text&gt;{Sum(dtCabRes,dsCab.Cancelado ? 0.0 : dsCab.flag)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text61&gt;
-            &lt;Text62 Ref="118" type="Text" isKey="true"&gt;
+            &lt;Text62 Ref="120" type="Text" isKey="true"&gt;
               &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
@@ -1831,11 +2035,11 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text62&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="116" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="118" /&gt;
               &lt;Text&gt;{Sum(dtCabRes,dsCab.Cancelado ? 0.0 : dsCab.TotalNF)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-              &lt;TextFormat Ref="119" type="CurrencyFormat" isKey="true"&gt;
+              &lt;TextFormat Ref="121" type="CurrencyFormat" isKey="true"&gt;
                 &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                 &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                 &lt;NegativePattern&gt;9&lt;/NegativePattern&gt;
@@ -1845,7 +2049,7 @@ string.Empty
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text62&gt;
-            &lt;Text63 Ref="120" type="Text" isKey="true"&gt;
+            &lt;Text63 Ref="122" type="Text" isKey="true"&gt;
               &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
@@ -1856,14 +2060,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text63&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="116" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="118" /&gt;
               &lt;Text&gt;{Sum(dtCabRes,dsCab.Cancelado ? 0.0 : dsCab.qtdeItensSaindo)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text63&gt;
-            &lt;Text64 Ref="121" type="Text" isKey="true"&gt;
+            &lt;Text64 Ref="123" type="Text" isKey="true"&gt;
               &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
@@ -1874,8 +2078,8 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text64&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="116" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="118" /&gt;
               &lt;Text&gt;{Sum(dtCabRes, dsCab.Cancelado ? 0.0 : dsCab.qtdeItensEntrando)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
@@ -1884,16 +2088,16 @@ string.Empty
           &lt;/Components&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Name&gt;gfUndRes&lt;/Name&gt;
-          &lt;Page isRef="86" /&gt;
-          &lt;Parent isRef="86" /&gt;
+          &lt;Page isRef="87" /&gt;
+          &lt;Parent isRef="87" /&gt;
         &lt;/gfUndRes&gt;
-        &lt;ReportSummaryBand1 Ref="122" type="ReportSummaryBand" isKey="true"&gt;
+        &lt;ReportSummaryBand1 Ref="124" type="ReportSummaryBand" isKey="true"&gt;
           &lt;Border&gt;Top;Black;1;Double;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
           &lt;CanShrink&gt;True&lt;/CanShrink&gt;
           &lt;ClientRectangle&gt;0,11.6,19,1.8&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="4"&gt;
-            &lt;Text65 Ref="123" type="Text" isKey="true"&gt;
+            &lt;Text65 Ref="125" type="Text" isKey="true"&gt;
               &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
@@ -1904,14 +2108,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text65&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="122" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="124" /&gt;
               &lt;Text&gt;{Sum(dtCabRes, dsCab.Cancelado ? 0.0 : dsCab.flag)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text65&gt;
-            &lt;Text66 Ref="124" type="Text" isKey="true"&gt;
+            &lt;Text66 Ref="126" type="Text" isKey="true"&gt;
               &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
@@ -1922,11 +2126,11 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text66&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="122" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="124" /&gt;
               &lt;Text&gt;{Sum(dtCabRes, dsCab.Cancelado ? 0.0 : dsCab.TotalNFRegular_IndiceMultiplicador)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-              &lt;TextFormat Ref="125" type="CurrencyFormat" isKey="true"&gt;
+              &lt;TextFormat Ref="127" type="CurrencyFormat" isKey="true"&gt;
                 &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
                 &lt;GroupSeparator&gt;.&lt;/GroupSeparator&gt;
                 &lt;NegativePattern&gt;9&lt;/NegativePattern&gt;
@@ -1936,7 +2140,7 @@ string.Empty
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text66&gt;
-            &lt;Text67 Ref="126" type="Text" isKey="true"&gt;
+            &lt;Text67 Ref="128" type="Text" isKey="true"&gt;
               &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
@@ -1947,14 +2151,14 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text67&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="122" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="124" /&gt;
               &lt;Text&gt;{Sum(dtCabRes, dsCab.Cancelado ? 0.0 : dsCab.qtdeItensSaindo)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text67&gt;
-            &lt;Text68 Ref="127" type="Text" isKey="true"&gt;
+            &lt;Text68 Ref="129" type="Text" isKey="true"&gt;
               &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
@@ -1965,8 +2169,8 @@ string.Empty
               &lt;HorAlignment&gt;Right&lt;/HorAlignment&gt;
               &lt;Margins&gt;0,0,0,0&lt;/Margins&gt;
               &lt;Name&gt;Text68&lt;/Name&gt;
-              &lt;Page isRef="86" /&gt;
-              &lt;Parent isRef="122" /&gt;
+              &lt;Page isRef="87" /&gt;
+              &lt;Parent isRef="124" /&gt;
               &lt;Text&gt;{Sum(dtCabRes, dsCab.Cancelado ? 0.0 : dsCab.qtdeItensEntrando)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
@@ -1975,8 +2179,8 @@ string.Empty
           &lt;/Components&gt;
           &lt;Conditions isList="true" count="0" /&gt;
           &lt;Name&gt;ReportSummaryBand1&lt;/Name&gt;
-          &lt;Page isRef="86" /&gt;
-          &lt;Parent isRef="86" /&gt;
+          &lt;Page isRef="87" /&gt;
+          &lt;Parent isRef="87" /&gt;
         &lt;/ReportSummaryBand1&gt;
       &lt;/Components&gt;
       &lt;Conditions isList="true" count="0" /&gt;
@@ -1986,13 +2190,13 @@ string.Empty
       &lt;PageHeight&gt;29.7&lt;/PageHeight&gt;
       &lt;PageWidth&gt;21&lt;/PageWidth&gt;
       &lt;Report isRef="0" /&gt;
-      &lt;Watermark Ref="128" type="Stimulsoft.Report.Components.StiWatermark" isKey="true"&gt;
+      &lt;Watermark Ref="130" type="Stimulsoft.Report.Components.StiWatermark" isKey="true"&gt;
         &lt;Font&gt;Arial,100&lt;/Font&gt;
         &lt;TextBrush&gt;[50:0:0:0]&lt;/TextBrush&gt;
       &lt;/Watermark&gt;
     &lt;/Page1&gt;
   &lt;/Pages&gt;
-  &lt;PrinterSettings Ref="129" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" /&gt;
+  &lt;PrinterSettings Ref="131" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" /&gt;
   &lt;ReferencedAssemblies isList="true" count="8"&gt;
     &lt;value&gt;System.Dll&lt;/value&gt;
     &lt;value&gt;System.Drawing.Dll&lt;/value&gt;
@@ -2003,13 +2207,13 @@ string.Empty
     &lt;value&gt;Stimulsoft.Base.Dll&lt;/value&gt;
     &lt;value&gt;Stimulsoft.Report.Dll&lt;/value&gt;
   &lt;/ReferencedAssemblies&gt;
-  &lt;ReportAlias&gt;RELACAODENFE-NFCEEMITIDA-NEW260819173118&lt;/ReportAlias&gt;
+  &lt;ReportAlias&gt;RELACAODENFE-NFCEEMITIDA-NEW100919164103&lt;/ReportAlias&gt;
   &lt;ReportCacheMode&gt;On&lt;/ReportCacheMode&gt;
-  &lt;ReportChanged&gt;8/26/2019 5:15:15 PM&lt;/ReportChanged&gt;
+  &lt;ReportChanged&gt;9/10/2019 4:40:58 PM&lt;/ReportChanged&gt;
   &lt;ReportCreated&gt;9/26/2016 3:17:30 PM&lt;/ReportCreated&gt;
-  &lt;ReportFile&gt;C:\Users\Kaichiro\AppData\Local\Temp\3\RELACAODENFE-NFCEEMITIDA-NEW260819173118&lt;/ReportFile&gt;
-  &lt;ReportGuid&gt;c2a7c74989ec4b2caba983c835344816&lt;/ReportGuid&gt;
-  &lt;ReportName&gt;RELACAODENFE-NFCEEMITIDA-NEW260819173118&lt;/ReportName&gt;
+  &lt;ReportFile&gt;C:\Users\Kaichiro\AppData\Local\Temp\3\RELACAODENFE-NFCEEMITIDA-NEW100919164103&lt;/ReportFile&gt;
+  &lt;ReportGuid&gt;a18a756238984d43b83d47af1b7792e0&lt;/ReportGuid&gt;
+  &lt;ReportName&gt;RELACAODENFE-NFCEEMITIDA-NEW100919164103&lt;/ReportName&gt;
   &lt;ReportUnit&gt;Centimeters&lt;/ReportUnit&gt;
   &lt;ReportVersion&gt;2012.3.1500&lt;/ReportVersion&gt;
   &lt;Script&gt;using System;
