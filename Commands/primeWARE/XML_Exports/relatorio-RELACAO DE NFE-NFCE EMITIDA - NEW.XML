@@ -67,7 +67,7 @@ dsUsuario.Connect();
           &lt;value&gt;State,System.String&lt;/value&gt;
           &lt;value&gt;TotalNFRegular,System.Double&lt;/value&gt;
           &lt;value&gt;TotalNFRegular_IndiceMultiplicador,System.Double&lt;/value&gt;
-          &lt;value&gt;IndiceMultiplicador,System.String&lt;/value&gt;
+          &lt;value&gt;IndiceMultiplicador,System.Double&lt;/value&gt;
         &lt;/Columns&gt;
         &lt;CommandTimeout&gt;30&lt;/CommandTimeout&gt;
         &lt;Dictionary isRef="1" /&gt;
@@ -95,16 +95,13 @@ with IDs as (
   {varUnidades}
   {varTMEs}
   {varIsCancelado}
-), QtdesItens as (
-  select 
-  x.CabecalhoMovimentoEstoqueID
-  , sum(ime.Quantidade) Quantidade
-  , ime.TipoAtualizacaoEstoque
+)
+, QtdesItens as (
+  select x.CabecalhoMovimentoEstoqueID, ime.TipoAtualizacaoEstoque, sum(ime.Quantidade) Quantidade
   from IDs x
-  inner join ItemMovimentoEstoque ime on x.CabecalhoMovimentoEstoqueID = ime.Cabecalho and ime.ProdutoFinal is not null
-  group by 
-  x.CabecalhoMovimentoEstoqueID
-  , ime.TipoAtualizacaoEstoque
+  inner join ItemMovimentoEstoque ime on x.CabecalhoMovimentoEstoqueID = ime.Cabecalho 
+    and ime.ProdutoFinal is not null
+  group by x.CabecalhoMovimentoEstoqueID, ime.TipoAtualizacaoEstoque
 )
 select
   1 flag
@@ -137,94 +134,7 @@ select
   inner join Personalidade pers on x.PersonalidadeID = pers.ECO_ID
   inner join CabMovEstoqueNumero cmen on x.NumeroPadraoID = cmen.ECO_ID
   inner join CabMovEstoqueValor cmevNF on x.TipoValorTotalNF_ID = cmevNF.ECO_ID
- 
-
-
-/*
-with cab as (
-  select 
-  1 flag
-  , cme.DataEmissao
-  , cme.ECO_ID idMov
-  , cme.Cancelado
-  , cme.State
-  , tme.NaturezaOperacao
-  , tme.DescricaoCFOP
-  , und.Descricao Unidade
-  , pers.Nome Personalidade
-  , cmen.Numero NrNFe
-  , cmevNF.Valor TotalNF
-  , case when cme.Cancelado = 0 then cmevNF.Valor else 0.0 end TotalNFRegular
-  ,
-  (
-    select top 1 cmePV.ECO_ID from CabMovEstoqueNumero cmenPV
-    left join TipoMovEstoqueNumerador tmenPV on cmenPV.Numerador = tmenPV.ECO_ID 
-    left join CabMovEstoqueNumero cmenPdVnd on cmenPV.Numero = cmenPdVnd.Numero
-    left join CabecalhoMovimentoEstoque cmePV on cmenPdVnd.ECO_ID = cmePV.NumeroPadrao
-    left join TipoMovimentoEstoque tmePV on cmepv.TipoMovimentoEstoque = tmePV.ECO_ID
-    left join Unidade undPV on cmePV.Unidade = undPV.ECO_ID
-    where cmenPV.Movimento = cme.ECO_ID and tmenPV.Etiqueta = 'PedidoVenda' and tmePV.Abreviacao = 'PDV'
-    and (
-      undPV.ECO_ID = und.ECO_ID or undPV.UnidadeEstoque = und.ECO_ID 
-      or
-      und.ECO_ID = undPV.ECO_ID or und.UnidadeEstoque = undPV.ECO_ID 
-    )
-  ) idPV
-  , coalesce((select sum(ime.Quantidade) from ItemMovimentoEstoque ime where ime.Cabecalho = cme.ECO_ID and ime.ProdutoFinal is not null and ime.TipoAtualizacaoEstoque = 'Saida'),0.0) qtdeItensSaindo
-  , coalesce((select sum(ime.Quantidade) from ItemMovimentoEstoque ime where ime.Cabecalho = cme.ECO_ID and ime.ProdutoFinal is not null and ime.TipoAtualizacaoEstoque = 'Entrada'),0.0) qtdeItensEntrando
-  ,
-  coalesce((
-    select vc.Valor 
-    from ObjetoValorClasse ovc 
-    left outer join ValorClasse vc on vc.Objeto = ovc.ECO_ID 
-    left outer join CfgValorClasse cfgVC on vc.Configuracao = cfgVC.ECO_ID
-    where ovc.Id like '%'+Cast(tme.ECO_ID as varCHAR(100)) 
-    and cfgVC.Descricao = 'Índice de multiplicação')
-    ,0
-  ) IndiceMultiplicador
-  from CabecalhoMovimentoEstoque cme
-  left join TipoMovimentoEstoque tme on cme.TipoMovimentoEstoque = tme.ECO_ID
-  left join Unidade und on cme.Unidade = und.ECO_ID
-  left join Personalidade pers on cme.Personalidade = pers.ECO_ID
-  left join CabMovEstoqueNumero cmen on cme.NumeroPadrao = cmen.ECO_ID
-  left join CabMovEstoqueValor cmevNF on cme.TipoValortotalNF = cmevNF.ECO_ID
-  where cme.DataEmissao between @pDTIni and @pDTFim
-  {varUnidades}
-  and cme.State = 'NFe Processada'
-  {varTMEs}
-  {varIsCancelado}
-)
-  select
-  c.flag
-  , c.DataEmissao
-  , c.State
-  , c.idMov
-  , c.Cancelado
-  , c.NaturezaOperacao
-  , c.DescricaoCFOP
-  , c.Unidade
-  , c.Personalidade
-  , c.NrNFe
-  , c.idPV
-  , tmePV.Descricao TMEVenda
-  , undPV.Descricao UndVenda
-  , cmenPV.Numero NrPV
-  , c.TotalNF
-  , c.TotalNFRegular
-  , case 
-      when c.IndiceMultiplicador &amp;gt; 0 then '(+)'
-      when c.IndiceMultiplicador &amp;lt; 0 then '(-)'
-      else ''
-    end IndiceMultiplicador
-  , c.TotalNFRegular * c.IndiceMultiplicador TotalNFRegular_IndiceMultiplicador
-  , c.qtdeItensSaindo
-  , c.qtdeItensEntrando
-  from cab c
-  left join CabecalhoMovimentoEstoque cmePV on c.idPV = cmePV.ECO_ID
-  left join CabMovEstoqueNumero cmenPV on cmePV.NumeroPadrao = cmenPV.ECO_ID
-  left join TipoMovimentoEstoque tmePV on cmePV.TipoMovimentoEstoque = tmePV.ECO_ID
-  left join Unidade undPV on cmePV.Unidade = undPV.ECO_ID
-*/&lt;/SqlCommand&gt;
+&lt;/SqlCommand&gt;
       &lt;/dsCab&gt;
       &lt;dsItens Ref="4" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
         &lt;Alias&gt;dsItens&lt;/Alias&gt;
@@ -280,7 +190,8 @@ with IDsMain as (
   {varUnidades}
   {varTMEs}
   {varIsCancelado}
-), infos010 as (
+)
+, infos010 as (
   select
   1 flag
   , x.CabecalhoMovimentoEstoqueID idMov
@@ -334,107 +245,14 @@ with IDsMain as (
   , x.idMov
   , x.AliquotaICMS
   , x.AliquotaIPI
-  --, sum(x.DescontosRateados) DescontosRateados
-  --, sum(x.FreteRateado) FreteRateado
   , x.CFOP
   , x.SitTributariaICMS
   , x.TipoAtualizacaoEstoque
   , x.TipoAtualizacaoEstoque_Abreviacao
-  --, sum(x.Quantidade) Quantidade
-  --, sum(x.ValorUnitario) ValorUnitario
-  --, sum(x.vlrUnit_Qtde) vlrUnit_Qtde
-  --, sum(x.ValorTotalItem) ValorTotalItem
   , x.idPF
   , x.Referencia
   , x.Produto
-  --, sum(x.vlrIPI) vlrIPI
-  --, sum(x.vlrICMS) vlrICMS
-
-
-/*
-with infos010 as (
-	select 
-	1 flag
-	, cme.ECO_ID idMov
-	, coalesce(ime.AliquotaICMS,0.0) AliquotaICMS
-	, coalesce(ime.AliquotaIPI,0.0) AliquotaIPI
-	, coalesce(ime.DescontosRateados,0.0) DescontosRateados
-	, coalesce(ime.FreteRateado,0.0) FreteRateado
-	, ime.CFOP
-	, ime.SitTributariaICMS
-	, ime.TipoAtualizacaoEstoque
-	, substring(ime.TipoAtualizacaoEstoque,1,1) TipoAtualizacaoEstoque_Abreviacao
-	, coalesce(ime.Quantidade,0.0) Quantidade
-	, coalesce(ime.ValorUnitario,0.0) ValorUnitario
-	, coalesce((ime.Quantidade * ime.ValorUnitario),0.0)  vlrUnit_Qtde
-	, coalesce(imevTotalProd.Valor,0.0) ValorTotalItem
-	, pf.ECO_ID idPF
-	, prd.Referencia
-	, prd.Descricao Produto
-	, mrc.Descricao Marca
-	, coalesce(imevIPI.Valor,0.0) vlrIPI
-	, coalesce(imevICMS.Valor,0.0) vlrICMS
-	from CabecalhoMovimentoEstoque cme
-	left join TipoMovimentoEstoque tme on cme.TipoMovimentoEstoque = tme.ECO_ID
-	left join Unidade und on cme.Unidade = und.ECO_ID
-	left join ItemMovimentoEstoque ime on cme.ECO_ID = ime.Cabecalho
-	left join ItemMovEstoqueValor imevTotalProd on ime.TipoValorTotal = imevTotalProd.ECO_ID
-	left join ProdutoFinal pf on ime.ProdutoFinal = pf.ECO_ID
-	left join Produto prd on pf.Produto = prd.ECO_ID
-	left join Marca mrc on prd.Marca = mrc.ECO_ID
-	left join ItemMovEstoqueValor imevIPI on ime.TipoValorIPI = imevIPI.ECO_ID
-	left join ItemMovEstoqueValor imevICMS on ime.TipoValorICMS = imevICMS.ECO_ID
-	where cme.DataEmissao between @pDTIni and @pDTFim
-	{varUnidades}
-	and cme.State = 'NFe Processada'
-	and ime.ProdutoFinal is not null
-	{varTMEs}
-	{varIsCancelado}
-)
-select
-x.flag
-, x.idMov
-, x.AliquotaICMS
-, x.AliquotaIPI
-, sum(x.DescontosRateados) DescontosRateados
-, sum(x.FreteRateado) FreteRateado
-, x.CFOP
-, x.SitTributariaICMS
-, x.TipoAtualizacaoEstoque
-, x.TipoAtualizacaoEstoque_Abreviacao
-, sum(x.Quantidade) Quantidade
-, sum(x.ValorUnitario) ValorUnitario
-, sum(x.vlrUnit_Qtde) vlrUnit_Qtde
-, sum(x.ValorTotalItem) ValorTotalItem
-, x.idPF
-, x.Referencia
-, x.Produto
-, x.Marca
-, sum(x.vlrIPI) vlrIPI
-, sum(x.vlrICMS) vlrICMS
-from infos010 x
-group by 
-x.flag
-, x.idMov
-, x.AliquotaICMS
-, x.AliquotaIPI
---, sum(x.DescontosRateados) DescontosRateados
---, sum(x.FreteRateado) FreteRateado
-, x.CFOP
-, x.SitTributariaICMS
-, x.TipoAtualizacaoEstoque
-, x.TipoAtualizacaoEstoque_Abreviacao
---, sum(x.Quantidade) Quantidade
---, sum(x.ValorUnitario) ValorUnitario
---, sum(x.vlrUnit_Qtde) vlrUnit_Qtde
---, sum(x.ValorTotalItem) ValorTotalItem
-, x.idPF
-, x.Referencia
-, x.Produto
-, x.Marca
---, sum(x.vlrIPI) vlrIPI
---, sum(x.vlrICMS) vlrICMS
-*/&lt;/SqlCommand&gt;
+&lt;/SqlCommand&gt;
       &lt;/dsItens&gt;
       &lt;dsLogo Ref="5" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true"&gt;
         &lt;Alias&gt;dsLogo&lt;/Alias&gt;
@@ -496,15 +314,15 @@ x.flag
     &lt;Variables isList="true" count="16"&gt;
       &lt;value&gt;primeWARE,PTMES,PTMES,System.String,,True,False&lt;/value&gt;
       &lt;value&gt;primeWARE,PUNIDADES,PUNIDADES,System.String,,True,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PDTFIM,PDTFIM,System.DateTime,_x0039__x002F_10_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PDTINI,PDTINI,System.DateTime,_x0031__x002F_1_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTFIM,PDTFIM,System.DateTime,_x0039__x002F_12_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PDTINI,PDTINI,System.DateTime,_x0039__x002F_1_x002F_2019_x0020_12:00:00_x0020_AM,True,False&lt;/value&gt;
       &lt;value&gt;primeWARE,PUSER,PUSER,System.String,_x0030_de63e9a-29a0-417a-8e55-82672d70dc41,True,False&lt;/value&gt;
       &lt;value&gt;primeWARE,PUNDTRAB,PUNDTRAB,System.String,_x0037_d86c88d-04bc-44b7-a0c6-732e44f68467,True,False&lt;/value&gt;
       &lt;value&gt;,varIsCancelado,varIsCancelado,System.String,,False,False&lt;/value&gt;
       &lt;value&gt;,varDTIni,varDTIni,System.DateTime,_x0039__x002F_26_x002F_2016_x0020_3:50:44_x0020_PM,False,False&lt;/value&gt;
       &lt;value&gt;,varDTFim,varDTFim,System.DateTime,_x0039__x002F_26_x002F_2016_x0020_3:50:53_x0020_PM,False,False&lt;/value&gt;
       &lt;value&gt;,varTMEs,varTMEs,System.String,,False,False&lt;/value&gt;
-      &lt;value&gt;primeWARE,PCANCELADO,PCANCELADO,System.String,,True,False&lt;/value&gt;
+      &lt;value&gt;primeWARE,PCANCELADO,PCANCELADO,System.String,Regular,True,False&lt;/value&gt;
       &lt;value&gt;primeWARE,PSHOWDETALHES,PSHOWDETALHES,System.Boolean,false,True,False&lt;/value&gt;
       &lt;value&gt;,varUnidades,varUnidades,System.String,,False,False&lt;/value&gt;
       &lt;value&gt;,vGlobalReportName,vGlobalReportName,System.String,,False,False&lt;/value&gt;
@@ -554,7 +372,7 @@ x.flag
               &lt;Name&gt;Text35&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
               &lt;Parent isRef="10" /&gt;
-              &lt;Text&gt;{string.Format("Período de Emissão: {0:dd/MM/yyyy} até {1:dd/MM/yyyy}.", PDTINI, PDTFIM)}&lt;/Text&gt;
+              &lt;Text&gt;{string.Format("Período de Emissão: {0:dd/MM/yyyy} até {1:dd/MM/yyyy}", PDTINI, PDTFIM)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
@@ -571,7 +389,7 @@ x.flag
               &lt;Name&gt;Text36&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
               &lt;Parent isRef="10" /&gt;
-              &lt;Text&gt;{string.Format("Hoje: {0:dddd, d' de 'MMMM' de 'yyyy', 'HH:mm:ss.}", Time)}&lt;/Text&gt;
+              &lt;Text&gt;{string.Format("Hoje: {0:dddd, d' de 'MMMM' de 'yyyy', 'HH:mm:ss}", Time)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
@@ -743,9 +561,9 @@ string.Empty
               &lt;Name&gt;Text6&lt;/Name&gt;
               &lt;Page isRef="9" /&gt;
               &lt;Parent isRef="23" /&gt;
-              &lt;Text&gt;Natureza de Operação: {dsCab.NaturezaOperacao}&lt;/Text&gt;
+              &lt;Text&gt;Natureza de Operação: {dsCab.NaturezaOperacao} {dsCab.IndiceMultiplicador == 1 ? " (soma)" : (dsCab.IndiceMultiplicador == -1 ? " (subtração)" : " (nada)") }&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
-              &lt;Type&gt;DataColumn&lt;/Type&gt;
+              &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
             &lt;/Text6&gt;
           &lt;/Components&gt;
@@ -1545,7 +1363,7 @@ string.Empty
               &lt;Name&gt;Text41&lt;/Name&gt;
               &lt;Page isRef="87" /&gt;
               &lt;Parent isRef="88" /&gt;
-              &lt;Text&gt;{dsRelatorio.Nome}..&lt;/Text&gt;
+              &lt;Text&gt;{dsRelatorio.Nome}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;TextOptions&gt;HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,&lt;/TextOptions&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
@@ -1562,7 +1380,7 @@ string.Empty
               &lt;Name&gt;Text42&lt;/Name&gt;
               &lt;Page isRef="87" /&gt;
               &lt;Parent isRef="88" /&gt;
-              &lt;Text&gt;{string.Format("Período de Emissão: {0:dd/MM/yyyy} até {1:dd/MM/yyyy}.", PDTINI, PDTFIM)}&lt;/Text&gt;
+              &lt;Text&gt;{string.Format("Período de Emissão: {0:dd/MM/yyyy} até {1:dd/MM/yyyy}", PDTINI, PDTFIM)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
@@ -1579,7 +1397,7 @@ string.Empty
               &lt;Name&gt;Text43&lt;/Name&gt;
               &lt;Page isRef="87" /&gt;
               &lt;Parent isRef="88" /&gt;
-              &lt;Text&gt;{string.Format("Hoje: {0:dddd, d' de 'MMMM' de 'yyyy', 'HH:mm:ss.}", Time)}&lt;/Text&gt;
+              &lt;Text&gt;{string.Format("Hoje: {0:dddd, d' de 'MMMM' de 'yyyy', 'HH:mm:ss}", Time)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
@@ -1913,7 +1731,7 @@ string.Empty
               &lt;Name&gt;Text49&lt;/Name&gt;
               &lt;Page isRef="87" /&gt;
               &lt;Parent isRef="111" /&gt;
-              &lt;Text&gt;{dsCab.Cancelado ? "Canceladas..: " : "Regulares...: "}{dsCab.NaturezaOperacao} {dsCab.IndiceMultiplicador}&lt;/Text&gt;
+              &lt;Text&gt;{dsCab.Cancelado ? "Canceladas..: " : "Regulares...: "}{dsCab.NaturezaOperacao} {dsCab.IndiceMultiplicador == 1 ? " (soma)" : (dsCab.IndiceMultiplicador == -1 ? " (subtração)" : " (nada)") }&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;Type&gt;Expression&lt;/Type&gt;
               &lt;VertAlignment&gt;Center&lt;/VertAlignment&gt;
@@ -2091,11 +1909,10 @@ string.Empty
           &lt;Page isRef="87" /&gt;
           &lt;Parent isRef="87" /&gt;
         &lt;/gfUndRes&gt;
-        &lt;ReportSummaryBand1 Ref="124" type="ReportSummaryBand" isKey="true"&gt;
+        &lt;FooterBand1 Ref="124" type="FooterBand" isKey="true"&gt;
           &lt;Border&gt;Top;Black;1;Double;False;4;Black&lt;/Border&gt;
           &lt;Brush&gt;Transparent&lt;/Brush&gt;
-          &lt;CanShrink&gt;True&lt;/CanShrink&gt;
-          &lt;ClientRectangle&gt;0,11.6,19,1.8&lt;/ClientRectangle&gt;
+          &lt;ClientRectangle&gt;0,11.6,19,2.4&lt;/ClientRectangle&gt;
           &lt;Components isList="true" count="4"&gt;
             &lt;Text65 Ref="125" type="Text" isKey="true"&gt;
               &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
@@ -2128,7 +1945,7 @@ string.Empty
               &lt;Name&gt;Text66&lt;/Name&gt;
               &lt;Page isRef="87" /&gt;
               &lt;Parent isRef="124" /&gt;
-              &lt;Text&gt;{Sum(dtCabRes, dsCab.Cancelado ? 0.0 : dsCab.TotalNFRegular_IndiceMultiplicador)}&lt;/Text&gt;
+              &lt;Text&gt;{Sum(dtCabRes, dsCab.Cancelado ? 0.0 : dsCab.TotalNFRegular * dsCab.IndiceMultiplicador)}&lt;/Text&gt;
               &lt;TextBrush&gt;Black&lt;/TextBrush&gt;
               &lt;TextFormat Ref="127" type="CurrencyFormat" isKey="true"&gt;
                 &lt;DecimalSeparator&gt;,&lt;/DecimalSeparator&gt;
@@ -2144,7 +1961,7 @@ string.Empty
               &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
-              &lt;ClientRectangle&gt;15.6,0.2,2,0.6&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;16.2,0.2,1.4,0.6&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
               &lt;Font&gt;Courier New,10,Bold| Underline&lt;/Font&gt;
               &lt;Guid&gt;1868254abfea417b929a3f22bcd15c9b&lt;/Guid&gt;
@@ -2162,7 +1979,7 @@ string.Empty
               &lt;Border&gt;Top;Black;1;Solid;False;4;Black&lt;/Border&gt;
               &lt;Brush&gt;Transparent&lt;/Brush&gt;
               &lt;CanGrow&gt;True&lt;/CanGrow&gt;
-              &lt;ClientRectangle&gt;17,0.8,2,0.6&lt;/ClientRectangle&gt;
+              &lt;ClientRectangle&gt;17.6,0.2,1.4,0.6&lt;/ClientRectangle&gt;
               &lt;Conditions isList="true" count="0" /&gt;
               &lt;Font&gt;Courier New,10,Bold| Underline&lt;/Font&gt;
               &lt;Guid&gt;37c051265d064ea2ba3d9663b02d8d12&lt;/Guid&gt;
@@ -2178,10 +1995,10 @@ string.Empty
             &lt;/Text68&gt;
           &lt;/Components&gt;
           &lt;Conditions isList="true" count="0" /&gt;
-          &lt;Name&gt;ReportSummaryBand1&lt;/Name&gt;
+          &lt;Name&gt;FooterBand1&lt;/Name&gt;
           &lt;Page isRef="87" /&gt;
           &lt;Parent isRef="87" /&gt;
-        &lt;/ReportSummaryBand1&gt;
+        &lt;/FooterBand1&gt;
       &lt;/Components&gt;
       &lt;Conditions isList="true" count="0" /&gt;
       &lt;Guid&gt;6506ca98fd38404fabd1ab3d59381b79&lt;/Guid&gt;
@@ -2207,13 +2024,13 @@ string.Empty
     &lt;value&gt;Stimulsoft.Base.Dll&lt;/value&gt;
     &lt;value&gt;Stimulsoft.Report.Dll&lt;/value&gt;
   &lt;/ReferencedAssemblies&gt;
-  &lt;ReportAlias&gt;RELACAODENFE-NFCEEMITIDA-NEW100919164103&lt;/ReportAlias&gt;
+  &lt;ReportAlias&gt;RELACAODENFE-NFCEEMITIDA-NEW120919144325&lt;/ReportAlias&gt;
   &lt;ReportCacheMode&gt;On&lt;/ReportCacheMode&gt;
-  &lt;ReportChanged&gt;9/10/2019 4:40:58 PM&lt;/ReportChanged&gt;
+  &lt;ReportChanged&gt;9/12/2019 2:42:43 PM&lt;/ReportChanged&gt;
   &lt;ReportCreated&gt;9/26/2016 3:17:30 PM&lt;/ReportCreated&gt;
-  &lt;ReportFile&gt;C:\Users\Kaichiro\AppData\Local\Temp\3\RELACAODENFE-NFCEEMITIDA-NEW100919164103&lt;/ReportFile&gt;
-  &lt;ReportGuid&gt;a18a756238984d43b83d47af1b7792e0&lt;/ReportGuid&gt;
-  &lt;ReportName&gt;RELACAODENFE-NFCEEMITIDA-NEW100919164103&lt;/ReportName&gt;
+  &lt;ReportFile&gt;C:\Users\Kaichiro\AppData\Local\Temp\3\RELACAODENFE-NFCEEMITIDA-NEW120919144325&lt;/ReportFile&gt;
+  &lt;ReportGuid&gt;544ed8b901f24632ae461a8685edaf5e&lt;/ReportGuid&gt;
+  &lt;ReportName&gt;RELACAODENFE-NFCEEMITIDA-NEW120919144325&lt;/ReportName&gt;
   &lt;ReportUnit&gt;Centimeters&lt;/ReportUnit&gt;
   &lt;ReportVersion&gt;2012.3.1500&lt;/ReportVersion&gt;
   &lt;Script&gt;using System;
