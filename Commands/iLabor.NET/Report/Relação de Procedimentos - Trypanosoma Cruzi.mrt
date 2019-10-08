@@ -1,0 +1,944 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.0" application="StiReport">
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <Databases isList="true" count="1">
+      <iLabor Ref="2" type="Stimulsoft.Report.Dictionary.StiSqlDatabase" isKey="true">
+        <Alias>iLabor</Alias>
+        <ConnectionString>user id=sa;password=30915283;data source=ILABORNET\ILABOR;persist security info=False;initial catalog=iLabor;Connect Timeout=0</ConnectionString>
+        <Name>iLabor</Name>
+      </iLabor>
+    </Databases>
+    <DataSources isList="true" count="2">
+      <dsGeral010 Ref="3" type="Stimulsoft.Report.Dictionary.StiSqlSource" isKey="true">
+        <Alias>dsGeral010</Alias>
+        <Columns isList="true" count="11">
+          <value>flag010,System.Int32</value>
+          <value>ProcedimentoMnemonico,System.String</value>
+          <value>ProcedimentoDescricao,System.String</value>
+          <value>ProcedimentoLaudoDescricao,System.String</value>
+          <value>Data_Liberacao,System.DateTime</value>
+          <value>Numero_Protocolo,System.String</value>
+          <value>PacienteNome,System.String</value>
+          <value>Valor_Informado,System.String</value>
+          <value>Valor_Informado_Processado,System.String</value>
+          <value>VariavelEtiqueta,System.String</value>
+          <value>Percentual,System.Decimal</value>
+        </Columns>
+        <CommandTimeout>30</CommandTimeout>
+        <ConnectOnStart>False</ConnectOnStart>
+        <Dictionary isRef="1" />
+        <Name>dsGeral010</Name>
+        <NameInSource>iLabor</NameInSource>
+        <Parameters isList="true" count="2">
+          <value>_x0040_pDTIni,varDTIni,4,0</value>
+          <value>_x0040_pDTFim,varDTFim,4,0</value>
+        </Parameters>
+        <SqlCommand>set dateformat ymd;
+
+with ProcedimentosTMP as (
+	select 1 flag010
+	, prc.ECO_ID ProcedimentoID
+	, prc.Descricao ProcedimentoDescricao
+	, prc.Mnemonico ProcedimentoMnemonico
+	, pl.ECO_ID ProcedimentoLaudoID
+	, pl.Descricao ProcedimentoLaudoDescricao
+	from Procedimento prc
+	inner join Procedimento_Laudo pl on prc.ECO_ID = pl.Procedimento
+	where prc.Mnemonico in ('TRYPH', 'TRYPG', 'TRYPM')
+)
+, ResultadosTMP as (
+	select x.flag010
+	, x.ProcedimentoMnemonico
+	, x.ProcedimentoDescricao
+	, x.ProcedimentoLaudoDescricao
+	, pp.Data_Liberacao
+	, prot.Numero_Protocolo
+	, pac.Nome PacienteNome
+	, ltrim(rtrim(cast(ppv.Valor_Informado as varchar(32)))) Valor_Informado
+	, pv.Etiqueta VariavelEtiqueta
+	from ProcedimentosTMP x
+	inner join Protocolo_Procedimento pp on x.ProcedimentoLaudoID = pp.Procedimento_Laudo
+	inner join Protocolo prot on pp.Protocolo = prot.ECO_ID
+	inner join Paciente pac on prot.Paciente = pac.ECO_ID
+	inner join Protocolo_Procedimento_Variavel ppv on pp.ECO_ID = ppv.Protocolo_Procedimento
+	inner join Procedimento_Variavel pv on ppv.Procedimento_Variavel = pv.ECO_ID
+	where pp.Data_Liberacao between @pDTIni and @pDTFim
+	and pp.Status in ('Liberado', 'Entregue', 'Impresso')
+	and pv.Nome in ('RS', 'RS1', 'RS2', 'VL')
+)
+, ResultadosTMP1 as (
+	select x.flag010
+	, x.ProcedimentoMnemonico
+	, x.ProcedimentoDescricao
+	, x.ProcedimentoLaudoDescricao
+	, x.Data_Liberacao
+	, x.Numero_Protocolo
+	, x.PacienteNome
+	, x.Valor_Informado
+	, 
+	case 
+		when x.Valor_Informado like 'N%R%' then 'NÃO REAGENTE'
+		when x.Valor_Informado like 'R%' then 'REAGENTE'
+		else 'INDETERMINADO'
+	end Valor_Informado_Processado
+	, x.VariavelEtiqueta
+	from ResultadosTMP x
+	where ltrim(rtrim(x.Valor_Informado)) &lt;&gt; ''
+)
+, Total as (
+	select sum(x.flag010) Total from ResultadosTMP x
+)
+, Percentual010 as (
+	select x.Valor_Informado_Processado, sum(x.flag010) Total
+	from ResultadosTMP1 x
+	group by x.Valor_Informado_Processado
+)
+, Percentual020 as (
+	select 
+	x.Valor_Informado_Processado
+	, ((x.Total * 100) / (select top 1 ttl.Total from Total ttl)) Percentual
+	from Percentual010 x
+)
+	select x.flag010
+	, x.ProcedimentoMnemonico
+	, x.ProcedimentoDescricao
+	, x.ProcedimentoLaudoDescricao
+	, x.Data_Liberacao
+	, x.Numero_Protocolo
+	, x.PacienteNome
+	, x.Valor_Informado
+	, x.Valor_Informado_Processado
+	, perc020.Percentual
+	, x.VariavelEtiqueta
+	from ResultadosTMP1 x
+	left join Percentual020 perc020 on x.Valor_Informado_Processado = perc020.Valor_Informado_Processado
+</SqlCommand>
+      </dsGeral010>
+      <dsSummary Ref="4" type="Stimulsoft.Report.Dictionary.StiVirtualSource" isKey="true">
+        <Alias>dsSummary</Alias>
+        <Columns isList="true" count="3">
+          <value>Valor_Informado_Processado,System.Object</value>
+          <value>flag010.Sum,System.Decimal</value>
+          <value>Percentual.Sum,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Filters isList="true" count="0" />
+        <GroupColumns isList="true" count="1">
+          <value>Valor_Informado_Processado</value>
+        </GroupColumns>
+        <Name>dsSummary</Name>
+        <NameInSource>dsGeral010</NameInSource>
+        <Results isList="true" count="6">
+          <value>flag010</value>
+          <value>Sum</value>
+          <value>flag010.Sum</value>
+          <value>Percentual</value>
+          <value>Sum</value>
+          <value>Percentual.Sum</value>
+        </Results>
+        <Sort isList="true" count="0" />
+      </dsSummary>
+    </DataSources>
+    <Relations isList="true" count="0" />
+    <Report isRef="0" />
+    <Variables isList="true" count="4">
+      <value>,varDTIniPorcess,varDTIniPorcess,System.DateTime,_x0031_0_x002F_1_x002F_2019,False,False</value>
+      <value>,varDTIni,varDTIni,System.DateTime,_x0031_0_x002F_1_x002F_2019,False,False</value>
+      <value>,varDTFim,varDTFim,System.DateTime,_x0031_0_x002F_1_x002F_2019,False,False</value>
+      <value>,varFone,varFone,System.String,,False,False</value>
+    </Variables>
+  </Dictionary>
+  <GlobalizationStrings isList="true" count="0" />
+  <Pages isList="true" count="3">
+    <frmMain Ref="5" type="Stimulsoft.Report.ReportControls.StiForm" isKey="true">
+      <BackColor>Control</BackColor>
+      <Components isList="true" count="4">
+        <GroupBox1 Ref="6" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
+          <BackColor>Control</BackColor>
+          <ClientRectangle>8,8,264,88</ClientRectangle>
+          <Components isList="true" count="4">
+            <Label1 Ref="7" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <ClientRectangle>16,24,88,16</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>16, 24</Location>
+              <Name>Label1</Name>
+              <Page isRef="5" />
+              <Parent isRef="6" />
+              <Size>88, 16</Size>
+              <Text>inicial</Text>
+            </Label1>
+            <dtpDTIni Ref="8" type="Stimulsoft.Report.ReportControls.StiDateTimePickerControl" isKey="true">
+              <BackColor>Window</BackColor>
+              <ClientRectangle>16,48,96,20</ClientRectangle>
+              <Components isList="true" count="0" />
+              <CustomFormat>dd/MM/yyyy</CustomFormat>
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Format>Custom</Format>
+              <Location>16, 48</Location>
+              <MaxDate>12/31/9998 12:00:00 AM</MaxDate>
+              <MinDate>1/1/1753 12:00:00 AM</MinDate>
+              <Name>dtpDTIni</Name>
+              <Page isRef="5" />
+              <Parent isRef="6" />
+              <Size>96, 20</Size>
+              <Value>10/1/2019 4:49:41 PM</Value>
+            </dtpDTIni>
+            <Label2 Ref="9" type="Stimulsoft.Report.ReportControls.StiLabelControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <ClientRectangle>152,24,88,16</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>152, 24</Location>
+              <Name>Label2</Name>
+              <Page isRef="5" />
+              <Parent isRef="6" />
+              <Size>88, 16</Size>
+              <Text>final</Text>
+            </Label2>
+            <dtpDTFim Ref="10" type="Stimulsoft.Report.ReportControls.StiDateTimePickerControl" isKey="true">
+              <BackColor>Window</BackColor>
+              <ClientRectangle>152,48,96,20</ClientRectangle>
+              <Components isList="true" count="0" />
+              <CustomFormat>dd/MM/yyyy</CustomFormat>
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Format>Custom</Format>
+              <Location>152, 48</Location>
+              <MaxDate>12/31/9998 12:00:00 AM</MaxDate>
+              <MinDate>1/1/1753 12:00:00 AM</MinDate>
+              <Name>dtpDTFim</Name>
+              <Page isRef="5" />
+              <Parent isRef="6" />
+              <Size>96, 20</Size>
+              <Value>10/1/2019 4:49:45 PM</Value>
+            </dtpDTFim>
+          </Components>
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>8, 8</Location>
+          <Name>GroupBox1</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+          <Size>264, 88</Size>
+          <Text>Período:</Text>
+        </GroupBox1>
+        <GroupBox2 Ref="11" type="Stimulsoft.Report.ReportControls.StiGroupBoxControl" isKey="true">
+          <BackColor>Control</BackColor>
+          <ClientRectangle>8,104,264,120</ClientRectangle>
+          <Components isList="true" count="3">
+            <rbOpResumido Ref="12" type="Stimulsoft.Report.ReportControls.StiRadioButtonControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <ClientRectangle>24,24,96,24</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>24, 24</Location>
+              <Name>rbOpResumido</Name>
+              <Page isRef="5" />
+              <Parent isRef="11" />
+              <Size>96, 24</Size>
+              <Text>&amp;Resumido</Text>
+            </rbOpResumido>
+            <rbOpDetalhado Ref="13" type="Stimulsoft.Report.ReportControls.StiRadioButtonControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <ClientRectangle>24,56,96,24</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>24, 56</Location>
+              <Name>rbOpDetalhado</Name>
+              <Page isRef="5" />
+              <Parent isRef="11" />
+              <Size>96, 24</Size>
+              <Text>&amp;Detalhado</Text>
+            </rbOpDetalhado>
+            <rbOpBoth Ref="14" type="Stimulsoft.Report.ReportControls.StiRadioButtonControl" isKey="true">
+              <BackColor>Control</BackColor>
+              <Checked>True</Checked>
+              <ClientRectangle>24,88,96,24</ClientRectangle>
+              <Components isList="true" count="0" />
+              <Font>Microsoft Sans Serif,8</Font>
+              <ForeColor>Black</ForeColor>
+              <Location>24, 88</Location>
+              <Name>rbOpBoth</Name>
+              <Page isRef="5" />
+              <Parent isRef="11" />
+              <Size>96, 24</Size>
+              <Text>&amp;Ambos</Text>
+            </rbOpBoth>
+          </Components>
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>8, 104</Location>
+          <Name>GroupBox2</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+          <Size>264, 120</Size>
+          <Text>Opções</Text>
+        </GroupBox2>
+        <btnCancel Ref="15" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
+          <Cancel>True</Cancel>
+          <ClientRectangle>16,232,96,24</ClientRectangle>
+          <Components isList="true" count="0" />
+          <DialogResult>Cancel</DialogResult>
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>16, 232</Location>
+          <Name>btnCancel</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+          <Size>96, 24</Size>
+          <Text>&amp;Cancelar</Text>
+        </btnCancel>
+        <btnOk Ref="16" type="Stimulsoft.Report.ReportControls.StiButtonControl" isKey="true">
+          <ClickEvent>varDTIniPorcess = Time;
+
+if (!rbOpBoth.Checked)
+{
+	pgDetalhado.Enabled = rbOpDetalhado.Checked;
+	pgResumido.Enabled = rbOpResumido.Checked;
+}
+
+varDTIni = new DateTime(dtpDTIni.Value.Year, dtpDTIni.Value.Month, dtpDTIni.Value.Day);
+varDTFim = new DateTime(dtpDTFim.Value.Year, dtpDTFim.Value.Month, dtpDTFim.Value.Day, 23, 59, 59);
+
+dsGeral010.Connect();</ClickEvent>
+          <ClientRectangle>168,232,96,24</ClientRectangle>
+          <Components isList="true" count="0" />
+          <Default>True</Default>
+          <DialogResult>OK</DialogResult>
+          <Font>Microsoft Sans Serif,8</Font>
+          <ForeColor>Black</ForeColor>
+          <Location>168, 232</Location>
+          <Name>btnOk</Name>
+          <Page isRef="5" />
+          <Parent isRef="5" />
+          <Size>96, 24</Size>
+          <Text>&amp;Ok</Text>
+        </btnOk>
+      </Components>
+      <Font>Microsoft Sans Serif,8</Font>
+      <Guid>c64a95fa76a943bbb85ed7e7e43ebc4e</Guid>
+      <LoadFormEvent>dtpDTIni.Value = DateTime.Now.AddYears(-1);</LoadFormEvent>
+      <Location>0, 0</Location>
+      <Name>frmMain</Name>
+      <Page isRef="5" />
+      <Report isRef="0" />
+      <Size>288, 288</Size>
+      <Text>Parameters</Text>
+    </frmMain>
+    <pgDetalhado Ref="17" type="Page" isKey="true">
+      <Alias>Detalhado</Alias>
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="5">
+        <PageHeader2 Ref="18" type="PageHeaderBand" isKey="true">
+          <Border>Bottom;Black;1;Double;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,19,1.2</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text6 Ref="19" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,0,18.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,12</Font>
+              <HorAlignment>Center</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="17" />
+              <Parent isRef="18" />
+              <Text>{ReportName} ({pgDetalhado.Alias})</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="20" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text6>
+            <Text7 Ref="21" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>17.4,0,1.6,0.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,6</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="17" />
+              <Parent isRef="18" />
+              <Text>{PageNumber}/{TotalPageCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="22" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text7>
+            <Text8 Ref="23" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,0.8,18.2,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="17" />
+              <Parent isRef="18" />
+              <Text>{string.Format("Período: {0:dd/MM/yyyy} até {1:dd/MM/yyyy}", varDTIni, varDTFim)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="24" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text8>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>PageHeader2</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+        </PageHeader2>
+        <PageFooter2 Ref="25" type="PageFooterBand" isKey="true">
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,26.9,19,0.8</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text9 Ref="26" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.6,0.3,8.4,0.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,5</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="17" />
+              <Parent isRef="25" />
+              <Text>{Time - varDTIniPorcess}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="27" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+            </Text9>
+            <Text10 Ref="28" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.2,0.1,18.6,0.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,6</Font>
+              <HorAlignment>Center</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="17" />
+              <Parent isRef="25" />
+              <Text>{Format("{0:yyyy}", Today)} © Copyright iLabor.NET - Gestão Laboratorial   {varFone}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="29" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text10>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>PageFooter2</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+        </PageFooter2>
+        <GroupHeader1 Ref="30" type="GroupHeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,2.4,19,0.8</ClientRectangle>
+          <Components isList="true" count="2">
+            <DatadsGeral010_Valor_Informado_Processado Ref="31" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,0.2,9,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,12,Bold| Underline</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>DatadsGeral010_Valor_Informado_Processado</Name>
+              <Page isRef="17" />
+              <Parent isRef="30" />
+              <Text>{dsGeral010.Valor_Informado_Processado}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="32" type="GeneralFormat" isKey="true" />
+              <VertAlignment>Center</VertAlignment>
+            </DatadsGeral010_Valor_Informado_Processado>
+            <Text11 Ref="33" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>13.8,0.2,5.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,12,Bold| Underline</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="17" />
+              <Parent isRef="30" />
+              <Text>{Count(DatadsGeral010,dsGeral010.flag010)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="34" type="GeneralFormat" isKey="true" />
+              <Type>Totals</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text11>
+          </Components>
+          <Condition>{dsGeral010.Valor_Informado_Processado}</Condition>
+          <Conditions isList="true" count="0" />
+          <Name>GroupHeader1</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+          <PrintOnAllPages>True</PrintOnAllPages>
+        </GroupHeader1>
+        <GroupHeader2 Ref="35" type="GroupHeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,4,19,0.6</ClientRectangle>
+          <Components isList="true" count="3">
+            <DatadsGeral010_ProcedimentoMnemonico Ref="36" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.8,0.2,3.2,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8,Italic</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>DatadsGeral010_ProcedimentoMnemonico</Name>
+              <Page isRef="17" />
+              <Parent isRef="35" />
+              <Text>{dsGeral010.ProcedimentoMnemonico}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="37" type="GeneralFormat" isKey="true" />
+              <VertAlignment>Center</VertAlignment>
+            </DatadsGeral010_ProcedimentoMnemonico>
+            <DatadsGeral010_ProcedimentoDescricao Ref="38" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>4.2,0.2,11.6,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8,Italic</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>DatadsGeral010_ProcedimentoDescricao</Name>
+              <Page isRef="17" />
+              <Parent isRef="35" />
+              <Text>{dsGeral010.ProcedimentoDescricao}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="39" type="GeneralFormat" isKey="true" />
+              <VertAlignment>Center</VertAlignment>
+            </DatadsGeral010_ProcedimentoDescricao>
+            <Text12 Ref="40" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>17,0.2,2,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8,Italic</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="17" />
+              <Parent isRef="35" />
+              <Text>{Count(DatadsGeral010,dsGeral010.flag010)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="41" type="GeneralFormat" isKey="true" />
+              <Type>Totals</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text12>
+          </Components>
+          <Condition>{dsGeral010.ProcedimentoDescricao}</Condition>
+          <Conditions isList="true" count="0" />
+          <Name>GroupHeader2</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+          <PrintOnAllPages>True</PrintOnAllPages>
+        </GroupHeader2>
+        <DatadsGeral010 Ref="42" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,5.4,19,0.4</ClientRectangle>
+          <Components isList="true" count="3">
+            <DatadsGeral010_Data_Liberacao Ref="43" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>6,0,3.2,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>DatadsGeral010_Data_Liberacao</Name>
+              <Page isRef="17" />
+              <Parent isRef="42" />
+              <Text>{dsGeral010.Data_Liberacao}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="44" type="GeneralFormat" isKey="true" />
+              <VertAlignment>Center</VertAlignment>
+            </DatadsGeral010_Data_Liberacao>
+            <DatadsGeral010_Numero_Protocolo Ref="45" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>2,0,3.2,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>DatadsGeral010_Numero_Protocolo</Name>
+              <Page isRef="17" />
+              <Parent isRef="42" />
+              <Text>{dsGeral010.Numero_Protocolo}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="46" type="GeneralFormat" isKey="true" />
+              <VertAlignment>Center</VertAlignment>
+            </DatadsGeral010_Numero_Protocolo>
+            <DatadsGeral010_PacienteNome Ref="47" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.8,0,6.2,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,8</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>DatadsGeral010_PacienteNome</Name>
+              <Page isRef="17" />
+              <Parent isRef="42" />
+              <Text>{dsGeral010.PacienteNome}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="48" type="GeneralFormat" isKey="true" />
+              <VertAlignment>Center</VertAlignment>
+            </DatadsGeral010_PacienteNome>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName />
+          <DataSourceName>dsGeral010</DataSourceName>
+          <Filters isList="true" count="0" />
+          <Name>DatadsGeral010</Name>
+          <Page isRef="17" />
+          <Parent isRef="17" />
+          <Sort isList="true" count="0" />
+        </DatadsGeral010>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>302e7016f2524edab493561e27c29ee6</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>pgDetalhado</Name>
+      <Page isRef="17" />
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="49" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </pgDetalhado>
+    <pgResumido Ref="50" type="Page" isKey="true">
+      <Alias>Resumido</Alias>
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="3">
+        <PageHeader1 Ref="51" type="PageHeaderBand" isKey="true">
+          <Border>Bottom;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,19,1.2</ClientRectangle>
+          <Components isList="true" count="3">
+            <Text2 Ref="52" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,0,18.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,12</Font>
+              <HorAlignment>Center</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="50" />
+              <Parent isRef="51" />
+              <Text>{ReportName} ({pgResumido.Alias})</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="53" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+            <Text3 Ref="54" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>17.4,0,1.6,0.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,6</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="50" />
+              <Parent isRef="51" />
+              <Text>{PageNumber}/{TotalPageCount}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="55" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text3>
+            <Text4 Ref="56" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.4,0.8,18.2,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,6</Font>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text4</Name>
+              <Page isRef="50" />
+              <Parent isRef="51" />
+              <Text>{string.Format("Período: {0:dd/MM/yyyy} até {1:dd/MM/yyyy}", varDTIni, varDTFim)}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="57" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text4>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>PageHeader1</Name>
+          <Page isRef="50" />
+          <Parent isRef="50" />
+        </PageHeader1>
+        <PageFooter1 Ref="58" type="PageFooterBand" isKey="true">
+          <Border>Top;Black;1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,26.9,19,0.8</ClientRectangle>
+          <Components isList="true" count="2">
+            <Text1 Ref="59" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>10.6,0.3,8.4,0.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,5</Font>
+              <HorAlignment>Right</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="50" />
+              <Parent isRef="58" />
+              <Text>{Time - varDTIniPorcess}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="60" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+            </Text1>
+            <Text5 Ref="61" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.2,0.1,18.6,0.2</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Courier New,6</Font>
+              <HorAlignment>Center</HorAlignment>
+              <LinesOfUnderline>None</LinesOfUnderline>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="50" />
+              <Parent isRef="58" />
+              <Text>{Format("{0:yyyy}", Today)} © Copyright iLabor.NET - Gestão Laboratorial   {varFone}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="62" type="GeneralFormat" isKey="true" />
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text5>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>PageFooter1</Name>
+          <Page isRef="50" />
+          <Parent isRef="50" />
+        </PageFooter1>
+        <Cross_Tab1 Ref="63" type="Stimulsoft.Report.CrossTab.StiCrossTab" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0.4,1.8,18.2,7.2</ClientRectangle>
+          <Components isList="true" count="8">
+            <Cross_Tab1_RowTotal1 Ref="64" type="Stimulsoft.Report.CrossTab.StiCrossRowTotal" isKey="true">
+              <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+              <Brush>[255:255:255]</Brush>
+              <ClientRectangle>0,1.7,11.2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold| Italic| Underline,Point,False,0</Font>
+              <Guid>e47a3c5c-eb84-4884-877d-8b12ac5458c4</Guid>
+              <Margins>0,0,0,0</Margins>
+              <MaxSize>0,0</MaxSize>
+              <MinSize>0,0</MinSize>
+              <Name>Cross_Tab1_RowTotal1</Name>
+              <Page isRef="50" />
+              <Parent isRef="63" />
+              <Text>Total</Text>
+              <TextBrush>Black</TextBrush>
+            </Cross_Tab1_RowTotal1>
+            <Cross_Tab1_Row1_Title Ref="65" type="Stimulsoft.Report.CrossTab.StiCrossTitle" isKey="true">
+              <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+              <Brush>White</Brush>
+              <ClientRectangle>0,0.05,6.2,0.6</ClientRectangle>
+              <Font>Arial,12,Bold| Underline</Font>
+              <Guid>ffbb645d-2fd7-4f54-9a88-4905853fca8c</Guid>
+              <Margins>0,0,0,0</Margins>
+              <MaxSize>0,0</MaxSize>
+              <MinSize>0,0</MinSize>
+              <Name>Cross_Tab1_Row1_Title</Name>
+              <Page isRef="50" />
+              <Parent isRef="63" />
+              <Text>Valor_Informado_Processado</Text>
+              <TextBrush>[105:105:105]</TextBrush>
+              <TypeOfComponent>Row:Cross_Tab1_Row1</TypeOfComponent>
+            </Cross_Tab1_Row1_Title>
+            <Cross_Tab1_SummaryTitle Ref="66" type="Stimulsoft.Report.CrossTab.StiCrossTitle" isKey="true">
+              <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+              <Brush>White</Brush>
+              <ClientRectangle>11.25,0.05,1.6,0.6</ClientRectangle>
+              <Font>Arial,12,Bold| Underline</Font>
+              <Guid>6b85b2ab-c4a0-44a3-8f74-6d68a1926b5f</Guid>
+              <Margins>0,0,0,0</Margins>
+              <MaxSize>0,0</MaxSize>
+              <MinSize>0,0</MinSize>
+              <Name>Cross_Tab1_SummaryTitle</Name>
+              <Page isRef="50" />
+              <Parent isRef="63" />
+              <Text>Quantidade</Text>
+              <TextBrush>[105:105:105]</TextBrush>
+              <TypeOfComponent>SummaryTitle</TypeOfComponent>
+            </Cross_Tab1_SummaryTitle>
+            <Cross_Tab1_RowTotal2 Ref="67" type="Stimulsoft.Report.CrossTab.StiCrossRowTotal" isKey="true">
+              <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+              <Brush>[255:255:255]</Brush>
+              <ClientRectangle>6.2,1.1,5,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,9.75,Bold| Italic,Point,False,0</Font>
+              <Guid>670e62d3-f2ea-4f6e-9fd0-3f979d9785ec</Guid>
+              <Margins>0,0,0,0</Margins>
+              <MaxSize>0,0</MaxSize>
+              <MinSize>0,0</MinSize>
+              <Name>Cross_Tab1_RowTotal2</Name>
+              <Page isRef="50" />
+              <Parent isRef="63" />
+              <Text>Total</Text>
+              <TextBrush>Black</TextBrush>
+            </Cross_Tab1_RowTotal2>
+            <Cross_Tab1_Row1 Ref="68" type="Stimulsoft.Report.CrossTab.StiCrossRow" isKey="true">
+              <Alias>Valor_Informado_Processado</Alias>
+              <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+              <Brush>White</Brush>
+              <ClientRectangle>0,0.7,6.2,1</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <DisplayValue>{dsGeral010.Valor_Informado_Processado}</DisplayValue>
+              <Font>Arial,8</Font>
+              <Guid>3280b550-a799-4e5f-b51b-0983361b1ac8</Guid>
+              <Margins>0,0,0,0</Margins>
+              <MaxSize>0,0</MaxSize>
+              <MinSize>0,0</MinSize>
+              <Name>Cross_Tab1_Row1</Name>
+              <Page isRef="50" />
+              <Parent isRef="63" />
+              <Text>Valor_Informado_Processado</Text>
+              <TextBrush>[105:105:105]</TextBrush>
+              <TextFormat Ref="69" type="GeneralFormat" isKey="true" />
+              <TotalGuid>e47a3c5c-eb84-4884-877d-8b12ac5458c4</TotalGuid>
+              <Value>{dsGeral010.Valor_Informado_Processado}</Value>
+            </Cross_Tab1_Row1>
+            <Cross_Tab1_Row2 Ref="70" type="Stimulsoft.Report.CrossTab.StiCrossRow" isKey="true">
+              <Alias>ProcedimentoDescricao</Alias>
+              <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+              <Brush>White</Brush>
+              <ClientRectangle>6.2,0.7,5,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <DisplayValue>{dsGeral010.ProcedimentoDescricao}</DisplayValue>
+              <Font>Arial,8</Font>
+              <Guid>69366081-dfff-4362-aca1-da727d143e48</Guid>
+              <Margins>0,0,0,0</Margins>
+              <MaxSize>0,0</MaxSize>
+              <MinSize>0,0</MinSize>
+              <Name>Cross_Tab1_Row2</Name>
+              <Page isRef="50" />
+              <Parent isRef="63" />
+              <Text>ProcedimentoDescricao</Text>
+              <TextBrush>[105:105:105]</TextBrush>
+              <TextFormat Ref="71" type="GeneralFormat" isKey="true" />
+              <TotalGuid>670e62d3-f2ea-4f6e-9fd0-3f979d9785ec</TotalGuid>
+              <Value>{dsGeral010.ProcedimentoDescricao}</Value>
+            </Cross_Tab1_Row2>
+            <Cross_Tab1_Sum1 Ref="72" type="Stimulsoft.Report.CrossTab.StiCrossSummary" isKey="true">
+              <Alias>flag010</Alias>
+              <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+              <Brush>[255:255:255]</Brush>
+              <ClientRectangle>11.25,0.7,1.6,0.4</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>57b27e38-50b2-4f04-bf1d-4a3347c8c492</Guid>
+              <Margins>0,0,0,0</Margins>
+              <MaxSize>0,0</MaxSize>
+              <MinSize>0,0</MinSize>
+              <Name>Cross_Tab1_Sum1</Name>
+              <Page isRef="50" />
+              <Parent isRef="63" />
+              <Text>0</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="73" type="GeneralFormat" isKey="true" />
+              <Value>{dsGeral010.flag010}</Value>
+            </Cross_Tab1_Sum1>
+            <Cross_Tab1_Row2_Title Ref="74" type="Stimulsoft.Report.CrossTab.StiCrossTitle" isKey="true">
+              <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+              <Brush>White</Brush>
+              <ClientRectangle>6.2,0.05,5,0.6</ClientRectangle>
+              <Font>Arial,12,Bold| Underline</Font>
+              <Guid>f19d6084-4a85-48d0-b6af-a8ec793c421a</Guid>
+              <Margins>0,0,0,0</Margins>
+              <MaxSize>0,0</MaxSize>
+              <MinSize>0,0</MinSize>
+              <Name>Cross_Tab1_Row2_Title</Name>
+              <Page isRef="50" />
+              <Parent isRef="63" />
+              <Text>Procedimento Descrição</Text>
+              <TextBrush>[105:105:105]</TextBrush>
+              <TypeOfComponent>Row:Cross_Tab1_Row2</TypeOfComponent>
+            </Cross_Tab1_Row2_Title>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName />
+          <DataSourceName>dsGeral010</DataSourceName>
+          <EmptyValue />
+          <Filters isList="true" count="0" />
+          <Name>Cross_Tab1</Name>
+          <Page isRef="50" />
+          <Parent isRef="50" />
+        </Cross_Tab1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>8086e195f545452ba01c38f1233a16be</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>pgResumido</Name>
+      <Page isRef="50" />
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <Report isRef="0" />
+      <Watermark Ref="75" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </pgResumido>
+  </Pages>
+  <PrinterSettings Ref="76" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Relação de Procedimentos - Trypanosoma Cruzi</ReportAlias>
+  <ReportChanged>10/8/2019 9:49:36 AM</ReportChanged>
+  <ReportCreated>10/1/2019 4:36:53 PM</ReportCreated>
+  <ReportGuid>fad930420aa44cf993d572c23164612e</ReportGuid>
+  <ReportName>Relação de Procedimentos - Trypanosoma Cruzi</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2007.3.100</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        
+        public Report()
+        {
+            this.InitializeComponent();
+        }
+        #region StiReport Designer generated code - do not modify#endregion StiReport Designer generated code - do not modify
+    }
+}</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="0" />
+</StiSerializer>
