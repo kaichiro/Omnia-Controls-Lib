@@ -1,0 +1,10 @@
+('CabecalhoMovimentoEstoque.allInstances->select( cme | cme.Unidade.Descricao = \'BSB Externo 01\' )')
+.EnsureObjects(CabecalhoMovimentoEstoque)
+->orderBy( cme | cme.DataEmissao )
+->collect( cme |
+  cme.Numeros->collect( cmen | cmen.CabMovEstoqueNumeroPadrao := nil )
+  ; cme.Numeros.delete
+  ; cme.GeraNumeradoresAutomaticos(cme.TipoMovimentoEstoque)
+  ; cme.GeraNumeradoresManuais(cme.TipoMovimentoEstoque)
+  ; cme.SetNumeradorPadrao
+)
