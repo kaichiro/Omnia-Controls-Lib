@@ -1,0 +1,327 @@
+<?xml version="1.0"?>
+<Classe Tipo="Rotina">
+  <Atributos>
+    <Ativo>True</Ativo>
+    <Comentarios>
+    </Comentarios>
+    <Descricao>Localiza Itens no Menu</Descricao>
+    <MostrarProgresso>False</MostrarProgresso>
+    <ProgressoExecucao>
+    </ProgressoExecucao>
+  </Atributos>
+  <Relacionamentos>
+    <Parametros>
+      <Record Id="PMENUS" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Menu.allLoadedObjects-&gt;select( mn |
+  (PROTINA-&gt;notEmpty and (mn.AcaoMenu = enumAcaoMenu::ExecutarRotina) and (PROTINA.ExternalId = mn.Executar))
+  or
+  (PRELATORIO-&gt;notEmpty and (mn.AcaoMenu = enumAcaoMenu::ExecutarRelatorio) and (PRELATORIO.ExternalId = mn.Executar))
+  or
+  (PTME-&gt;notEmpty and (mn.AcaoMenu = enumAcaoMenu::ExecutarTipoMovimentoEstoque) and (PTME.ExternalId = mn.Executar))
+  or
+  (PNOVOREGISTRO-&gt;notEmpty and (mn.AcaoMenu = enumAcaoMenu::CriarEChamarNovoRegistro) and (PNOVOREGISTRO.Executar = mn.Executar))
+  or
+  (PFORMULARIO-&gt;notEmpty and (mn.AcaoMenu = enumAcaoMenu::ExecutarFormularioDesvinculado) and (PFORMULARIO.Executar = mn.Executar))
+  or
+  (PTMF-&gt;notEmpty and (mn.AcaoMenu = enumAcaoMenu::ExecutarTipoMovimentoFinanceiro) and (PTMF.ExternalId = mn.Executar))
+)
+-&gt;orderBy( mn | mn.AcaoMenu, mn.Perfil.Descricao )</Comando>
+          <Etiqueta>Menus</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PMENUS</NomeInterno>
+          <Ordem>100</Ordem>
+          <PreComando>Menu.allInstances-&gt;select( mn |
+  (PROTINA-&gt;notEmpty and (mn.AcaoMenu = 'ExecutarRotina'))
+  or
+  (PRELATORIO-&gt;notEmpty and (mn.AcaoMenu = 'ExecutarRelatorio'))
+  or
+  (PTME-&gt;notEmpty and (mn.AcaoMenu = 'ExecutarTipoMovimentoEstoque'))
+  or
+  (PNOVOREGISTRO-&gt;notEmpty and (mn.AcaoMenu = 'CriarEChamarNovoRegistro'))
+  or
+  (PFORMULARIO-&gt;notEmpty and (mn.AcaoMenu = 'ExecutarFormularioDesvinculado'))
+  or
+  (PTMF-&gt;notEmpty and (mn.AcaoMenu = 'ExecutarTipoMovimentoFinanceiro'))
+)
+</PreComando>
+          <TipoEditor>MultiplaEscolha</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let mn = self-&gt;first in (&#xD;&#xA;  if mn.AcaoMenu = enumAcaoMenu::ExecutarRelatorio then 'Relatório'&#xD;&#xA;  else if mn.AcaoMenu = enumAcaoMenu::CriarEChamarNovoRegistro then 'Novo Registro'&#xD;&#xA;  else if mn.AcaoMenu = enumAcaoMenu::ExecutarTipoMovimentoEstoque then 'TME'&#xD;&#xA;  else if mn.AcaoMenu = enumAcaoMenu::ExecutarFormularioDesvinculado then 'Formulário'&#xD;&#xA;  else if mn.AcaoMenu = enumAcaoMenu::ExecutarTipoMovimentoFinanceiro then 'TMF'&#xD;&#xA;  else if mn.AcaoMenu = enumAcaoMenu::ExecutarRotina then 'Rotina'&#xD;&#xA;  else&#xD;&#xA;    ''&#xD;&#xA;  endif&#xD;&#xA;  endif&#xD;&#xA;  endif&#xD;&#xA;  endif&#xD;&#xA;  endif&#xD;&#xA;  endif&#xD;&#xA;  + ' - ' + mn.Perfil.Descricao&#xD;&#xA;  + mn.MenuMain.MenuMain.MenuMain-&gt;collect( mn1 | ' / ' + mn1.Etiqueta )-&gt;first&#xD;&#xA;  + mn.MenuMain.MenuMain-&gt;collect( mn1 | ' / ' + mn1.Etiqueta )-&gt;first&#xD;&#xA;  + mn.MenuMain-&gt;collect( mn1 | ' / ' + mn1.Etiqueta )-&gt;first&#xD;&#xA;  + ' / ' + mn.Etiqueta&#xD;&#xA;  + ' (' + mn.Ordem.asString + ')'&#xD;&#xA;)&#xD;&#xA;.Replace('/  /', '/')" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let mn = self-&gt;first in (
+  if mn.AcaoMenu = enumAcaoMenu::ExecutarRelatorio then 'Relatório'
+  else if mn.AcaoMenu = enumAcaoMenu::CriarEChamarNovoRegistro then 'Novo Registro'
+  else if mn.AcaoMenu = enumAcaoMenu::ExecutarTipoMovimentoEstoque then 'TME'
+  else if mn.AcaoMenu = enumAcaoMenu::ExecutarFormularioDesvinculado then 'Formulário'
+  else if mn.AcaoMenu = enumAcaoMenu::ExecutarTipoMovimentoFinanceiro then 'TMF'
+  else if mn.AcaoMenu = enumAcaoMenu::ExecutarRotina then 'Rotina'
+  else
+    ''
+  endif
+  endif
+  endif
+  endif
+  endif
+  endif
+  + ' - ' + mn.Perfil.Descricao
+  + mn.MenuMain.MenuMain.MenuMain-&gt;collect( mn1 | ' / ' + mn1.Etiqueta )-&gt;first
+  + mn.MenuMain.MenuMain-&gt;collect( mn1 | ' / ' + mn1.Etiqueta )-&gt;first
+  + mn.MenuMain-&gt;collect( mn1 | ' / ' + mn1.Etiqueta )-&gt;first
+  + ' / ' + mn.Etiqueta
+  + ' (' + mn.Ordem.asString + ')'
+)
+.Replace('/  /', '/')</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PABRIRPERFIS" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>
+          </Comando>
+          <Etiqueta>Abrir Perfis?</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PABRIRPERFIS</NomeInterno>
+          <Ordem>110</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>VerdadeFalso</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>true</ValorInicial>
+        </Atributos>
+        <Relacionamentos />
+      </Record>
+      <Record Id="PTMF" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>TipoMovimentoFinanceiro.allLoadedObjects-&gt;select( tmf | tmf.Descricao.sqlLikeCaseInsensitive('%{0}%') )-&gt;orderBy( tmf | tmf.Descricao )</Comando>
+          <Etiqueta>TMF</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PTMF</NomeInterno>
+          <Ordem>60</Ordem>
+          <PreComando>TipoMovimentoFinanceiro.allInstances-&gt;select( tmf | tmf.Descricao.sqlLikeCaseInsensitive('%{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let tmf = self-&gt;first in (&#xD;&#xA;  tmf.Descricao&#xD;&#xA;  + ' - ' + &#xD;&#xA;  tmf.SistemaContas.asString&#xD;&#xA;  + ' - ' + &#xD;&#xA;  tmf.Tela&#xD;&#xA;  + ' - ' + &#xD;&#xA;  tmf.TelaLayout&#xD;&#xA;  + ' - ' + &#xD;&#xA;  tmf.TipoTelaFinanceira.asString&#xD;&#xA;)" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let tmf = self-&gt;first in (
+  tmf.Descricao
+  + ' - ' + 
+  tmf.SistemaContas.asString
+  + ' - ' + 
+  tmf.Tela
+  + ' - ' + 
+  tmf.TelaLayout
+  + ' - ' + 
+  tmf.TipoTelaFinanceira.asString
+)</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PROTINA" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Rotina.allLoadedObjects-&gt;select( rtn | rtn.Descricao.sqlLikeCaseInsensitive('%{0}%') )-&gt;orderBy( rtn | rtn.Descricao )</Comando>
+          <Etiqueta>Rotina</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PROTINA</NomeInterno>
+          <Ordem>10</Ordem>
+          <PreComando>Rotina.allInstances-&gt;select( rtn | rtn.Descricao.sqlLikeCaseInsensitive('%{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Descricao" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Descricao</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PTME" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>TipoMovimentoEstoque.allLoadedObjects-&gt;select( tme | (tme.Abreviacao = '{0}') or tme.Abreviacao.sqlLikeCaseInsensitive('%{0}%') or tme.Descricao.sqlLikeCaseInsensitive('%{0}%') )-&gt;orderBy( tme | tme.Descricao )</Comando>
+          <Etiqueta>TME</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PTME</NomeInterno>
+          <Ordem>30</Ordem>
+          <PreComando>TipoMovimentoEstoque.allInstances-&gt;select( tme | (tme.Abreviacao = '{0}') or tme.Abreviacao.sqlLikeCaseInsensitive('%{0}%') or tme.Descricao.sqlLikeCaseInsensitive('%{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="let tme = self-&gt;first in (&#xD;&#xA;  tme.GrupoTipoMovEstoque.Descricao&#xD;&#xA;  + ' - ' + &#xD;&#xA;  tme.Abreviacao&#xD;&#xA;  + ' - ' + &#xD;&#xA;  tme.Descricao&#xD;&#xA;)&#xD;&#xA;" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>let tme = self-&gt;first in (
+  tme.GrupoTipoMovEstoque.Descricao
+  + ' - ' + 
+  tme.Abreviacao
+  + ' - ' + 
+  tme.Descricao
+)
+</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PFORMULARIO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>if '{0}'.Length &gt; 0 then
+'Menu.allInstances-&gt;select( mn | (mn.AcaoMenu = \'ExecutarFormularioDesvinculado\') and mn.Executar.sqlLikeCaseInsensitive(\'%{0}%\') )'.EnsureObjects(Menu)
+-&gt;select( mn | (mn.Executar.Length &gt; 0) and (mn.Executar.Length &lt;&gt; 75) )
+.Executar-&gt;asSet-&gt;collect( x |
+  ('Menu.allInstances-&gt;select( mn_ | mn_.Executar = \''+x+'\' )').EnsureObjects(Menu)-&gt;first
+)
+
+else
+  Menu.emptyList
+endif
+</Comando>
+          <Etiqueta>Formulário</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PFORMULARIO</NomeInterno>
+          <Ordem>50</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Executar" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Executar</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PRELATORIO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>Relatorio.allLoadedObjects-&gt;select( rtl | rtl.Nome.sqlLikeCaseInsensitive('%{0}%') )-&gt;orderBy( rtl | rtl.Nome )</Comando>
+          <Etiqueta>Relatório</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PRELATORIO</NomeInterno>
+          <Ordem>20</Ordem>
+          <PreComando>Relatorio.allInstances-&gt;select( rtl | rtl.Nome.sqlLikeCaseInsensitive('%{0}%') )</PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Nome" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Nome</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+      <Record Id="PNOVOREGISTRO" Tipo="RotinaParametro">
+        <Atributos>
+          <Comando>if '{0}'.Length &gt; 0 then
+'Menu.allInstances-&gt;select( mn | (mn.AcaoMenu = \'CriarEChamarNovoRegistro\') and mn.Executar.sqlLikeCaseInsensitive(\'%{0}%\') )'.EnsureObjects(Menu)
+-&gt;select( mn | (mn.Executar.Length &gt; 0) and (mn.Executar.Length &lt;&gt; 75) )
+.Executar-&gt;asSet-&gt;collect( x |
+  ('Menu.allInstances-&gt;select( mn_ | mn_.Executar = \''+x+'\' )').EnsureObjects(Menu)-&gt;first
+)
+
+else
+  Menu.emptyList
+endif
+</Comando>
+          <Etiqueta>Novo Registro</Etiqueta>
+          <Formato>
+          </Formato>
+          <LimparAposExecucao>True</LimparAposExecucao>
+          <NomeInterno>PNOVOREGISTRO</NomeInterno>
+          <Ordem>40</Ordem>
+          <PreComando>
+          </PreComando>
+          <TipoEditor>Pesquisa</TipoEditor>
+          <TipoEditorPesquisa>Texto</TipoEditorPesquisa>
+          <UsoInterno>False</UsoInterno>
+          <ValorInicial>
+          </ValorInicial>
+        </Atributos>
+        <Relacionamentos>
+          <Campos>
+            <Record Id="self-&gt;first.Executar" Tipo="RotinaParametroCampo">
+              <Atributos>
+                <Comando>self-&gt;first.Executar</Comando>
+                <Ordem>10</Ordem>
+              </Atributos>
+            </Record>
+          </Campos>
+        </Relacionamentos>
+      </Record>
+    </Parametros>
+    <Comandos>
+      <Record Id="" Tipo="RotinaComando">
+        <Atributos>
+          <Ativo>True</Ativo>
+          <Comando>if PABRIRPERFIS then
+  PMENUS.Perfil-&gt;asSet.ShowAutoForm
+else
+  Perfil.emptyList
+endif
+</Comando>
+          <Descricao>
+          </Descricao>
+          <Ordem>10</Ordem>
+        </Atributos>
+      </Record>
+    </Comandos>
+  </Relacionamentos>
+</Classe>
